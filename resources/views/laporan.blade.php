@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>Laporan — Arsiparis</title>
+  <title>Laporan — YARSI NTB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -51,52 +51,55 @@
     @media (max-width: 767.98px) { .sidebar { width: var(--sidebar-w) !important; min-width: var(--sidebar-w) !important; } }
     @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
     @media (max-width: 767.98px) { .sidebar { transform: translateX(-100%); } }
-    .nav-item.active { background: #f0f9ff; color: #0369a1; }
+    .nav-item.active { background: #d1fae5; color: #047857; }
     .nav-item:hover { background: #f0f9ff; }
-    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #0c4a6e; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
+    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
     .tooltip.show-tooltip .tooltip-text { opacity: 1; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-sky-50">
+<body class="bg-emerald-50">
   <div id="app" class="flex flex-col">
-    <header class="site-header bg-white border-b border-sky-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
+    <header class="site-header bg-white border-b border-emerald-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
       <div class="flex items-center gap-4">
-        <button id="btnOpenMobile" class="md:hidden text-sky-700">
+        <button id="btnOpenMobile" class="md:hidden text-emerald-700">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <div class="flex items-center gap-2">
-          <svg class="w-8 h-8 text-sky-600" fill="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7a2 2 0 012-2h14a2 2 0 012 2m0 0V5a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 0h16"/></svg>
-          <span class="text-xl font-bold text-sky-700">Arsiparis</span>
+        <div class="flex items-center gap-3">
+          <img src="/images/logo-yarsi.svg" alt="YARSI Logo" class="w-10 h-10">
+          <div class="flex flex-col">
+            <span class="text-lg font-bold text-emerald-700">YARSI NTB</span>
+            <span class="text-xs text-emerald-600">Sistem Arsip Digital</span>
+          </div>
         </div>
       </div>
-      <div class="text-sm text-sky-600">Laporan</div>
+      <div class="text-sm text-emerald-600">Laporan</div>
     </header>
 
-    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-sky-100">
+    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-emerald-100">
       <div class="p-4">
-        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-sky-50 text-sky-700">
+        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-emerald-50 text-emerald-700">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
         <nav class="mt-5">
           <ul class="space-y-1">
-            <li><a href="{{ route('dashboard') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg><span class="nav-label text-sm font-medium">Dashboard</span><span class="tooltip-text">Dashboard</span></a></li>
-            <li><a href="{{ route('surat-masuk') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg><span class="nav-label text-sm">Surat Masuk</span><span class="tooltip-text">Surat Masuk</span></a></li>
-            <li><a href="{{ route('surat-keluar') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg><span class="nav-label text-sm">Surat Keluar</span><span class="tooltip-text">Surat Keluar</span></a></li>
-            <li><a href="{{ route('arsip-digital') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg><span class="nav-label text-sm">Arsip Digital</span><span class="tooltip-text">Arsip Digital</span></a></li>
-            <li><a href="#" class="flex items-center gap-3 p-2 rounded-md nav-item active tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg><span class="nav-label text-sm">Laporan</span><span class="tooltip-text">Laporan</span></a></li>
-            <li><a href="{{ route('data-master') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg><span class="nav-label text-sm">Data Master</span><span class="tooltip-text">Data Master</span></a></li>
+            <li><a href="{{ route('dashboard') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg><span class="nav-label text-sm font-medium">Dashboard</span><span class="tooltip-text">Dashboard</span></a></li>
+            <li><a href="{{ route('surat-masuk') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg><span class="nav-label text-sm">Surat Masuk</span><span class="tooltip-text">Surat Masuk</span></a></li>
+            <li><a href="{{ route('surat-keluar') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg><span class="nav-label text-sm">Surat Keluar</span><span class="tooltip-text">Surat Keluar</span></a></li>
+            <li><a href="{{ route('arsip-digital') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg><span class="nav-label text-sm">Arsip Digital</span><span class="tooltip-text">Arsip Digital</span></a></li>
+            <li><a href="#" class="flex items-center gap-3 p-2 rounded-md nav-item active tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg><span class="nav-label text-sm">Laporan</span><span class="tooltip-text">Laporan</span></a></li>
+            <li><a href="{{ route('data-master') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg><span class="nav-label text-sm">Data Master</span><span class="tooltip-text">Data Master</span></a></li>
           </ul>
         </nav>
 
         <div class="sidebar-footer">
           <div class="mt-6 border-t pt-4">
-            <div class="text-xs text-sky-600 mb-2 sidebar-brand-text">Admin</div>
-            <button type="button" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-sky-100 hover:bg-sky-50 transition-smooth text-sky-700">
+            <div class="text-xs text-emerald-600 mb-2 sidebar-brand-text">Admin</div>
+            <button type="button" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-emerald-100 hover:bg-emerald-50 transition-smooth text-emerald-700">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" /></svg>
-              <span class="logout-label nav-label text-sm font-medium text-sky-700">Logout</span>
+              <span class="logout-label nav-label text-sm font-medium text-emerald-700">Logout</span>
             </button>
           </div>
         </div>
@@ -108,8 +111,8 @@
     <main id="main" class="transition-smooth main-with-sidebar flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
       <div class="max-w-7xl mx-auto">
         <div class="mb-6">
-          <h1 class="text-3xl font-bold text-sky-900">Laporan</h1>
-          <p class="text-sky-600 mt-2">Buat dan lihat laporan manajemen surat</p>
+          <h1 class="text-3xl font-bold text-emerald-900">Laporan</h1>
+          <p class="text-emerald-600 mt-2">Buat dan lihat laporan manajemen surat</p>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 mb-6">
@@ -117,7 +120,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Buat Laporan
           </button>
-          <button id="btnCetakLaporan" class="border border-sky-300 text-sky-700 px-4 py-2 rounded hover:bg-sky-50 flex items-center justify-center gap-2">
+          <button id="btnCetakLaporan" class="border border-emerald-300 text-emerald-700 px-4 py-2 rounded hover:bg-emerald-50 flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h10a2 2 0 002-2v-2a2 2 0 00-2-2h-2m-4-4V9m0 4v10"/></svg>
             Cetak
           </button>
@@ -126,28 +129,28 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           <div class="lg:col-span-2 space-y-4 md:space-y-6">
             <div class="bg-white rounded-lg shadow p-4 md:p-6">
-              <h2 class="text-base md:text-lg font-semibold text-sky-900 mb-4">Statistik Surat Masuk & Keluar (Bulan Ini)</h2>
+              <h2 class="text-base md:text-lg font-semibold text-emerald-900 mb-4">Statistik Surat Masuk & Keluar (Bulan Ini)</h2>
               <canvas id="chartSuratMonthly" height="100"></canvas>
             </div>
 
             <div class="bg-white rounded-lg shadow p-4 md:p-6">
-              <h2 class="text-base md:text-lg font-semibold text-sky-900 mb-4">Perbandingan Masuk vs Keluar</h2>
+              <h2 class="text-base md:text-lg font-semibold text-emerald-900 mb-4">Perbandingan Masuk vs Keluar</h2>
               <div class="space-y-4">
                 <div>
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-sky-700">Surat Masuk</span>
-                    <span class="text-sm font-semibold text-sky-900" id="statMasuk">0 surat</span>
+                    <span class="text-sm text-emerald-700">Surat Masuk</span>
+                    <span class="text-sm font-semibold text-emerald-900" id="statMasuk">0 surat</span>
                   </div>
-                  <div class="w-full bg-sky-200 rounded-full h-3">
-                    <div class="bg-sky-500 h-3 rounded-full" id="progressMasuk" style="width: 0%;"></div>
+                  <div class="w-full bg-emerald-200 rounded-full h-3">
+                    <div class="bg-emerald-500 h-3 rounded-full" id="progressMasuk" style="width: 0%;"></div>
                   </div>
                 </div>
                 <div>
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-sky-700">Surat Keluar</span>
-                    <span class="text-sm font-semibold text-sky-900" id="statKeluar">0 surat</span>
+                    <span class="text-sm text-emerald-700">Surat Keluar</span>
+                    <span class="text-sm font-semibold text-emerald-900" id="statKeluar">0 surat</span>
                   </div>
-                  <div class="w-full bg-sky-200 rounded-full h-3">
+                  <div class="w-full bg-emerald-200 rounded-full h-3">
                     <div class="bg-green-500 h-3 rounded-full" id="progressKeluar" style="width: 0%;"></div>
                   </div>
                 </div>
@@ -155,17 +158,17 @@
             </div>
 
             <div class="bg-white rounded-lg shadow p-4 md:p-6">
-              <h2 class="text-base md:text-lg font-semibold text-sky-900 mb-4">Distribusi Arsip Digital</h2>
+              <h2 class="text-base md:text-lg font-semibold text-emerald-900 mb-4">Distribusi Arsip Digital</h2>
               <canvas id="chartArsipType" height="100"></canvas>
             </div>
           </div>
 
           <div class="bg-white rounded-lg shadow p-4 md:p-6">
-            <h2 class="text-base md:text-lg font-semibold text-sky-900 mb-4">Ringkasan Statistik</h2>
+            <h2 class="text-base md:text-lg font-semibold text-emerald-900 mb-4">Ringkasan Statistik</h2>
             <div class="space-y-4">
-              <div class="p-4 bg-sky-50 rounded-lg border border-sky-100">
-                <p class="text-xs text-sky-600">Surat Masuk</p>
-                <p class="text-2xl font-bold text-sky-900" id="totalMasuk">0</p>
+              <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                <p class="text-xs text-emerald-600">Surat Masuk</p>
+                <p class="text-2xl font-bold text-emerald-900" id="totalMasuk">0</p>
               </div>
               <div class="p-4 bg-green-50 rounded-lg border border-green-100">
                 <p class="text-xs text-green-600">Surat Keluar</p>
@@ -177,12 +180,12 @@
               </div>
             </div>
 
-            <div class="mt-6 pt-6 border-t border-sky-100">
-              <h3 class="text-sm font-semibold text-sky-900 mb-3">Laporan Terbaru</h3>
+            <div class="mt-6 pt-6 border-t border-emerald-100">
+              <h3 class="text-sm font-semibold text-emerald-900 mb-3">Laporan Terbaru</h3>
               <ul class="space-y-2 text-sm">
-                <li class="p-2 bg-sky-50 rounded border border-sky-100 hover:bg-sky-100 cursor-pointer">
-                  <p class="font-medium text-sky-900">Laporan Harian</p>
-                  <p class="text-xs text-sky-500 mt-1">Perbarui setiap hari</p>
+                <li class="p-2 bg-emerald-50 rounded border border-emerald-100 hover:bg-emerald-100 cursor-pointer">
+                  <p class="font-medium text-emerald-900">Laporan Harian</p>
+                  <p class="text-xs text-emerald-500 mt-1">Perbarui setiap hari</p>
                 </li>
                 <li class="p-2 bg-blue-50 rounded border border-blue-100 hover:bg-blue-100 cursor-pointer">
                   <p class="font-medium text-blue-900">Laporan Bulanan</p>
@@ -348,9 +351,9 @@
           <body class="bg-white p-8">
             <h1 class="text-2xl font-bold mb-6">Laporan Arsip Digital</h1>
             <div class="grid grid-cols-3 gap-4 mb-8">
-              <div class="p-4 bg-sky-50 rounded-lg border border-sky-100">
-                <p class="text-xs text-sky-600">Surat Masuk</p>
-                <p class="text-3xl font-bold text-sky-900">${document.getElementById('totalMasuk').textContent}</p>
+              <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                <p class="text-xs text-emerald-600">Surat Masuk</p>
+                <p class="text-3xl font-bold text-emerald-900">${document.getElementById('totalMasuk').textContent}</p>
               </div>
               <div class="p-4 bg-green-50 rounded-lg border border-green-100">
                 <p class="text-xs text-green-600">Surat Keluar</p>
@@ -494,3 +497,5 @@
   </script>
 </body>
 </html>
+
+

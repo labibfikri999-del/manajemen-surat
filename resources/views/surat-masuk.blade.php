@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>Surat Masuk — Arsiparis</title>
+  <title>Surat Masuk — YARSI NTB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
@@ -48,9 +48,9 @@
     }
     .mobile-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 55; }
     @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
-    .nav-item.active { background: #f0f9ff; color: #0369a1; }
+    .nav-item.active { background: #d1fae5; color: #047857; }
     .nav-item:hover { background: #f0f9ff; }
-    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #0c4a6e; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
+    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
     .tooltip.show-tooltip .tooltip-text { opacity: 1; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -59,26 +59,29 @@
     }
   </style>
 </head>
-<body class="bg-sky-50">
+<body class="bg-emerald-50">
   <div id="app" class="flex flex-col">
     {{-- Header --}}
-    <header class="site-header bg-white border-b border-sky-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
+    <header class="site-header bg-white border-b border-emerald-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
       <div class="flex items-center gap-4">
-        <button id="btnOpenMobile" class="md:hidden text-sky-700">
+        <button id="btnOpenMobile" class="md:hidden text-emerald-700">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <div class="flex items-center gap-2">
-          <svg class="w-8 h-8 text-sky-600" fill="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7a2 2 0 012-2h14a2 2 0 012 2m0 0V5a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 0h16"/></svg>
-          <span class="text-xl font-bold text-sky-700">Arsiparis</span>
+        <div class="flex items-center gap-3">
+          <img src="/images/logo-yarsi.svg" alt="YARSI Logo" class="w-10 h-10">
+          <div class="flex flex-col">
+            <span class="text-lg font-bold text-emerald-700">YARSI NTB</span>
+            <span class="text-xs text-emerald-600">Sistem Arsip Digital</span>
+          </div>
         </div>
       </div>
-      <div class="text-sm text-sky-600">Surat Masuk</div>
+      <div class="text-sm text-emerald-600">Surat Masuk</div>
     </header>
 
     {{-- Sidebar --}}
-    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-sky-100">
+    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-emerald-100">
       <div class="p-4">
-        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-sky-50 text-sky-700">
+        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-emerald-50 text-emerald-700">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
@@ -86,42 +89,42 @@
           <ul class="space-y-1">
             <li>
               <a href="{{ route('dashboard') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg>
                 <span class="nav-label text-sm font-medium">Dashboard</span>
                 <span class="tooltip-text">Dashboard</span>
               </a>
             </li>
             <li>
               <a href="#" class="flex items-center gap-3 p-2 rounded-md nav-item active tooltip relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg>
                 <span class="nav-label text-sm">Surat Masuk</span>
                 <span class="tooltip-text">Surat Masuk</span>
               </a>
             </li>
             <li>
               <a href="{{ route('surat-keluar') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg>
                 <span class="nav-label text-sm">Surat Keluar</span>
                 <span class="tooltip-text">Surat Keluar</span>
               </a>
             </li>
             <li>
               <a href="{{ route('arsip-digital') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg>
                 <span class="nav-label text-sm">Arsip Digital</span>
                 <span class="tooltip-text">Arsip Digital</span>
               </a>
             </li>
             <li>
               <a href="{{ route('laporan') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg>
                 <span class="nav-label text-sm">Laporan</span>
                 <span class="tooltip-text">Laporan</span>
               </a>
             </li>
             <li>
               <a href="{{ route('data-master') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg>
                 <span class="nav-label text-sm">Data Master</span>
                 <span class="tooltip-text">Data Master</span>
               </a>
@@ -131,13 +134,13 @@
 
         <div class="sidebar-footer">
           <div class="mt-6 border-t pt-4">
-            <div class="text-xs text-sky-600 mb-2 sidebar-brand-text">Admin</div>
+            <div class="text-xs text-emerald-600 mb-2 sidebar-brand-text">Admin</div>
             <form method="POST" action="#" onsubmit="event.preventDefault(); alert('Logout (demo)')">
-              <button type="submit" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-sky-100 hover:bg-sky-50 transition-smooth text-sky-700">
+              <button type="submit" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-emerald-100 hover:bg-emerald-50 transition-smooth text-emerald-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
                 </svg>
-                <span class="logout-label nav-label text-sm font-medium text-sky-700">Logout</span>
+                <span class="logout-label nav-label text-sm font-medium text-emerald-700">Logout</span>
               </button>
             </form>
           </div>
@@ -153,26 +156,26 @@
       <div class="max-w-7xl mx-auto">
         {{-- Page header --}}
         <div class="mb-6">
-          <h1 class="text-3xl font-bold text-sky-900">Surat Masuk</h1>
-          <p class="text-sky-600 mt-2">Kelola semua surat yang masuk ke instansi</p>
+          <h1 class="text-3xl font-bold text-emerald-900">Surat Masuk</h1>
+          <p class="text-emerald-600 mt-2">Kelola semua surat yang masuk ke instansi</p>
         </div>
 
         {{-- Statistics --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
           <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-sky-600 text-xs md:text-sm font-medium">Total Surat Masuk</div>
-            <p class="text-2xl md:text-3xl font-bold text-sky-900 mt-2">124</p>
-            <p class="text-xs text-sky-500 mt-1">Tahun ini</p>
+            <div class="text-emerald-600 text-xs md:text-sm font-medium">Total Surat Masuk</div>
+            <p class="text-2xl md:text-3xl font-bold text-emerald-900 mt-2">124</p>
+            <p class="text-xs text-emerald-500 mt-1">Tahun ini</p>
           </div>
           <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-sky-600 text-xs md:text-sm font-medium">Belum Ditindaklanjuti</div>
+            <div class="text-emerald-600 text-xs md:text-sm font-medium">Belum Ditindaklanjuti</div>
             <p class="text-2xl md:text-3xl font-bold text-orange-600 mt-2">12</p>
-            <p class="text-xs text-sky-500 mt-1">Perlu perhatian</p>
+            <p class="text-xs text-emerald-500 mt-1">Perlu perhatian</p>
           </div>
           <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-sky-600 text-xs md:text-sm font-medium">Sudah Ditindaklanjuti</div>
+            <div class="text-emerald-600 text-xs md:text-sm font-medium">Sudah Ditindaklanjuti</div>
             <p class="text-2xl md:text-3xl font-bold text-green-600 mt-2">112</p>
-            <p class="text-xs text-sky-500 mt-1">Selesai</p>
+            <p class="text-xs text-emerald-500 mt-1">Selesai</p>
           </div>
         </div>
 
@@ -182,64 +185,64 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Tambah Surat Masuk
           </button>
-          <button id="btnCetak" class="border border-sky-300 text-sky-700 px-4 py-2 rounded hover:bg-sky-50 flex items-center justify-center gap-2" aria-label="Cetak Daftar Surat Masuk">
+          <button id="btnCetak" class="border border-emerald-300 text-emerald-700 px-4 py-2 rounded hover:bg-emerald-50 flex items-center justify-center gap-2" aria-label="Cetak Daftar Surat Masuk">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9m4 0h4m-2-2v2m0 0v2m0-6V9m0 4h.01"/></svg>
             Cetak Daftar
           </button>
-          <button id="btnImpor" class="border border-sky-300 text-sky-700 px-4 py-2 rounded hover:bg-sky-50 flex items-center justify-center gap-2" aria-label="Impor File Surat Masuk">
+          <button id="btnImpor" class="border border-emerald-300 text-emerald-700 px-4 py-2 rounded hover:bg-emerald-50 flex items-center justify-center gap-2" aria-label="Impor File Surat Masuk">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Impor File
           </button>
-          <input type="text" id="searchInput" placeholder="Cari surat..." class="flex-1 sm:flex-initial sm:ml-auto px-4 py-2 border border-sky-300 rounded focus:outline-none focus:border-sky-500" aria-label="Cari surat masuk" />
+          <input type="text" id="searchInput" placeholder="Cari surat..." class="flex-1 sm:flex-initial sm:ml-auto px-4 py-2 border border-emerald-300 rounded focus:outline-none focus:border-emerald-500" aria-label="Cari surat masuk" />
         </div>
 
         {{-- Table --}}
         <div class="bg-white rounded-lg shadow overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-sky-50 border-b border-sky-100">
+              <thead class="bg-emerald-50 border-b border-emerald-100">
                 <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">No.</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">Nomor Surat</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">Tanggal Diterima</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">Pengirim</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">Perihal</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">File</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">Status</th>
-                  <th class="px-6 py-3 text-right text-sm font-semibold text-sky-900">Aksi</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">No.</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Nomor Surat</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Tanggal Diterima</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Pengirim</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Perihal</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">File</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Status</th>
+                  <th class="px-6 py-3 text-right text-sm font-semibold text-emerald-900">Aksi</th>
                 </tr>
               </thead>
-              <tbody id="tableBody" class="divide-y divide-sky-100">
+              <tbody id="tableBody" class="divide-y divide-emerald-100">
                 {{-- Skeleton Loading --}}
                 <tr class="animate-pulse skeleton-row">
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-8"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-32"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-24"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-40"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-48"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-16"></div></td>
-                  <td class="px-6 py-4"><div class="h-5 bg-sky-200 rounded w-16"></div></td>
-                  <td class="px-6 py-4"><div class="h-8 bg-sky-200 rounded w-32 ml-auto"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-8"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-32"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-24"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-40"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-48"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-16"></div></td>
+                  <td class="px-6 py-4"><div class="h-5 bg-emerald-200 rounded w-16"></div></td>
+                  <td class="px-6 py-4"><div class="h-8 bg-emerald-200 rounded w-32 ml-auto"></div></td>
                 </tr>
                 <tr class="animate-pulse skeleton-row">
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-8"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-32"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-24"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-40"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-48"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-16"></div></td>
-                  <td class="px-6 py-4"><div class="h-5 bg-sky-200 rounded w-16"></div></td>
-                  <td class="px-6 py-4"><div class="h-8 bg-sky-200 rounded w-32 ml-auto"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-8"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-32"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-24"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-40"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-48"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-16"></div></td>
+                  <td class="px-6 py-4"><div class="h-5 bg-emerald-200 rounded w-16"></div></td>
+                  <td class="px-6 py-4"><div class="h-8 bg-emerald-200 rounded w-32 ml-auto"></div></td>
                 </tr>
                 <tr class="animate-pulse skeleton-row">
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-8"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-32"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-24"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-40"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-48"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-sky-200 rounded w-16"></div></td>
-                  <td class="px-6 py-4"><div class="h-5 bg-sky-200 rounded w-16"></div></td>
-                  <td class="px-6 py-4"><div class="h-8 bg-sky-200 rounded w-32 ml-auto"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-8"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-32"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-24"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-40"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-48"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-16"></div></td>
+                  <td class="px-6 py-4"><div class="h-5 bg-emerald-200 rounded w-16"></div></td>
+                  <td class="px-6 py-4"><div class="h-8 bg-emerald-200 rounded w-32 ml-auto"></div></td>
                 </tr>
               </tbody>
             </table>
@@ -248,10 +251,10 @@
 
         {{-- Pagination --}}
         <div class="flex items-center justify-between mt-6">
-          <p class="text-sm text-sky-600">Menampilkan 1 dari 124 surat masuk</p>
+          <p class="text-sm text-emerald-600">Menampilkan 1 dari 124 surat masuk</p>
           <div class="flex gap-2">
-            <button class="px-3 py-1 border border-sky-300 rounded text-sky-600 hover:bg-sky-50">← Sebelumnya</button>
-            <button class="px-3 py-1 border border-sky-300 rounded text-sky-600 hover:bg-sky-50">Selanjutnya →</button>
+            <button class="px-3 py-1 border border-emerald-300 rounded text-emerald-600 hover:bg-emerald-50">← Sebelumnya</button>
+            <button class="px-3 py-1 border border-emerald-300 rounded text-emerald-600 hover:bg-emerald-50">Selanjutnya →</button>
           </div>
         </div>
       </div>
@@ -300,40 +303,40 @@
     <div id="modalForm" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-lg mx-4 transition-all duration-200 max-h-[90vh] overflow-y-auto">
       <div class="p-6">
         <div class="flex items-center justify-between mb-6">
-          <h2 id="modalTitle" class="text-2xl font-bold text-sky-900">Tambah Surat Masuk</h2>
-          <button id="closeModal" class="text-sky-400 hover:text-sky-600 text-2xl">×</button>
+          <h2 id="modalTitle" class="text-2xl font-bold text-emerald-900">Tambah Surat Masuk</h2>
+          <button id="closeModal" class="text-emerald-400 hover:text-emerald-600 text-2xl">×</button>
         </div>
         
         <form id="suratForm" class="space-y-4" enctype="multipart/form-data">
           <div>
-            <label class="block text-sm font-medium text-sky-700 mb-2">Nomor Surat <span class="text-red-500">*</span></label>
-            <input type="text" id="formNomorSurat" placeholder="SM-2025/001" required class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Nomor Surat <span class="text-red-500">*</span></label>
+            <input type="text" id="formNomorSurat" placeholder="SM-2025/001" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-sky-700 mb-2">Tanggal <span class="text-red-500">*</span></label>
-            <input type="date" id="formTanggal" required class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Tanggal <span class="text-red-500">*</span></label>
+            <input type="date" id="formTanggal" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-sky-700 mb-2">Pengirim <span class="text-red-500">*</span></label>
-            <input type="text" id="formPengirim" placeholder="Nama Pengirim" required class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Pengirim <span class="text-red-500">*</span></label>
+            <input type="text" id="formPengirim" placeholder="Nama Pengirim" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-sky-700 mb-2">Perihal <span class="text-red-500">*</span></label>
-            <textarea id="formPerihal" placeholder="Perihal Surat" rows="3" required class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"></textarea>
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Perihal <span class="text-red-500">*</span></label>
+            <textarea id="formPerihal" placeholder="Perihal Surat" rows="3" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-sky-700 mb-2">File Surat (PDF)</label>
+            <label class="block text-sm font-medium text-emerald-700 mb-2">File Surat (PDF)</label>
             <div class="relative">
-              <input type="file" id="formFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-sky-100 file:text-sky-700 hover:file:bg-sky-200">
+              <input type="file" id="formFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200">
             </div>
-            <p class="text-xs text-sky-500 mt-1">Format: PDF, PNG, JPG, DOC, DOCX (Max 5MB)</p>
-            <div id="filePreview" class="hidden mt-2 p-2 bg-sky-50 rounded-lg items-center gap-2">
-              <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              <span id="fileName" class="text-sm text-sky-700 truncate"></span>
+            <p class="text-xs text-emerald-500 mt-1">Format: PDF, PNG, JPG, DOC, DOCX (Max 5MB)</p>
+            <div id="filePreview" class="hidden mt-2 p-2 bg-emerald-50 rounded-lg items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span id="fileName" class="text-sm text-emerald-700 truncate"></span>
               <button type="button" id="removeFile" class="ml-auto text-red-500 hover:text-red-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
@@ -341,8 +344,8 @@
           </div>
           
           <div class="flex gap-3 pt-4">
-            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-sky-300 text-sky-700 rounded-lg hover:bg-sky-50 transition">Batal</button>
-            <button type="submit" class="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">Simpan</button>
+            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition">Batal</button>
+            <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Simpan</button>
           </div>
         </form>
       </div>
@@ -541,28 +544,28 @@
       
       allRowsData.forEach((item, index) => {
         const row = document.createElement('tr');
-        row.classList.add('hover:bg-sky-50');
+        row.classList.add('hover:bg-emerald-50');
         row.dataset.id = item.id;
         
         // Create file link HTML
         let fileHtml = '<span class="text-gray-400">-</span>';
         if (item.file_url) {
-          fileHtml = `<a href="${item.file_url}" target="_blank" class="inline-flex items-center gap-1 text-sky-600 hover:text-sky-800">
+          fileHtml = `<a href="${item.file_url}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span class="text-sm">Lihat</span>
           </a>`;
         }
         
         row.innerHTML = `
-          <td class="px-6 py-4 text-sm text-sky-900">${index + 1}</td>
-          <td class="px-6 py-4"><span class="font-medium text-sky-900">${item.nomor_surat}</span></td>
-          <td class="px-6 py-4"><span class="text-sky-600">${item.tanggal_diterima}</span></td>
-          <td class="px-6 py-4"><span class="text-sky-600">${item.pengirim}</span></td>
-          <td class="px-6 py-4"><span class="text-sky-600">${item.perihal}</span></td>
+          <td class="px-6 py-4 text-sm text-emerald-900">${index + 1}</td>
+          <td class="px-6 py-4"><span class="font-medium text-emerald-900">${item.nomor_surat}</span></td>
+          <td class="px-6 py-4"><span class="text-emerald-600">${item.tanggal_diterima}</span></td>
+          <td class="px-6 py-4"><span class="text-emerald-600">${item.pengirim}</span></td>
+          <td class="px-6 py-4"><span class="text-emerald-600">${item.perihal}</span></td>
           <td class="px-6 py-4">${fileHtml}</td>
-          <td class="px-6 py-4"><span class="inline-block px-3 py-1 text-xs font-medium bg-sky-100 text-sky-700 rounded">Aktif</span></td>
+          <td class="px-6 py-4"><span class="inline-block px-3 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">Aktif</span></td>
           <td class="px-6 py-4 text-right">
-            <button class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition btn-edit" aria-label="Edit surat">
+            <button class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition btn-edit" aria-label="Edit surat">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Edit
             </button>
@@ -871,12 +874,12 @@
       
       row.classList.remove('editing-row');
       const cells = row.querySelectorAll('td');
-      cells[1].innerHTML = `<span class="font-medium text-sky-900">${inputs[0].value}</span>`;
-      cells[2].innerHTML = `<span class="text-sky-600">${inputs[1].value}</span>`;
-      cells[3].innerHTML = `<span class="text-sky-600">${inputs[2].value}</span>`;
-      cells[4].innerHTML = `<span class="text-sky-600">${inputs[3].value}</span>`;
+      cells[1].innerHTML = `<span class="font-medium text-emerald-900">${inputs[0].value}</span>`;
+      cells[2].innerHTML = `<span class="text-emerald-600">${inputs[1].value}</span>`;
+      cells[3].innerHTML = `<span class="text-emerald-600">${inputs[2].value}</span>`;
+      cells[4].innerHTML = `<span class="text-emerald-600">${inputs[3].value}</span>`;
       cells[6].innerHTML = `
-        <button class="text-sky-600 hover:text-sky-900 text-sm mr-3 btn-edit">Edit</button>
+        <button class="text-emerald-600 hover:text-emerald-900 text-sm mr-3 btn-edit">Edit</button>
         <button class="text-red-600 hover:text-red-900 text-sm btn-delete">Hapus</button>
       `;
       
@@ -892,10 +895,10 @@
       const perihal = cells[4].textContent;
       
       row.classList.add('editing-row');
-      cells[1].innerHTML = `<input type="text" class="border border-sky-300 rounded px-2 py-1 w-full" value="${nomorSurat}">`;
-      cells[2].innerHTML = `<input type="date" class="border border-sky-300 rounded px-2 py-1 w-full" value="${tanggal}">`;
-      cells[3].innerHTML = `<input type="text" class="border border-sky-300 rounded px-2 py-1 w-full" value="${pengirim}">`;
-      cells[4].innerHTML = `<input type="text" class="border border-sky-300 rounded px-2 py-1 w-full" value="${perihal}">`;
+      cells[1].innerHTML = `<input type="text" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${nomorSurat}">`;
+      cells[2].innerHTML = `<input type="date" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${tanggal}">`;
+      cells[3].innerHTML = `<input type="text" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${pengirim}">`;
+      cells[4].innerHTML = `<input type="text" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${perihal}">`;
       cells[6].innerHTML = `
         <button class="text-green-600 hover:text-green-900 text-sm mr-3 btn-save">Simpan</button>
         <button class="text-red-600 hover:text-red-900 text-sm btn-cancel">Batal</button>
@@ -981,3 +984,5 @@
   </script>
 </body>
 </html>
+
+

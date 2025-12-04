@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>Data Master — Arsiparis</title>
+  <title>Data Master — YARSI NTB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
@@ -49,52 +49,55 @@
     .mobile-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 55; }
     @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
     @media (max-width: 767.98px) { .sidebar { transform: translateX(-100%); } }
-    .nav-item.active { background: #f0f9ff; color: #0369a1; }
+    .nav-item.active { background: #d1fae5; color: #047857; }
     .nav-item:hover { background: #f0f9ff; }
-    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #0c4a6e; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
+    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
     .tooltip.show-tooltip .tooltip-text { opacity: 1; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-sky-50">
+<body class="bg-emerald-50">
   <div id="app" class="flex flex-col">
-    <header class="site-header bg-white border-b border-sky-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
+    <header class="site-header bg-white border-b border-emerald-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
       <div class="flex items-center gap-4">
-        <button id="btnOpenMobile" class="md:hidden text-sky-700" style="z-index: 200; position: relative;">
+        <button id="btnOpenMobile" class="md:hidden text-emerald-700" style="z-index: 200; position: relative;">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <div class="flex items-center gap-2">
-          <svg class="w-8 h-8 text-sky-600" fill="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7a2 2 0 012-2h14a2 2 0 012 2m0 0V5a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 0h16"/></svg>
-          <span class="text-xl font-bold text-sky-700">Arsiparis</span>
+        <div class="flex items-center gap-3">
+          <img src="/images/logo-yarsi.svg" alt="YARSI Logo" class="w-10 h-10">
+          <div class="flex flex-col">
+            <span class="text-lg font-bold text-emerald-700">YARSI NTB</span>
+            <span class="text-xs text-emerald-600">Sistem Arsip Digital</span>
+          </div>
         </div>
       </div>
-      <div class="text-sm text-sky-600">Data Master</div>
+      <div class="text-sm text-emerald-600">Data Master</div>
     </header>
 
-    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-sky-100">
+    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-emerald-100">
       <div class="p-4">
-        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-sky-50 text-sky-700">
+        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-emerald-50 text-emerald-700">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
         <nav class="mt-5">
           <ul class="space-y-1">
-            <li><a href="{{ route('dashboard') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg><span class="nav-label text-sm font-medium">Dashboard</span><span class="tooltip-text">Dashboard</span></a></li>
-            <li><a href="{{ route('surat-masuk') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg><span class="nav-label text-sm">Surat Masuk</span><span class="tooltip-text">Surat Masuk</span></a></li>
-            <li><a href="{{ route('surat-keluar') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg><span class="nav-label text-sm">Surat Keluar</span><span class="tooltip-text">Surat Keluar</span></a></li>
-            <li><a href="{{ route('arsip-digital') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg><span class="nav-label text-sm">Arsip Digital</span><span class="tooltip-text">Arsip Digital</span></a></li>
-            <li><a href="{{ route('laporan') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg><span class="nav-label text-sm">Laporan</span><span class="tooltip-text">Laporan</span></a></li>
-            <li><a href="#" class="flex items-center gap-3 p-2 rounded-md nav-item active tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg><span class="nav-label text-sm">Data Master</span><span class="tooltip-text">Data Master</span></a></li>
+            <li><a href="{{ route('dashboard') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg><span class="nav-label text-sm font-medium">Dashboard</span><span class="tooltip-text">Dashboard</span></a></li>
+            <li><a href="{{ route('surat-masuk') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg><span class="nav-label text-sm">Surat Masuk</span><span class="tooltip-text">Surat Masuk</span></a></li>
+            <li><a href="{{ route('surat-keluar') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg><span class="nav-label text-sm">Surat Keluar</span><span class="tooltip-text">Surat Keluar</span></a></li>
+            <li><a href="{{ route('arsip-digital') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg><span class="nav-label text-sm">Arsip Digital</span><span class="tooltip-text">Arsip Digital</span></a></li>
+            <li><a href="{{ route('laporan') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg><span class="nav-label text-sm">Laporan</span><span class="tooltip-text">Laporan</span></a></li>
+            <li><a href="#" class="flex items-center gap-3 p-2 rounded-md nav-item active tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg><span class="nav-label text-sm">Data Master</span><span class="tooltip-text">Data Master</span></a></li>
           </ul>
         </nav>
 
         <div class="sidebar-footer">
           <div class="mt-6 border-t pt-4">
-            <div class="text-xs text-sky-600 mb-2 sidebar-brand-text">Admin</div>
-            <button type="button" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-sky-100 hover:bg-sky-50 transition-smooth text-sky-700">
+            <div class="text-xs text-emerald-600 mb-2 sidebar-brand-text">Admin</div>
+            <button type="button" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-emerald-100 hover:bg-emerald-50 transition-smooth text-emerald-700">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" /></svg>
-              <span class="logout-label nav-label text-sm font-medium text-sky-700">Logout</span>
+              <span class="logout-label nav-label text-sm font-medium text-emerald-700">Logout</span>
             </button>
           </div>
         </div>
@@ -106,16 +109,16 @@
     <main id="main" class="transition-smooth main-with-sidebar flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
       <div class="max-w-7xl mx-auto">
         <div class="mb-6">
-          <h1 class="text-3xl font-bold text-sky-900">Data Master</h1>
-          <p class="text-sky-600 mt-2">Kelola data referensi sistem</p>
+          <h1 class="text-3xl font-bold text-emerald-900">Data Master</h1>
+          <p class="text-emerald-600 mt-2">Kelola data referensi sistem</p>
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
           <div class="bg-white rounded-lg shadow p-3 md:p-4 cursor-pointer hover:shadow-lg transition-shadow">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sky-600 text-xs md:text-sm">Klasifikasi</p>
-                <p class="text-xl md:text-2xl font-bold text-sky-900">24</p>
+                <p class="text-emerald-600 text-xs md:text-sm">Klasifikasi</p>
+                <p class="text-xl md:text-2xl font-bold text-emerald-900">24</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
             </div>
@@ -124,8 +127,8 @@
           <div class="bg-white rounded-lg shadow p-3 md:p-4 cursor-pointer hover:shadow-lg transition-shadow">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sky-600 text-xs md:text-sm">Departemen</p>
-                <p class="text-xl md:text-2xl font-bold text-sky-900">8</p>
+                <p class="text-emerald-600 text-xs md:text-sm">Departemen</p>
+                <p class="text-xl md:text-2xl font-bold text-emerald-900">8</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
@@ -134,8 +137,8 @@
           <div class="bg-white rounded-lg shadow p-3 md:p-4 cursor-pointer hover:shadow-lg transition-shadow">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sky-600 text-xs md:text-sm">Pengguna</p>
-                <p class="text-xl md:text-2xl font-bold text-sky-900">12</p>
+                <p class="text-emerald-600 text-xs md:text-sm">Pengguna</p>
+                <p class="text-xl md:text-2xl font-bold text-emerald-900">12</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 10H9M21 20.354A4 4 0 0012.646 15H11.354A4 4 0 003 20.354"/></svg>
             </div>
@@ -144,8 +147,8 @@
           <div class="bg-white rounded-lg shadow p-3 md:p-4 cursor-pointer hover:shadow-lg transition-shadow">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sky-600 text-xs md:text-sm">Lampiran</p>
-                <p class="text-xl md:text-2xl font-bold text-sky-900">156</p>
+                <p class="text-emerald-600 text-xs md:text-sm">Lampiran</p>
+                <p class="text-xl md:text-2xl font-bold text-emerald-900">156</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             </div>
@@ -154,11 +157,11 @@
 
         {{-- Tabs --}}
         <div class="bg-white rounded-lg shadow">
-          <div class="flex overflow-x-auto border-b border-sky-100 scrollbar-hide">
-            <button id="tabKlasifikasi" class="tab-btn px-4 md:px-6 py-4 text-sky-900 font-medium border-b-2 border-sky-500 hover:bg-sky-50 whitespace-nowrap flex-shrink-0" data-tab="klasifikasi">Klasifikasi</button>
-            <button id="tabDepartemen" class="tab-btn px-4 md:px-6 py-4 text-sky-600 font-medium hover:bg-sky-50 whitespace-nowrap flex-shrink-0" data-tab="departemen">Departemen</button>
-            <button id="tabPengguna" class="tab-btn px-4 md:px-6 py-4 text-sky-600 font-medium hover:bg-sky-50 whitespace-nowrap flex-shrink-0" data-tab="pengguna">Pengguna</button>
-            <button id="tabLampiran" class="tab-btn px-4 md:px-6 py-4 text-sky-600 font-medium hover:bg-sky-50 whitespace-nowrap flex-shrink-0" data-tab="lampiran">Tipe Lampiran</button>
+          <div class="flex overflow-x-auto border-b border-emerald-100 scrollbar-hide">
+            <button id="tabKlasifikasi" class="tab-btn px-4 md:px-6 py-4 text-emerald-900 font-medium border-b-2 border-emerald-500 hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="klasifikasi">Klasifikasi</button>
+            <button id="tabDepartemen" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="departemen">Departemen</button>
+            <button id="tabPengguna" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="pengguna">Pengguna</button>
+            <button id="tabLampiran" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="lampiran">Tipe Lampiran</button>
           </div>
 
           <div id="tabContent" class="p-4 md:p-6">
@@ -167,20 +170,20 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Tambah Klasifikasi
               </button>
-              <input id="searchKlasifikasi" type="text" placeholder="Cari..." class="flex-1 px-4 py-2 border border-sky-300 rounded focus:outline-none focus:border-sky-500" aria-label="Cari klasifikasi" />
+              <input id="searchKlasifikasi" type="text" placeholder="Cari..." class="flex-1 px-4 py-2 border border-emerald-300 rounded focus:outline-none focus:border-emerald-500" aria-label="Cari klasifikasi" />
             </div>
 
             {{-- Desktop Table View --}}
             <div class="hidden md:block overflow-x-auto">
               <table class="w-full">
-                <thead class="bg-sky-50">
+                <thead class="bg-emerald-50">
                   <tr>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">No.</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-sky-900">Nama</th>
-                    <th class="px-6 py-3 text-right text-sm font-semibold text-sky-900">Aksi</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">No.</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Nama</th>
+                    <th class="px-6 py-3 text-right text-sm font-semibold text-emerald-900">Aksi</th>
                   </tr>
                 </thead>
-                <tbody id="tableBodyKlasifikasi" class="divide-y divide-sky-100">
+                <tbody id="tableBodyKlasifikasi" class="divide-y divide-emerald-100">
                 </tbody>
               </table>
             </div>
@@ -235,29 +238,29 @@
     <div id="modalForm" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-md mx-4 transition-all duration-200">
       <div class="p-6">
         <div class="flex items-center justify-between mb-6">
-          <h2 id="modalTitle" class="text-2xl font-bold text-sky-900">Tambah Data</h2>
-          <button id="closeModal" class="text-sky-400 hover:text-sky-600 text-2xl">×</button>
+          <h2 id="modalTitle" class="text-2xl font-bold text-emerald-900">Tambah Data</h2>
+          <button id="closeModal" class="text-emerald-400 hover:text-emerald-600 text-2xl">×</button>
         </div>
         
         <form id="dataForm" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-sky-700 mb-2" id="formLabel">Nama <span class="text-red-500">*</span></label>
-            <input type="text" id="formNama" placeholder="Masukkan nama..." required class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+            <label class="block text-sm font-medium text-emerald-700 mb-2" id="formLabel">Nama <span class="text-red-500">*</span></label>
+            <input type="text" id="formNama" placeholder="Masukkan nama..." required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
 
           <div id="formKodeContainer" class="hidden">
-            <label class="block text-sm font-medium text-sky-700 mb-2">Kode</label>
-            <input type="text" id="formKode" placeholder="Masukkan kode..." class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Kode</label>
+            <input type="text" id="formKode" placeholder="Masukkan kode..." class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
 
           <div id="formDeskripsiContainer" class="hidden">
-            <label class="block text-sm font-medium text-sky-700 mb-2">Deskripsi</label>
-            <textarea id="formDeskripsi" rows="2" placeholder="Masukkan deskripsi..." class="w-full px-4 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"></textarea>
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Deskripsi</label>
+            <textarea id="formDeskripsi" rows="2" placeholder="Masukkan deskripsi..." class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"></textarea>
           </div>
           
           <div class="flex gap-3 pt-4">
-            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-sky-300 text-sky-700 rounded-lg hover:bg-sky-50 transition">Batal</button>
-            <button type="submit" class="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">Simpan</button>
+            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition">Batal</button>
+            <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Simpan</button>
           </div>
         </form>
       </div>
@@ -445,13 +448,13 @@
       allKlasifikasiData.forEach((item, index) => {
         // Desktop table row
         const row = document.createElement('tr');
-        row.classList.add('hover:bg-sky-50');
+        row.classList.add('hover:bg-emerald-50');
         row.dataset.id = item.id;
         row.innerHTML = `
-          <td class="px-6 py-4 text-sm text-sky-900">${index + 1}</td>
-          <td class="px-6 py-4"><span class="text-sky-900 font-medium">${item.nama}</span></td>
+          <td class="px-6 py-4 text-sm text-emerald-900">${index + 1}</td>
+          <td class="px-6 py-4"><span class="text-emerald-900 font-medium">${item.nama}</span></td>
           <td class="px-6 py-4 text-right">
-            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white text-sm rounded hover:bg-sky-700 transition mr-2 btn-edit" aria-label="Edit klasifikasi ${item.nama}">
+            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition mr-2 btn-edit" aria-label="Edit klasifikasi ${item.nama}">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Edit
             </button>
@@ -466,17 +469,17 @@
         
         // Mobile card
         const card = document.createElement('div');
-        card.classList.add('bg-white', 'rounded-lg', 'border', 'border-sky-200', 'p-4', 'shadow-sm');
+        card.classList.add('bg-white', 'rounded-lg', 'border', 'border-emerald-200', 'p-4', 'shadow-sm');
         card.dataset.id = item.id;
         card.innerHTML = `
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1">
-              <div class="text-xs text-sky-600 mb-1">No. ${index + 1}</div>
-              <div class="text-base font-semibold text-sky-900">${item.nama}</div>
+              <div class="text-xs text-emerald-600 mb-1">No. ${index + 1}</div>
+              <div class="text-base font-semibold text-emerald-900">${item.nama}</div>
             </div>
           </div>
           <div class="flex gap-2">
-            <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-600 text-white text-sm rounded hover:bg-sky-700 transition btn-edit-mobile" aria-label="Edit klasifikasi ${item.nama}">
+            <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition btn-edit-mobile" aria-label="Edit klasifikasi ${item.nama}">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Edit
             </button>
@@ -690,3 +693,5 @@
   </script>
 </body>
 </html>
+
+
