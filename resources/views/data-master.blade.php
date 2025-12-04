@@ -210,7 +210,7 @@
     </div>
 
     {{-- Confirmation Modal --}}
-    <div id="confirmModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div id="confirmModal" style="display: none;" class="fixed inset-0 z-[120] flex items-center justify-center">
       <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
       <div class="relative bg-white rounded-lg shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all">
         <div class="flex items-center gap-4 mb-4">
@@ -234,8 +234,8 @@
     </div>
 
     {{-- Modal Form --}}
-    <div id="modalBackdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-200"></div>
-    <div id="modalForm" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-md mx-4 transition-all duration-200">
+    <div id="modalBackdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[110] transition-opacity duration-200"></div>
+    <div id="modalForm" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-[120] w-full max-w-md mx-4 transition-all duration-200">
       <div class="p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 id="modalTitle" class="text-2xl font-bold text-emerald-900">Tambah Data</h2>
@@ -693,5 +693,6 @@
   </script>
 </body>
 </html>
+
 
 
