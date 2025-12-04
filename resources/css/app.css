@@ -1,0 +1,12 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities";
+
+/* custom classes */
+.btn {
+    @apply px-4 py-2 rounded bg-green-600 text-white;
+}
+
+.card-shadow {
+    box-shadow: 0 8px 20px rgba(13, 27, 62, 0.08);
+}
