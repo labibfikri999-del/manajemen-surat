@@ -47,10 +47,11 @@
       .main-with-sidebar { margin-left: 0 !important; }
       .main-with-sidebar-collapsed { margin-left: 0 !important; }
     }
-    .nav-item.active { background: #d1fae5; color: #047857; }
-    .nav-item:hover { background: #f0f9ff; }
-    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
-    .tooltip.show-tooltip .tooltip-text { opacity: 1; }
+    .nav-item.active { background: #d1fae5; color: #047857; border-left: 3px solid #047857; }
+    .nav-item:hover { background: #d1fae5; transform: translateX(2px); }
+    .tooltip-text { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1); z-index: 1000; }
+    .tooltip-text::before { content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: #065f46; }
+    .sidebar.sidebar-collapsed .nav-item:hover .tooltip-text { opacity: 1; transform: translateY(-50%) translateX(0); }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     @media (min-width: 768px) {
@@ -447,17 +448,6 @@
       mobileOverlay.classList.add('hidden');
     }
 
-    sidebar.querySelectorAll('.tooltip').forEach(item=>{
-      item.addEventListener('mouseenter', ()=>{
-        if (sidebar.classList.contains('sidebar-collapsed') && window.innerWidth >= 768) {
-          item.classList.add('show-tooltip');
-        }
-      });
-      item.addEventListener('mouseleave', ()=>{
-        item.classList.remove('show-tooltip');
-      });
-    });
-
     // CRUD Functionality
     const btnTambah = document.getElementById('btnTambah');
     const tableBody = document.getElementById('tableBody');
@@ -794,6 +784,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 

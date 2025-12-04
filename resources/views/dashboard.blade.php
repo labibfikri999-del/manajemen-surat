@@ -48,11 +48,39 @@
     }
     .mobile-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 55; }
     .sidebar-brand { padding-bottom: 1rem; border-bottom: 1px solid #e0f2fe; }
-    .nav-item { display: flex; gap: 0.75rem; padding: 0.5rem; border-radius: 0.375rem; }
-    .nav-item.active { background: #d1fae5; color: #047857; }
-    .nav-item:hover { background: #f0f9ff; }
+    .nav-item { display: flex; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .nav-item.active { background: #d1fae5; color: #047857; border-left: 3px solid #047857; }
+    .nav-item:hover { background: #d1fae5; transform: translateX(2px); }
     .tooltip { position: relative; }
-    .tooltip-text { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; margin-left: 0.5rem; }
+    .tooltip-text { 
+      position: absolute; 
+      left: calc(100% + 10px); 
+      top: 50%; 
+      transform: translateY(-50%); 
+      background: #065f46; 
+      color: white; 
+      padding: 0.5rem 0.75rem; 
+      border-radius: 0.375rem; 
+      white-space: nowrap; 
+      opacity: 0; 
+      pointer-events: none; 
+      transition: opacity 0.3s ease, transform 0.3s ease; 
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .tooltip-text::before {
+      content: '';
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-right-color: #065f46;
+    }
+    .sidebar.sidebar-collapsed .nav-item:hover .tooltip-text { opacity: 1; transform: translateY(-50%) translateX(0); }
     .tooltip.show-tooltip .tooltip-text { opacity: 1; }
   </style>
 </head>
@@ -320,17 +348,6 @@
     }
     window.addEventListener('resize', onResize);
     onResize();
-
-    sidebar.querySelectorAll('.tooltip').forEach(item=>{
-      item.addEventListener('mouseenter', ()=>{
-        if (sidebar.classList.contains('sidebar-collapsed') && window.innerWidth >= 768) {
-          item.classList.add('show-tooltip');
-        }
-      });
-      item.addEventListener('mouseleave', ()=>{
-        item.classList.remove('show-tooltip');
-      });
-    });
 
     // Load Statistics
     async function loadStatistics() {
