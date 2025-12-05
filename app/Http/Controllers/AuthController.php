@@ -47,13 +47,26 @@ class AuthController extends Controller
         $user = User::where('email', $credentials['email'])->first();
         if (!$user) {
             return back()->withErrors([
-                'email' => 'Akun tidak ditemukan. Silakan registrasi terlebih dahulu.'
+                'email' => 'Akun tidak ditemukan.'
             ])->onlyInput('email');
         }
 
-        if (Auth::attempt($credentials)) {
+        // Cek apakah user aktif
+        if (!$user->is_active) {
+            return back()->withErrors([
+                'email' => 'Akun Anda tidak aktif. Hubungi administrator.'
+            ])->onlyInput('email');
+        }
+
+        $remember = $request->has('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended('/');
+            
+            // Redirect based on role
+            $user = Auth::user();
+            
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([

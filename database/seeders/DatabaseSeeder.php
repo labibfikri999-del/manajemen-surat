@@ -23,7 +23,8 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call(\Database\Seeders\KlasifikasiSeeder::class);
-        $this->call(\Database\Seeders\AdminSeeder::class);
+        $this->call(\Database\Seeders\InstansiSeeder::class);
+        $this->call(\Database\Seeders\UserSeeder::class);
         $this->call(\Database\Seeders\SuratMasukSeeder::class);
     }
 }

@@ -12,6 +12,11 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // Role constants
+    const ROLE_DIREKTUR = 'direktur';
+    const ROLE_STAFF = 'staff';
+    const ROLE_INSTANSI = 'instansi';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +26,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'instansi_id',
+        'jabatan',
+        'telepon',
+        'avatar',
+        'is_active',
     ];
 
     /**
@@ -43,6 +54,58 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    // Relasi ke instansi
+    public function instansi()
+    {
+        return $this->belongsTo(Instansi::class);
+    }
+
+    // Dokumen yang diupload user
+    public function dokumens()
+    {
+        return $this->hasMany(Dokumen::class);
+    }
+
+    // Dokumen yang divalidasi (untuk direktur)
+    public function validatedDokumens()
+    {
+        return $this->hasMany(Dokumen::class, 'validated_by');
+    }
+
+    // Dokumen yang diproses (untuk staff)
+    public function processedDokumens()
+    {
+        return $this->hasMany(Dokumen::class, 'processed_by');
+    }
+
+    // Check role
+    public function isDirektur()
+    {
+        return $this->role === self::ROLE_DIREKTUR;
+    }
+
+    public function isStaff()
+    {
+        return $this->role === self::ROLE_STAFF;
+    }
+
+    public function isInstansi()
+    {
+        return $this->role === self::ROLE_INSTANSI;
+    }
+
+    // Get role label
+    public function getRoleLabelAttribute()
+    {
+        return match($this->role) {
+            'direktur' => 'Direktur Yayasan',
+            'staff' => 'Staff Direktur',
+            'instansi' => 'User Instansi',
+            default => 'Unknown',
+        };
     }
 }
