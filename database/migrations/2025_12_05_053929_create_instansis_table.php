@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('instansis', function (Blueprint $table) {
             $table->id();
             $table->string('nama'); // Nama instansi
-            $table->string('kode')->unique(); // Kode unik instansi (misal: RS, AKBID, dll)
+            $table->string('kode', 50)->unique(); // Kode unik instansi (misal: RS, AKBID, dll)
             $table->text('alamat')->nullable();
             $table->string('telepon')->nullable();
             $table->string('email', 100)->nullable();

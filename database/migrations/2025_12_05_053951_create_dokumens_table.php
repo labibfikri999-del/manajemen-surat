@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dokumens', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_dokumen')->unique();
+            $table->string('nomor_dokumen', 100)->unique();
             $table->string('judul');
             $table->text('deskripsi')->nullable();
             $table->string('file_path'); // Path file yang diupload
