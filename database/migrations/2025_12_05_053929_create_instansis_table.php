@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('kode')->unique(); // Kode unik instansi (misal: RS, AKBID, dll)
             $table->text('alamat')->nullable();
             $table->string('telepon')->nullable();
-            $table->string('email')->nullable();
+            $table->string('email', 100)->nullable();
             $table->string('logo')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
