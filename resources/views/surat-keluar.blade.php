@@ -1,3 +1,4 @@
+@php $user = auth()->user(); $role = $user->role ?? 'guest'; @endphp
 {{-- resources/views/surat-keluar.blade.php --}}
 <!doctype html>
 <html lang="id">
@@ -7,108 +8,16 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Surat Keluar — YARSI NTB</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root{
-      --header-h: 64px;
-      --sidebar-w: 16rem;
-      --sidebar-collapsed-w: 4.5rem;
-    }
-    html,body,#app { height: 100%; }
-    .transition-smooth { transition: all .22s cubic-bezier(.2,.8,.2,1); }
-    html, body { overflow-x: hidden; }
-    .site-header { height: var(--header-h); position: sticky; top: 0; z-index: 100; }
-    .sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
-      transition: width .25s ease, transform .25s ease;
-      position: fixed;
-      top: var(--header-h);
-      left: 0;
-      bottom: 0;
-      z-index: 50;
-      overflow-y: auto;
-      background: white;
-    }
-    .sidebar-collapsed { width: var(--sidebar-collapsed-w) !important; min-width: var(--sidebar-collapsed-w) !important; }
-    .sidebar.sidebar-collapsed .nav-label,
-    .sidebar.sidebar-collapsed .sidebar-brand-text { display: none !important; }
-    .sidebar.sidebar-collapsed .nav-item { justify-content: center; }
-    @media (max-width: 767.98px) { 
-      .sidebar { transform: translateX(-100%); z-index: 60; }
-      .sidebar-hidden-mobile { transform: translateX(-100%) !important; }
-      .sidebar:not(.sidebar-hidden-mobile) { transform: translateX(0) !important; }
-      .sidebar { width: var(--sidebar-w) !important; min-width: var(--sidebar-w) !important; } 
-    }
-    @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
-    .main-with-sidebar { margin-left: var(--sidebar-w); }
-    .main-with-sidebar-collapsed { margin-left: var(--sidebar-collapsed-w); }
-    .mobile-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 55; }
-    @media (max-width: 767.98px) { 
-      .main-with-sidebar { margin-left: 0 !important; }
-      .main-with-sidebar-collapsed { margin-left: 0 !important; }
-    }
-    .nav-item.active { background: #d1fae5; color: #047857; border-left: 3px solid #047857; }
-    .nav-item:hover { background: #d1fae5; transform: translateX(2px); }
-    .tooltip-text { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); background: #065f46; color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1); z-index: 1000; }
-    .tooltip-text::before { content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: #065f46; }
-    .sidebar.sidebar-collapsed .nav-item:hover .tooltip-text { opacity: 1; transform: translateY(-50%) translateX(0); }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-    @media (min-width: 768px) {
-      .modal-backdrop-desktop { left: var(--sidebar-w) !important; }
-    }
-  </style>
+  @include('partials.styles')
 </head>
 <body class="bg-emerald-50">
   <div id="app" class="flex flex-col">
-    <header class="site-header bg-white border-b border-emerald-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
-      <div class="flex items-center gap-4">
-        <button id="btnOpenMobile" class="md:hidden text-emerald-700">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-        <div class="flex items-center gap-3">
-          <img src="/images/logo-yarsi.svg" alt="YARSI Logo" class="w-10 h-10">
-          <div class="flex flex-col">
-            <span class="text-lg font-bold text-emerald-700">YARSI NTB</span>
-            <span class="text-xs text-emerald-600">Sistem Arsip Digital</span>
-          </div>
-        </div>
-      </div>
-      <div class="text-sm text-emerald-600">Surat Keluar</div>
-    </header>
+    @include('partials.header')
 
-    <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-emerald-100">
-      <div class="p-4">
-        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-emerald-50 text-emerald-700">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-
-        <nav class="mt-5">
-          <ul class="space-y-1">
-            <li><a href="{{ route('dashboard') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z"/></svg><span class="nav-label text-sm font-medium">Dashboard</span><span class="tooltip-text">Dashboard</span></a></li>
-            <li><a href="{{ route('surat-masuk') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg><span class="nav-label text-sm">Surat Masuk</span><span class="tooltip-text">Surat Masuk</span></a></li>
-            <li><a href="#" class="flex items-center gap-3 p-2 rounded-md nav-item active tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12l18-7-7 18-3-8-8-3z"/></svg><span class="nav-label text-sm">Surat Keluar</span><span class="tooltip-text">Surat Keluar</span></a></li>
-            <li><a href="{{ route('arsip-digital') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg><span class="nav-label text-sm">Arsip Digital</span><span class="tooltip-text">Arsip Digital</span></a></li>
-            <li><a href="{{ route('laporan') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M9 17V9M13 17V5M17 17v-4"/></svg><span class="nav-label text-sm">Laporan</span><span class="tooltip-text">Laporan</span></a></li>
-            <li><a href="{{ route('data-master') }}" class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/></svg><span class="nav-label text-sm">Data Master</span><span class="tooltip-text">Data Master</span></a></li>
-          </ul>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="mt-6 border-t pt-4">
-            <div class="text-xs text-emerald-600 mb-2 sidebar-brand-text">Admin</div>
-            <button type="button" class="logout-btn w-full flex items-center gap-3 px-3 py-2 rounded-md border border-emerald-100 hover:bg-emerald-50 transition-smooth text-emerald-700">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" /></svg>
-              <span class="logout-label nav-label text-sm font-medium text-emerald-700">Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <div id="mobileOverlay" class="mobile-overlay hidden"></div>
+    @include('partials.sidebar-menu')
 
     <main id="main" class="transition-smooth main-with-sidebar flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+      @include('partials.flash-messages')
       <div class="max-w-7xl mx-auto">
         <div class="mb-6">
           <h1 class="text-3xl font-bold text-emerald-900">Surat Keluar</h1>
@@ -782,6 +691,7 @@
 
     loadData();
   </script>
+  @include('partials.scripts')
 </body>
 </html>
 

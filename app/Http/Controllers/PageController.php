@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Dokumen;
 use App\Models\Instansi;
 use App\Models\User;
+use App\Models\ArsipDigital;
+use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
@@ -110,7 +112,37 @@ class PageController extends Controller
 
     public function arsipDigital()
     {
-        return view('arsip-digital');
+        // Hitung metrik arsip digital
+        $arsipQuery = ArsipDigital::query();
+        $totalArsip = $arsipQuery->count();
+
+        // Hitung total ukuran real dari file di storage (fallback ke nilai 0 jika file tidak ada)
+        $totalBytes = 0;
+        foreach ($arsipQuery->get(['file_path']) as $file) {
+            if ($file->file_path && Storage::disk('public')->exists($file->file_path)) {
+                $totalBytes += Storage::disk('public')->size($file->file_path);
+            }
+        }
+
+        // Format ukuran ke string human readable
+        $formatSize = function ($bytes) {
+            if ($bytes >= 1073741824) return number_format($bytes / 1073741824, 2) . ' GB';
+            if ($bytes >= 1048576) return number_format($bytes / 1048576, 2) . ' MB';
+            if ($bytes >= 1024) return number_format($bytes / 1024, 2) . ' KB';
+            return $bytes . ' B';
+        };
+
+        $totalSize = $formatSize($totalBytes);
+
+        // Akses terakhir berdasar updated_at atau tanggal_upload terbaru
+        $lastAccess = ArsipDigital::orderByDesc('updated_at')->orderByDesc('tanggal_upload')->value('updated_at')
+            ?? ArsipDigital::orderByDesc('tanggal_upload')->value('tanggal_upload');
+
+        return view('arsip-digital', [
+            'totalArsip' => $totalArsip,
+            'totalSize' => $totalSize,
+            'lastAccess' => $lastAccess,
+        ]);
     }
 
     // Legacy routes

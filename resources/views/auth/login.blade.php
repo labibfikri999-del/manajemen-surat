@@ -255,27 +255,7 @@
       </button>
     </form>
 
-    {{-- Footer Info --}}
-    <div class="mt-8 pt-6 border-t border-gray-100">
-      <div class="text-center">
-        <p class="text-xs text-gray-500 mb-3">Akun Demo untuk Testing:</p>
-        <div class="grid grid-cols-1 gap-2 text-xs">
-          <div class="bg-gray-50 rounded-lg p-2 flex justify-between items-center">
-            <span class="text-gray-600">Direktur:</span>
-            <code class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-xs">direktur@yarsi-ntb.ac.id</code>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-2 flex justify-between items-center">
-            <span class="text-gray-600">Staff:</span>
-            <code class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-mono text-xs">staff@yarsi-ntb.ac.id</code>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-2 flex justify-between items-center">
-            <span class="text-gray-600">Instansi:</span>
-            <code class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-mono text-xs">rs@yarsi-ntb.ac.id</code>
-          </div>
-        </div>
-        <p class="text-xs text-gray-400 mt-3">Password: <code class="bg-gray-100 px-1.5 py-0.5 rounded">password123</code></p>
-      </div>
-    </div>
+    {{-- Footer Info (di-nonaktifkan sesuai permintaan) --}}
 
     {{-- Copyright --}}
     <p class="text-center text-xs text-gray-400 mt-6">

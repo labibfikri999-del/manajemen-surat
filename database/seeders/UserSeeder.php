@@ -13,9 +13,9 @@ class UserSeeder extends Seeder
     {
         // 1. Direktur Yayasan (Admin)
         User::create([
-            'name' => 'Dr. H. Ahmad Direktur',
-            'email' => 'direktur@yarsi-ntb.ac.id',
-            'password' => Hash::make('password123'),
+            'name' => 'Direktur Yayasan',
+            'email' => 'direktur@yarsi.ac.id',
+            'password' => Hash::make('direktur123'),
             'role' => 'direktur',
             'jabatan' => 'Direktur Yayasan YARSI NTB',
             'telepon' => '08123456789',
@@ -24,24 +24,24 @@ class UserSeeder extends Seeder
 
         // 2. Staff Direktur
         User::create([
-            'name' => 'Siti Aminah',
-            'email' => 'staff@yarsi-ntb.ac.id',
-            'password' => Hash::make('password123'),
+            'name' => 'Staff Direktur',
+            'email' => 'staff@yarsi.ac.id',
+            'password' => Hash::make('staff123'),
             'role' => 'staff',
             'jabatan' => 'Staff Administrasi Direktur',
             'telepon' => '08234567890',
             'is_active' => true,
         ]);
 
-        // 3. User untuk setiap instansi (7 user)
+        // 3. User untuk setiap instansi (7 user) dengan password mudah
         $instansiUsers = [
-            ['instansi_kode' => 'RS', 'name' => 'dr. Budi Santoso', 'jabatan' => 'Admin RS YARSI'],
-            ['instansi_kode' => 'AKBID', 'name' => 'Dewi Lestari, S.Keb', 'jabatan' => 'Admin Akademi Kebidanan'],
-            ['instansi_kode' => 'AKPER', 'name' => 'Eko Prasetyo, S.Kep', 'jabatan' => 'Admin Akademi Keperawatan'],
-            ['instansi_kode' => 'STIKES', 'name' => 'Fitri Handayani, M.Kes', 'jabatan' => 'Admin STIKES'],
-            ['instansi_kode' => 'KLINIK', 'name' => 'dr. Gunawan', 'jabatan' => 'Admin Klinik Kesehatan'],
-            ['instansi_kode' => 'LAB', 'name' => 'Hendra Wijaya, S.Si', 'jabatan' => 'Admin Laboratorium'],
-            ['instansi_kode' => 'UPT', 'name' => 'Indah Permata', 'jabatan' => 'Admin UPT'],
+            ['instansi_kode' => 'RSI', 'name' => 'Admin RSI Siti Hajar', 'email' => 'rsi@yarsi.ac.id', 'password' => 'rsi123'],
+            ['instansi_kode' => 'IKYM', 'name' => 'Admin Institut Kesehatan', 'email' => 'ikym@yarsi.ac.id', 'password' => 'ikym123'],
+            ['instansi_kode' => 'SMK', 'name' => 'Admin SMK Yarsi', 'email' => 'smk@yarsi.ac.id', 'password' => 'smk123'],
+            ['instansi_kode' => 'SMAIT', 'name' => 'Admin SMA IT Yarsi', 'email' => 'smait@yarsi.ac.id', 'password' => 'smait123'],
+            ['instansi_kode' => 'SMPIT', 'name' => 'Admin SMP IT Yarsi', 'email' => 'smpit@yarsi.ac.id', 'password' => 'smpit123'],
+            ['instansi_kode' => 'SDIT', 'name' => 'Admin SD IT Fauziah', 'email' => 'sdit@yarsi.ac.id', 'password' => 'sdit123'],
+            ['instansi_kode' => 'TK', 'name' => 'Admin TK Yarsi', 'email' => 'tk@yarsi.ac.id', 'password' => 'tk123'],
         ];
 
         foreach ($instansiUsers as $index => $userData) {
@@ -50,12 +50,12 @@ class UserSeeder extends Seeder
             if ($instansi) {
                 User::create([
                     'name' => $userData['name'],
-                    'email' => strtolower($userData['instansi_kode']) . '@yarsi-ntb.ac.id',
-                    'password' => Hash::make('password123'),
+                    'email' => $userData['email'],
+                    'password' => Hash::make($userData['password']),
                     'role' => 'instansi',
                     'instansi_id' => $instansi->id,
-                    'jabatan' => $userData['jabatan'],
-                    'telepon' => '08' . str_pad($index + 3, 9, rand(100000000, 999999999)),
+                    'jabatan' => $userData['name'],
+                    'telepon' => '081234567' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
                     'is_active' => true,
                 ]);
             }
