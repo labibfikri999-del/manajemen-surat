@@ -6,6 +6,17 @@ Sistem Arsip Digital YARSI NTB adalah aplikasi manajemen dokumen berbasis web ya
 
 ---
 
+## 🌐 Akses Website
+
+| Jenis | URL |
+|-------|-----|
+| **Online (Ngrok)** | `https://untremulent-flyless-michelina.ngrok-free.dev` |
+| **Lokal** | `http://127.0.0.1:8000` |
+
+> **Catatan**: Link ngrok bersifat sementara dan dapat berubah. Hubungi admin untuk link terbaru.
+
+---
+
 ## 👥 Daftar Akun Login
 
 ### Direktur & Staff
@@ -14,7 +25,7 @@ Sistem Arsip Digital YARSI NTB adalah aplikasi manajemen dokumen berbasis web ya
 | Direktur | `direktur@yarsi.ac.id` | `direktur123` |
 | Staff | `staff@yarsi.ac.id` | `staff123` |
 
-### Instansi (7 User)
+### Instansi (7 Unit)
 | Instansi | Email | Password |
 |----------|-------|----------|
 | RS Islam Siti Hajar Mataram | `rsi@yarsi.ac.id` | `rsi123` |
@@ -25,15 +36,19 @@ Sistem Arsip Digital YARSI NTB adalah aplikasi manajemen dokumen berbasis web ya
 | SD IT Fauziah Yarsi Mataram | `sdit@yarsi.ac.id` | `sdit123` |
 | TK Yarsi Mataram | `tk@yarsi.ac.id` | `tk123` |
 
+> **Tips**: Password menggunakan format sederhana: **kode instansi + 123**
+
 ---
 
 ## 🔐 Cara Login
 
-1. Buka browser dan akses: `http://127.0.0.1:8000`
-2. Anda akan diarahkan ke halaman login
+1. Buka browser dan akses website (lihat bagian **Akses Website** di atas)
+2. Jika muncul halaman ngrok, klik tombol **"Visit Site"**
 3. Masukkan **Email** dan **Password** sesuai akun Anda
 4. Centang **"Ingat saya"** jika ingin tetap login
 5. Klik tombol **"Masuk ke Sistem"**
+
+> **Penting**: Jika login gagal, pastikan email dan password benar (perhatikan huruf besar/kecil)
 
 ---
 
@@ -268,4 +283,5 @@ php artisan route:clear
 ---
 
 **Terakhir diperbarui**: 5 Desember 2025  
-**Versi**: 1.0.0
+**Versi**: 1.1.0  
+**Repository**: https://github.com/labibfikri999-del/manajemen-surat
