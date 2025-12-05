@@ -76,21 +76,22 @@
 {{-- Sidebar --}}
 <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-emerald-100">
     <div class="p-4 flex flex-col h-full">
-        {{-- Collapse button --}}
-        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-emerald-50 text-emerald-700">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-
-        {{-- Role Badge --}}
-        <div class="mb-4 p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200">
-            <div class="text-xs text-emerald-500 uppercase tracking-wide">Login sebagai</div>
-            <div class="font-semibold text-emerald-700">{{ $roleLabels[$role] ?? 'User' }}</div>
-            <div class="text-xs text-emerald-600 truncate">Pengguna</div>
+        {{-- User Profile Card --}}
+        <div class="mb-6 p-4 bg-white rounded-xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm">
+                    {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="font-semibold text-gray-800 truncate text-sm">{{ $user->name ?? 'User' }}</div>
+                    <div class="text-xs text-emerald-600 font-medium mt-0.5">{{ $roleLabels[$role] ?? 'User' }}</div>
+                </div>
+            </div>
         </div>
 
         {{-- Navigation --}}
-        <nav class="flex-1 overflow-y-auto">
-            <ul class="space-y-1">
+        <nav class="flex-1 overflow-y-auto overflow-x-hidden">
+            <ul class="space-y-2">
                 @foreach($menus as $menu)
                     @php
                         $hasAccess = in_array($role, $menu['roles']);
@@ -145,3 +146,8 @@
 
 {{-- Mobile overlay --}}
 <div id="mobileOverlay" class="mobile-overlay hidden"></div>
+
+{{-- Floating collapse button (outside sidebar) --}}
+<button id="btnCollapse" class="btn-collapse-outer hidden md:flex" title="Toggle Sidebar">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+</button>

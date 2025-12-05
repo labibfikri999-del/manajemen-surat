@@ -21,10 +21,23 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Proses Dokumen — YARSI NTB</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.styles')
+    <style>
+        .kategori-option:has(input:checked) {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        .kategori-option:has(input:checked) span {
+            color: #047857;
+            font-weight: 600;
+        }
+    </style>
 </head>
-<body class="bg-emerald-50">
+<body class="bg-gray-50">
     <div id="app" class="flex flex-col">
         @include('partials.header')
         @include('partials.sidebar-menu')
@@ -153,7 +166,7 @@
     <div id="selesaiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div class="p-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-900">Tandai Selesai</h3>
+                <h3 class="text-lg font-semibold text-gray-900">Selesaikan & Arsipkan Dokumen</h3>
                 <p id="selesaiDocTitle" class="text-sm text-gray-500"></p>
             </div>
             <form id="selesaiForm">
@@ -161,6 +174,66 @@
                 <input type="hidden" id="selesaiDocumenId" name="dokumenId">
                 <input type="hidden" id="selesaiStatus" name="status" value="selesai">
                 <div class="p-6 space-y-4">
+                    {{-- Kategori Arsip --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="text-red-500">*</span> Pilih Kategori Arsip
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition">
+                                <input type="radio" name="kategori_arsip" value="UMUM" class="sr-only" required>
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-700">Umum</span>
+                            </label>
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition">
+                                <input type="radio" name="kategori_arsip" value="SDM" class="sr-only" required>
+                                <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-700">SDM</span>
+                            </label>
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition">
+                                <input type="radio" name="kategori_arsip" value="ASSET" class="sr-only" required>
+                                <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-700">Asset</span>
+                            </label>
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition">
+                                <input type="radio" name="kategori_arsip" value="HUKUM" class="sr-only" required>
+                                <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-700">Hukum</span>
+                            </label>
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition col-span-2">
+                                <input type="radio" name="kategori_arsip" value="KEUANGAN" class="sr-only" required>
+                                <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-700">Keuangan</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Upload File Pengganti --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            File Pengganti (Opsional)
+                        </label>
+                        <p class="text-xs text-gray-500 mb-2">Upload file pengganti jika dokumen sudah diubah (PDF, DOCX, XLS, dll)</p>
+                        <label class="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-emerald-500 transition-colors bg-gray-50">
+                            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            <span class="text-sm text-gray-600" id="fileReplacementLabel">Pilih File</span>
+                            <input type="file" name="file_pengganti" id="fileReplacementInput" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1" id="fileReplacementName"></p>
+                    </div>
+                    
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Penyelesaian</label>
                         <textarea name="catatan" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Catatan penyelesaian dokumen..."></textarea>
@@ -168,7 +241,7 @@
                 </div>
                 <div class="p-6 border-t bg-gray-50 flex gap-3 justify-end rounded-b-xl">
                     <button type="button" onclick="closeSelesaiModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition" id="submitSelesaiBtn">Tandai Selesai</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition" id="submitSelesaiBtn">Selesai & Arsipkan</button>
                 </div>
             </form>
         </div>
@@ -266,6 +339,15 @@
             }
         });
 
+        // File Replacement Input Handler
+        document.getElementById('fileReplacementInput').addEventListener('change', function() {
+            if (this.files[0]) {
+                const file = this.files[0];
+                document.getElementById('fileReplacementLabel').textContent = '✓ File dipilih';
+                document.getElementById('fileReplacementName').textContent = '📄 ' + file.name;
+            }
+        });
+
         // Selesai Form AJAX Submission
         document.getElementById('selesaiForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -273,40 +355,52 @@
             const documenId = document.getElementById('selesaiDocumenId').value;
             const button = document.getElementById('submitSelesaiBtn');
             const catatan = document.querySelector('#selesaiForm textarea[name="catatan"]').value;
+            const kategoriArsip = document.querySelector('#selesaiForm input[name="kategori_arsip"]:checked');
+            const fileReplacement = document.getElementById('fileReplacementInput').files[0];
+            
+            if (!kategoriArsip) {
+                showToast('❌ Pilih kategori arsip terlebih dahulu', 'error');
+                return;
+            }
             
             button.disabled = true;
             button.innerHTML = '<svg class="animate-spin inline-block w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Menyimpan...';
             
             try {
+                const formData = new FormData();
+                formData.append('status', 'selesai');
+                formData.append('catatan', catatan);
+                formData.append('kategori_arsip', kategoriArsip.value);
+                
+                if (fileReplacement) {
+                    formData.append('file_pengganti', fileReplacement);
+                }
+                
                 const response = await fetch(`/api/dokumen/${documenId}/proses`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        status: 'selesai',
-                        catatan: catatan
-                    })
+                    body: formData
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    showToast('✓ Dokumen berhasil ditandai selesai', 'success');
+                    showToast('✓ Dokumen berhasil ditandai selesai & diarsipkan', 'success');
                     closeSelesaiModal();
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     showToast('❌ Error: ' + (data.message || 'Gagal menyelesaikan dokumen'), 'error');
                     button.disabled = false;
-                    button.textContent = 'Tandai Selesai';
+                    button.textContent = 'Selesai & Arsipkan';
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showToast('❌ Error: ' + error.message, 'error');
                 button.disabled = false;
-                button.textContent = 'Tandai Selesai';
+                button.textContent = 'Selesai & Arsipkan';
             }
         });
 

@@ -15,12 +15,10 @@
             if (saved === 'true') {
                 collapsed = true;
                 sidebar.classList.add('sidebar-collapsed');
+                document.body.classList.add('sidebar-collapsed-state');
                 if (main) {
                     main.classList.remove('main-with-sidebar');
                     main.classList.add('main-with-sidebar-collapsed');
-                }
-                if (btnCollapse) {
-                    btnCollapse.querySelector('svg').style.transform = 'rotate(180deg)';
                 }
             }
         } catch(e){ }
@@ -30,14 +28,11 @@
             btnCollapse.addEventListener('click', function() {
                 collapsed = !collapsed;
                 sidebar.classList.toggle('sidebar-collapsed');
+                document.body.classList.toggle('sidebar-collapsed-state');
                 if (main) {
                     main.classList.toggle('main-with-sidebar-collapsed');
                     main.classList.toggle('main-with-sidebar');
                 }
-                
-                // Rotate arrow
-                const arrow = btnCollapse.querySelector('svg');
-                arrow.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
                 
                 try { localStorage.setItem('sidebar.collapsed', collapsed ? 'true' : 'false'); } catch(e){}
             });

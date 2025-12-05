@@ -9,7 +9,7 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div class="flex items-center gap-3">
-            <img src="/images/logo-yarsi.svg" alt="YARSI Logo" class="w-10 h-10" onerror="this.style.display='none'">
+            <img src="/images/Logo Yayasan Bersih.png" alt="Yayasan Bersih Logo" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
             <div class="flex flex-col">
                 <span class="text-lg font-bold text-emerald-700">YARSI NTB</span>
                 <span class="text-xs text-emerald-600">Sistem Arsip Digital</span>

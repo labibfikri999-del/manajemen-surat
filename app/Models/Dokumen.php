@@ -17,11 +17,18 @@ class Dokumen extends Model
         'file_name',
         'file_type',
         'file_size',
+        'file_pengganti_path',
+        'file_pengganti_name',
+        'file_pengganti_type',
+        'file_pengganti_size',
         'instansi_id',
         'user_id',
         'validated_by',
         'processed_by',
         'status',
+        'kategori_arsip',
+        'is_archived',
+        'tanggal_arsip',
         'catatan_validasi',
         'catatan_proses',
         'tanggal_validasi',
@@ -33,7 +40,27 @@ class Dokumen extends Model
         'tanggal_validasi' => 'datetime',
         'tanggal_proses' => 'datetime',
         'tanggal_selesai' => 'datetime',
+        'tanggal_arsip' => 'datetime',
+        'is_archived' => 'boolean',
     ];
+
+    // Kategori Arsip constants
+    const KATEGORI_UMUM = 'UMUM';
+    const KATEGORI_SDM = 'SDM';
+    const KATEGORI_ASSET = 'ASSET';
+    const KATEGORI_HUKUM = 'HUKUM';
+    const KATEGORI_KEUANGAN = 'KEUANGAN';
+
+    public static function getKategoriArsip()
+    {
+        return [
+            self::KATEGORI_UMUM => 'Umum',
+            self::KATEGORI_SDM => 'SDM',
+            self::KATEGORI_ASSET => 'Asset',
+            self::KATEGORI_HUKUM => 'Hukum',
+            self::KATEGORI_KEUANGAN => 'Keuangan',
+        ];
+    }
 
     // Status constants
     const STATUS_PENDING = 'pending';

@@ -15,10 +15,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Upload Dokumen — YARSI NTB</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.styles')
 </head>
-<body class="bg-emerald-50">
+<body class="bg-gray-50">
     <div id="app" class="flex flex-col">
         @include('partials.header')
         @include('partials.sidebar-menu')
@@ -35,16 +38,16 @@
                 </div>
 
                 {{-- Upload Form --}}
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-2xl shadow-xl shadow-emerald-100/50 p-8 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
                     <form id="uploadForm" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="space-y-6">
                             {{-- Judul Dokumen --}}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Judul Dokumen <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" name="judul" required 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                                     placeholder="Masukkan judul dokumen...">
                             </div>
 
@@ -81,22 +84,22 @@
                                     <p class="mt-2 text-sm text-gray-600">Drag & drop file disini, atau</p>
                                     <label class="mt-2 inline-block px-4 py-2 bg-emerald-600 text-white rounded-lg cursor-pointer hover:bg-emerald-700 transition">
                                         <span>Pilih File</span>
-                                        <input type="file" name="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx" required id="fileInput">
+                                        <input type="file" name="file" class="hidden" accept=".doc,.docx" required id="fileInput">
                                     </label>
-                                    <p class="mt-2 text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX (Maks. 10MB)</p>
+                                    <p class="mt-2 text-xs text-gray-500">Hanya File WORD (.doc, .docx) - Maks. 10MB</p>
                                     <p id="fileName" class="mt-2 text-sm text-emerald-600 font-medium hidden"></p>
                                 </div>
                             </div>
 
                             {{-- Submit --}}
                             <div class="flex gap-4">
-                                <button type="submit" class="flex-1 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2" id="submitBtn">
+                                <button type="submit" class="flex-1 px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 flex items-center justify-center gap-2" id="submitBtn">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                     </svg>
                                     Upload Dokumen
                                 </button>
-                                <a href="{{ route('tracking-dokumen') }}" class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition">
+                                <a href="{{ route('tracking-dokumen') }}" class="px-6 py-3.5 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all">
                                     Lihat Status
                                 </a>
                             </div>
@@ -117,7 +120,18 @@
 
         fileInput.addEventListener('change', function() {
             if (this.files[0]) {
-                fileName.textContent = '📄 ' + this.files[0].name;
+                const file = this.files[0];
+                const validExtensions = ['doc', 'docx'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                
+                if (!validExtensions.includes(fileExtension)) {
+                    alert('❌ Hanya file WORD (.doc atau .docx) yang diperbolehkan!');
+                    this.value = '';
+                    fileName.classList.add('hidden');
+                    return;
+                }
+                
+                fileName.textContent = '📄 ' + file.name;
                 fileName.classList.remove('hidden');
             }
         });
@@ -136,8 +150,17 @@
             e.preventDefault();
             dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
             if (e.dataTransfer.files[0]) {
+                const file = e.dataTransfer.files[0];
+                const validExtensions = ['doc', 'docx'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                
+                if (!validExtensions.includes(fileExtension)) {
+                    alert('❌ Hanya file WORD (.doc atau .docx) yang diperbolehkan!');
+                    return;
+                }
+                
                 fileInput.files = e.dataTransfer.files;
-                fileName.textContent = '📄 ' + e.dataTransfer.files[0].name;
+                fileName.textContent = '📄 ' + file.name;
                 fileName.classList.remove('hidden');
             }
         });

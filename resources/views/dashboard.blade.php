@@ -75,7 +75,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Dashboard — YARSI NTB</title>
-  <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
@@ -83,9 +83,10 @@
       --sidebar-w: 16rem;
       --sidebar-collapsed-w: 4.5rem;
     }
-    html,body,#app { height: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html,body,#app { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     .transition-smooth { transition: all .22s cubic-bezier(.2,.8,.2,1); }
-    html, body { overflow-x: hidden; }
+    html, body { overflow-x: hidden; background: #f8fafc; }
     .site-header { height: var(--header-h); position: sticky; top: 0; z-index: 100; }
     .sidebar {
       width: var(--sidebar-w);
@@ -97,16 +98,27 @@
       bottom: 0;
       z-index: 50;
       overflow-y: auto;
+      overflow-x: hidden;
       background: white;
     }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 4px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: #a7f3d0; }
+    .sidebar, .sidebar * { scrollbar-width: thin; scrollbar-color: #d1fae5 transparent; }
+    .sidebar ::-webkit-scrollbar { width: 4px; height: 0; }
+    .sidebar nav { overflow-x: hidden; }
+    .sidebar nav::-webkit-scrollbar { height: 0; width: 4px; }
     .sidebar-collapsed { width: var(--sidebar-collapsed-w) !important; min-width: var(--sidebar-collapsed-w) !important; }
     .sidebar.sidebar-collapsed .nav-label,
     .sidebar.sidebar-collapsed .sidebar-brand-text,
     .sidebar.sidebar-collapsed .role-badge-text { display: none !important; }
-    .sidebar.sidebar-collapsed .nav-item { justify-content: center; }
-    .sidebar.sidebar-collapsed .nav-item-locked { justify-content: center; }
+    .sidebar.sidebar-collapsed .nav-item { justify-content: center; padding: 0.75rem !important; }
+    .sidebar.sidebar-collapsed .nav-item-locked { justify-content: center; padding: 0.75rem !important; }
     .sidebar.sidebar-collapsed .nav-item-locked .lock-icon { display: none; }
-    .sidebar.sidebar-collapsed .role-badge { padding: 0.5rem; justify-content: center; }
+    .sidebar.sidebar-collapsed .role-badge { padding: 0.75rem; justify-content: center; margin-bottom: 1rem; }
+    .sidebar.sidebar-collapsed .role-badge > div { justify-content: center; }
+    .sidebar.sidebar-collapsed .role-badge .w-12 { width: 2.5rem; height: 2.5rem; font-size: 0.875rem; }
     @media (max-width: 767.98px) { 
       .sidebar { transform: translateX(-100%); z-index: 60; }
       .sidebar-hidden-mobile { transform: translateX(-100%) !important; }
@@ -114,17 +126,49 @@
       .sidebar { width: var(--sidebar-w) !important; min-width: var(--sidebar-w) !important; } 
     }
     @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
-    .main-with-sidebar { margin-left: var(--sidebar-w); }
+    .main-with-sidebar { margin-left: var(--sidebar-w); transition: margin-left .25s ease; }
     .main-with-sidebar-collapsed { margin-left: var(--sidebar-collapsed-w); }
     @media (max-width: 767.98px) { 
       .main-with-sidebar { margin-left: 0 !important; }
       .main-with-sidebar-collapsed { margin-left: 0 !important; }
     }
     .mobile-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 55; }
-    .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; border-radius: 0.5rem; transition: all 0.2s; color: #065f46; }
-    .nav-item.active { background: #d1fae5; color: #047857; border-left: 3px solid #047857; font-weight: 600; }
-    .nav-item:hover:not(.active) { background: #ecfdf5; transform: translateX(2px); }
-    .nav-item-locked { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; border-radius: 0.5rem; background: #f9fafb; cursor: not-allowed; opacity: 0.6; }
+    
+    /* Modern nav-item styling */
+    .nav-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.875rem; 
+      padding: 0.75rem 1rem; 
+      border-radius: 0.75rem; 
+      transition: all 0.2s cubic-bezier(.4,0,.2,1); 
+      color: #374151; 
+      font-weight: 500;
+      margin: 0.25rem 0;
+    }
+    .nav-item.active { 
+      background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); 
+      color: #059669; 
+      border-left: 4px solid #10b981; 
+      font-weight: 600; 
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+    }
+    .nav-item:hover:not(.active) { 
+      background: #ecfdf5; 
+      transform: translateX(4px); 
+      color: #059669;
+    }
+    .nav-item-locked { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.75rem; 
+      padding: 0.75rem 1rem; 
+      border-radius: 0.75rem; 
+      background: #f9fafb; 
+      cursor: not-allowed; 
+      opacity: 0.6;
+      margin: 0.25rem 0;
+    }
     .nav-item-locked:hover { background: #f3f4f6; }
     .tooltip { position: relative; }
     .tooltip-text { 
@@ -157,18 +201,65 @@
     .tooltip-text.locked::before { border-right-color: #6b7280; }
     .sidebar.sidebar-collapsed .nav-item:hover .tooltip-text,
     .sidebar.sidebar-collapsed .nav-item-locked:hover .tooltip-text { opacity: 1; }
+    
+    /* Floating collapse button */
+    .btn-collapse-outer {
+      position: fixed;
+      top: calc(var(--header-h) + 1rem);
+      left: calc(var(--sidebar-w) - 14px);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid #d1fae5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .btn-collapse-outer:hover {
+      background: #ecfdf5;
+      box-shadow: 0 4px 12px rgba(16,185,129,0.2);
+    }
+    .btn-collapse-outer svg {
+      width: 16px;
+      height: 16px;
+      color: #059669;
+      transition: transform 0.25s ease;
+    }
+    .sidebar-collapsed-state .btn-collapse-outer {
+      left: calc(var(--sidebar-collapsed-w) - 14px);
+    }
+    .sidebar-collapsed-state .btn-collapse-outer svg {
+      transform: rotate(180deg);
+    }
+    @media (max-width: 767.98px) {
+      .btn-collapse-outer { display: none !important; }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-emerald-50">
+<body class="bg-gray-50">
   <div id="app" class="flex flex-col">
     {{-- Header --}}
-    <header class="site-header bg-white border-b border-emerald-100 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm">
+    <header class="site-header bg-white/80 border-b border-gray-200 flex items-center justify-between px-4 md:px-6 lg:px-8 shadow-sm backdrop-blur-xl">
       <div class="flex items-center gap-4">
-        <button id="btnOpenMobile" class="md:hidden text-emerald-700">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <button id="btnOpenMobile" class="md:hidden text-gray-700 hover:text-emerald-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div class="flex items-center gap-3">
-          <img src="/images/logo-yarsi.svg" alt="YARSI Logo" class="w-10 h-10" onerror="this.style.display='none'">
+          <img src="/images/Logo Yayasan Bersih.png" alt="Yayasan Bersih Logo" class="w-11 h-11 object-contain" onerror="this.style.display='none'">
           <div class="flex flex-col">
             <span class="text-lg font-bold text-emerald-700">YARSI NTB</span>
             <span class="text-xs text-emerald-600">Sistem Arsip Digital</span>
@@ -188,26 +279,22 @@
     {{-- Sidebar --}}
     <aside id="sidebar" class="sidebar sidebar-hidden-mobile border-r border-emerald-100">
       <div class="p-4 flex flex-col h-full">
-        {{-- Collapse button --}}
-        <button id="btnCollapse" class="hidden md:flex w-full items-center justify-center mb-4 p-2 rounded hover:bg-emerald-50 text-emerald-700">
-          <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-
-        {{-- Role Badge --}}
-        <div class="role-badge mb-4 p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200 flex items-center gap-3">
-          <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold shrink-0">
-            {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
-          </div>
-          <div class="role-badge-text min-w-0">
-            <div class="text-xs text-emerald-500 uppercase tracking-wide">Login sebagai</div>
-            <div class="font-semibold text-emerald-700 truncate">{{ $roleLabels[$role] ?? 'User' }}</div>
-            <div class="text-xs text-emerald-600 truncate">Pengguna</div>
+        {{-- User Profile Card --}}
+        <div class="role-badge mb-6 p-4 bg-white rounded-xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm">
+              {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+            </div>
+            <div class="role-badge-text min-w-0 flex-1">
+              <div class="font-semibold text-gray-800 truncate text-sm">{{ $user->name ?? 'User' }}</div>
+              <div class="text-xs text-emerald-600 font-medium mt-0.5">{{ $roleLabels[$role] ?? 'User' }}</div>
+            </div>
           </div>
         </div>
 
         {{-- Navigation --}}
-        <nav class="flex-1 overflow-y-auto">
-          <ul class="space-y-1">
+        <nav class="flex-1 overflow-y-auto overflow-x-hidden">
+          <ul class="space-y-2">
             @foreach($menus as $menu)
               @php
                   $hasAccess = in_array($role, $menu['roles']);
@@ -263,6 +350,11 @@
     {{-- Mobile overlay --}}
     <div id="mobileOverlay" class="mobile-overlay hidden"></div>
 
+    {{-- Floating collapse button (outside sidebar) --}}
+    <button id="btnCollapse" class="btn-collapse-outer hidden md:flex" title="Toggle Sidebar">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+
     {{-- Main content --}}
     <main id="main" class="transition-smooth main-with-sidebar flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto" style="margin-top:0">
       <div class="max-w-7xl mx-auto">
@@ -285,49 +377,57 @@
 
         {{-- Page header --}}
         <div class="mb-8">
-          <h1 class="text-3xl font-bold text-emerald-900">Dashboard</h1>
-          <p class="text-emerald-600 mt-2">Selamat datang! Anda login sebagai <span class="px-2 py-0.5 bg-emerald-100 rounded text-emerald-700 font-medium">{{ $roleLabels[$role] ?? ucfirst($role) }}</span></p>
+          <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+          <p class="text-gray-600 mt-2">Selamat datang! Anda login sebagai <span class="px-3 py-1 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg text-emerald-700 font-semibold border border-emerald-200">{{ $roleLabels[$role] ?? ucfirst($role) }}</span></p>
         </div>
 
         {{-- Statistics cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100 transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-emerald-600 text-sm font-medium">Surat Masuk</p>
-                <p id="statSuratMasuk" class="text-3xl font-bold text-emerald-900 mt-2">0</p>
+                <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Surat Masuk</p>
+                <p id="statSuratMasuk" class="text-4xl font-bold text-gray-900 mt-3">0</p>
               </div>
-              <svg class="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg>
+              <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 shadow-lg shadow-emerald-500/30">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg>
+              </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-white rounded-2xl shadow-lg shadow-blue-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-blue-100 transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-emerald-600 text-sm font-medium">Surat Keluar</p>
-                <p id="statSuratKeluar" class="text-3xl font-bold text-emerald-900 mt-2">0</p>
+                <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Surat Keluar</p>
+                <p id="statSuratKeluar" class="text-4xl font-bold text-gray-900 mt-3">0</p>
               </div>
-              <svg class="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12l18-7-7 18-3-8-8-3z"/></svg>
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 shadow-lg shadow-blue-500/30">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12l18-7-7 18-3-8-8-3z"/></svg>
+              </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-white rounded-2xl shadow-lg shadow-purple-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-purple-100 transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-emerald-600 text-sm font-medium">Arsip Digital</p>
-                <p id="statArsipDigital" class="text-3xl font-bold text-emerald-900 mt-2">0</p>
+                <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Arsip Digital</p>
+                <p id="statArsipDigital" class="text-4xl font-bold text-gray-900 mt-3">0</p>
               </div>
-              <svg class="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 shadow-lg shadow-purple-500/30">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M8 7v-2a1 1 0 011-1h6a1 1 0 011 1v2M21 7l-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2L3 7"/></svg>
+              </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-white rounded-2xl shadow-lg shadow-amber-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-amber-100 transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-emerald-600 text-sm font-medium">Pengguna Aktif</p>
-                <p id="statPenggunaAktif" class="text-3xl font-bold text-emerald-900 mt-2">0</p>
+                <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Pengguna Aktif</p>
+                <p id="statPenggunaAktif" class="text-4xl font-bold text-gray-900 mt-3">0</p>
               </div>
-              <svg class="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 10H9M21 20.354A4 4 0 0012.646 15H11.354A4 4 0 003 20.354"/></svg>
+              <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-4 shadow-lg shadow-amber-500/30">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 10H9M21 20.354A4 4 0 0012.646 15H11.354A4 4 0 003 20.354"/></svg>
+              </div>
             </div>
           </div>
         </div>
@@ -386,6 +486,7 @@
       if (saved === 'true') {
         collapsed = true;
         sidebar.classList.add('sidebar-collapsed');
+        document.body.classList.add('sidebar-collapsed-state');
       }
     } catch(e){ }
 
@@ -406,8 +507,10 @@
         collapsed = !collapsed;
         if (collapsed) {
           sidebar.classList.add('sidebar-collapsed');
+          document.body.classList.add('sidebar-collapsed-state');
         } else {
           sidebar.classList.remove('sidebar-collapsed');
+          document.body.classList.remove('sidebar-collapsed-state');
         }
         try { localStorage.setItem('sidebar.collapsed', collapsed ? 'true' : 'false'); } catch(e){}
         setMainClass();

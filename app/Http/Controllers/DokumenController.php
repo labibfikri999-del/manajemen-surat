@@ -57,7 +57,7 @@ class DokumenController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'file' => 'required|file|max:10240', // Max 10MB
+            'file' => 'required|file|mimes:doc,docx|max:10240', // Hanya WORD, Max 10MB
         ]);
 
         // Upload file
@@ -191,10 +191,18 @@ class DokumenController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $request->validate([
+        $rules = [
             'status' => 'required|in:diproses,selesai',
             'catatan' => 'nullable|string',
-        ]);
+        ];
+
+        // Jika status selesai, wajib pilih kategori
+        if ($request->status === 'selesai') {
+            $rules['kategori_arsip'] = 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN';
+            $rules['file_pengganti'] = 'nullable|file|max:10240'; // Max 10MB
+        }
+
+        $request->validate($rules);
 
         $dokumen = Dokumen::findOrFail($id);
 
@@ -213,12 +221,29 @@ class DokumenController extends Controller
             $updateData['tanggal_proses'] = now();
         } elseif ($request->status === 'selesai') {
             $updateData['tanggal_selesai'] = now();
+            $updateData['kategori_arsip'] = $request->kategori_arsip;
+            $updateData['is_archived'] = true;
+            $updateData['tanggal_arsip'] = now();
+            
+            // Handle file pengganti upload
+            if ($request->hasFile('file_pengganti')) {
+                $file = $request->file('file_pengganti');
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->store('dokumen/' . $dokumen->instansi->kode . '/pengganti', 'public');
+                
+                $updateData['file_pengganti_path'] = $filePath;
+                $updateData['file_pengganti_name'] = $fileName;
+                $updateData['file_pengganti_type'] = $file->getClientOriginalExtension();
+                $updateData['file_pengganti_size'] = $file->getSize();
+            }
         }
 
         $dokumen->update($updateData);
 
         return response()->json([
-            'message' => 'Status dokumen berhasil diupdate',
+            'message' => $request->status === 'selesai' 
+                ? 'Dokumen berhasil diselesaikan dan diarsipkan ke folder ' . $request->kategori_arsip 
+                : 'Status dokumen berhasil diupdate',
             'dokumen' => $dokumen->load(['instansi', 'user', 'validator', 'processor'])
         ]);
     }
