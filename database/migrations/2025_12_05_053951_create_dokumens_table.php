@@ -22,7 +22,7 @@ return new class extends Migration
             $table->bigInteger('file_size')->nullable(); // Ukuran dalam bytes
             
             // Relasi
-            $table->foreignId('instansi_id')->constrained('instansis')->onDelete('cascade');
+            $table->foreignId('instansi_id')->nullable()->constrained('instansis')->onDelete('set null');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Yang upload
             $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('set null'); // Direktur yang validasi
             $table->foreignId('processed_by')->nullable()->constrained('users')->onDelete('set null'); // Staff yang proses
