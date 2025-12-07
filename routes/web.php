@@ -74,6 +74,13 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::get('surat-keluar/{id}/download', [SuratKeluarController::class, 'download']);
     Route::apiResource('arsip-digital', ArsipDigitalController::class);
     Route::get('arsip-digital/{id}/download', [ArsipDigitalController::class, 'download']);
+    
+    // Arsip Digital API endpoints
+    Route::get('/arsip-stats', [ArsipDigitalController::class, 'getStats']);
+    Route::get('/arsip-kategori-count', [ArsipDigitalController::class, 'getKategoriCount']);
+    Route::get('/arsip-by-kategori/{kategori}', [ArsipDigitalController::class, 'getByKategori']);
+    Route::post('/arsip-upload', [ArsipDigitalController::class, 'store']);
+    
     Route::apiResource('klasifikasi', DataMasterController::class);
     Route::get('/klasifikasi-list', [DataMasterController::class,'indexKlasifikasi']);
     Route::post('/klasifikasi-store', [DataMasterController::class,'storeKlasifikasi']);

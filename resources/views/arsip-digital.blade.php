@@ -366,41 +366,37 @@
     }
 
     // ========== LOAD STATISTICS ==========
-    async function loadArsipStats() {
-      try {
-        const response = await fetch('/api/arsip-stats');
-        const data = await response.json();
-        
-        // Update dengan animasi
-        const totalEl = document.getElementById('statTotalDokumen');
-        const ukuranEl = document.getElementById('statUkuranTotal');
-        const aksesEl = document.getElementById('statAksesTerakhir');
-        
-        if (totalEl) {
-          totalEl.classList.add('scale-110');
-          totalEl.textContent = data.total_dokumen;
-          setTimeout(() => totalEl.classList.remove('scale-110'), 300);
-        }
-        if (ukuranEl) {
-          ukuranEl.classList.add('scale-110');
-          ukuranEl.textContent = data.ukuran_total;
-          setTimeout(() => ukuranEl.classList.remove('scale-110'), 300);
-        }
-        if (aksesEl) {
-          aksesEl.classList.add('scale-110');
-          aksesEl.textContent = data.akses_terakhir;
-          setTimeout(() => aksesEl.classList.remove('scale-110'), 300);
-        }
-        
-        console.log('[ARSIP] Stats updated:', data);
-      } catch (error) {
-        console.error('Error loading stats:', error);
-      }
+    function loadArsipStats() {
+      fetch('/api/arsip-stats')
+        .then(response => response.json())
+        .then(data => {
+          // Update dengan animasi
+          const totalEl = document.getElementById('statTotalDokumen');
+          const ukuranEl = document.getElementById('statUkuranTotal');
+          const aksesEl = document.getElementById('statAksesTerakhir');
+          if (totalEl) {
+            totalEl.classList.add('scale-110');
+            totalEl.textContent = data.total_dokumen;
+            setTimeout(() => totalEl.classList.remove('scale-110'), 300);
+          }
+          if (ukuranEl) {
+            ukuranEl.classList.add('scale-110');
+            ukuranEl.textContent = data.ukuran_total;
+            setTimeout(() => ukuranEl.classList.remove('scale-110'), 300);
+          }
+          if (aksesEl) {
+            aksesEl.classList.add('scale-110');
+            aksesEl.textContent = data.akses_terakhir;
+            setTimeout(() => aksesEl.classList.remove('scale-110'), 300);
+          }
+        })
+        .catch(error => {
+          console.error('Error loading stats:', error);
+        });
     }
 
     // Open folder - called from onclick
     async function openFolder(kategori) {
-      console.log('[ARSIP] openFolder called with:', kategori);
       currentFolder = kategori;
       
       const folderGrid = document.getElementById('folderGrid');
@@ -486,7 +482,6 @@
 
     // Go back to root
     function goToRoot() {
-      console.log('[ARSIP] goToRoot called');
       currentFolder = null;
       document.getElementById('folderGrid').classList.remove('hidden');
       document.getElementById('documentList').classList.add('hidden');
@@ -498,21 +493,17 @@
 
     // Load folder counts
     async function loadFolderCounts() {
-      console.log('[ARSIP] loadFolderCounts called');
       try {
         const response = await fetch('/api/arsip-kategori-count');
         if (!response.ok) {
           throw new Error('API response not ok: ' + response.status);
         }
         const counts = await response.json();
-        console.log('[ARSIP] Counts received:', counts);
-        
         document.getElementById('countUMUM').textContent = counts.UMUM + ' dokumen';
         document.getElementById('countSDM').textContent = counts.SDM + ' dokumen';
         document.getElementById('countASSET').textContent = counts.ASSET + ' dokumen';
         document.getElementById('countHUKUM').textContent = counts.HUKUM + ' dokumen';
         document.getElementById('countKEUANGAN').textContent = counts.KEUANGAN + ' dokumen';
-        console.log('[ARSIP] Folder counts updated successfully');
       } catch (error) {
         console.error('[ARSIP] Error loading folder counts:', error);
       }
@@ -520,7 +511,6 @@
 
     // Open upload modal
     function openUploadModal() {
-      console.log('[ARSIP] openUploadModal called');
       isArsipUploadMode = true;
       document.getElementById('modalTitle').textContent = 'Upload File ke Arsip Digital';
       document.getElementById('fileForm').reset();
@@ -540,8 +530,6 @@
 
     // Initialize when DOM ready
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('[ARSIP] DOMContentLoaded - initializing...');
-      
       // Load folder counts and stats on page load
       loadFolderCounts();
       loadArsipStats();
@@ -639,8 +627,6 @@
           }
         });
       }
-      
-      console.log('[ARSIP] Initialization complete');
     });
   </script>
 
@@ -809,20 +795,17 @@
     // Load folder counts
     async function loadFolderCounts() {
       try {
-        console.log('[' + new Date().toLocaleTimeString() + '] Fetching folder counts...');
         const response = await fetch('/api/arsip-kategori-count');
         if (!response.ok) {
           throw new Error('API response not ok: ' + response.status);
         }
         const counts = await response.json();
-        console.log('[' + new Date().toLocaleTimeString() + '] Counts received:', counts);
         
         document.getElementById('countUMUM').textContent = counts.UMUM + ' dokumen';
         document.getElementById('countSDM').textContent = counts.SDM + ' dokumen';
         document.getElementById('countASSET').textContent = counts.ASSET + ' dokumen';
         document.getElementById('countHUKUM').textContent = counts.HUKUM + ' dokumen';
         document.getElementById('countKEUANGAN').textContent = counts.KEUANGAN + ' dokumen';
-        console.log('[' + new Date().toLocaleTimeString() + '] Folder counts updated successfully');
       } catch (error) {
         console.error('[' + new Date().toLocaleTimeString() + '] Error loading folder counts:', error);
       }
@@ -929,24 +912,27 @@
 
     // Search functionality
     if (searchInput) {
-      searchInput.addEventListener('input', async (e) => {
+      searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        
         if (currentFolder) {
           // Search within folder
-          const response = await fetch(`/api/arsip-by-kategori/${currentFolder}`);
-          const dokumens = await response.json();
-          const filtered = dokumens.filter(d => 
-            d.judul.toLowerCase().includes(query) || 
-            (d.nomor_dokumen && d.nomor_dokumen.toLowerCase().includes(query))
-          );
-          renderDocuments(filtered);
+          fetch(`/api/arsip-by-kategori/${currentFolder}`)
+            .then(response => response.json())
+            .then(dokumens => {
+              const filtered = dokumens.filter(d => 
+                d.judul.toLowerCase().includes(query) || 
+                (d.nomor_dokumen && d.nomor_dokumen.toLowerCase().includes(query))
+              );
+              renderDocuments(filtered);
+            })
+            .catch(error => {
+              console.error('Error searching documents:', error);
+            });
         }
       });
     }
 
     // Initialize
-    console.log('[' + new Date().toLocaleTimeString() + '] Initializing folder counts...');
     loadFolderCounts();
     
     // Also reload counts periodically
@@ -954,11 +940,8 @@
 
     // Upload Arsip Button
     const btnUploadArsip = document.getElementById('btnUploadArsip');
-    console.log('[ARSIP] btnUploadArsip element:', btnUploadArsip);
-    
     if (btnUploadArsip) {
       btnUploadArsip.addEventListener('click', () => {
-        console.log('[ARSIP] Upload button clicked');
         isArsipUploadMode = true;
         document.getElementById('modalTitle').textContent = 'Upload File ke Arsip Digital';
         document.getElementById('fileForm').reset();
@@ -966,10 +949,8 @@
         document.getElementById('formNamaFile').placeholder = 'Judul dokumen';
         document.getElementById('modalForm').classList.remove('hidden');
         document.getElementById('modalBackdrop').classList.remove('hidden');
-        console.log('[ARSIP] Modal opened, isArsipUploadMode:', isArsipUploadMode);
       });
     } else {
-      console.log('[ARSIP] btnUploadArsip not found!');
     }
 
     // Legacy CRUD untuk Arsip Digital (keep for backward compatibility)
@@ -1314,28 +1295,6 @@
         showToast('Error', error.message, 'error');
       }
       });
-    }
-      try {
-        const response = await fetch('/api/arsip-digital', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-          },
-          body: JSON.stringify({
-            nama_file: namaFile,
-            tipe: tipe
-          })
-        });
-        if (response.ok) {
-          const newData = await response.json();
-          allFilesData.unshift(newData);
-          renderGrid();
-          showToast('Upload Berhasil! ✓', 'File berhasil diupload ke arsip digital', 'success');
-        }
-      } catch (error) {
-        showToast('Terjadi Kesalahan', error.message, 'error');
-      }
     }
 
     async function editFile(card, item) {

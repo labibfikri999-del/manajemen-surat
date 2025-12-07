@@ -767,8 +767,7 @@
         // Submit Logic
         if(dataForm) {
             dataForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              console.log('Form submitted'); // Debug log
+              e.preventDefault();// Debug log
               
               const payload = {};
               const type = currentModalType;

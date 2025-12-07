@@ -315,17 +315,13 @@
 
         // Form submit via AJAX
         document.getElementById('validasiForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log('Form submitted'); // Debug log
+            e.preventDefault();// Debug log
 
             const dokumenId = document.getElementById('dokumenId').value;
             const status = document.querySelector('input[name="status"]:checked')?.value;
             const catatan = document.querySelector('textarea[name="catatan"]').value;
             const submitBtn = document.getElementById('submitValidasiBtn');
-            const originalBtnText = submitBtn.innerHTML;
-
-            console.log('Status:', status); // Debug log
-            console.log('DokumenId:', dokumenId); // Debug log
+            const originalBtnText = submitBtn.innerHTML;// Debug log// Debug log
 
             if (!status) {
                 showToast('Pilih keputusan terlebih dahulu', 'warning');
@@ -345,9 +341,7 @@
             submitBtn.innerHTML = '<svg class="animate-spin w-4 h-4 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Menyimpan...';
 
             try {
-                const prioritas = document.querySelector('input[name="prioritas"]:checked')?.value;
-                
-                console.log('Prioritas:', prioritas); // Debug log
+                const prioritas = document.querySelector('input[name="prioritas"]:checked')?.value;// Debug log
                 
                 // Prioritas hanya required saat "Setujui"
                 if (status === 'disetujui' && !prioritas) {
@@ -362,9 +356,7 @@
                     prioritas: prioritas || null, // Kirim null jika tolak
                     catatan: catatan,
                     signature: signatureData
-                };
-
-                console.log('Payload:', payload); // Debug log
+                };// Debug log
 
                 const response = await fetch(`/api/dokumen/${dokumenId}/validasi`, {
                     method: 'POST',

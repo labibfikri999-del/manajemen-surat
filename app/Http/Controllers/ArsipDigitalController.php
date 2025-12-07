@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArsipDigital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ArsipDigitalController extends Controller
 {
@@ -22,8 +23,8 @@ class ArsipDigitalController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_dokumen' => 'required|string',
-            'kategori' => 'nullable|string',
+            'judul' => 'required|string',
+            'kategori_arsip' => 'nullable|string',
             'deskripsi' => 'nullable|string',
             'file' => 'required|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,xls,ppt,pptx|max:10240',
         ]);
@@ -45,11 +46,11 @@ class ArsipDigitalController extends Controller
             $ukuran = $bytes . ' B';
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
         $arsip = ArsipDigital::create([
             'instansi_id' => $user->instansi_id ?? null,
-            'nama_dokumen' => $validated['nama_dokumen'],
-            'kategori' => $validated['kategori'] ?? null,
+            'nama_dokumen' => $validated['judul'],
+            'kategori' => $validated['kategori_arsip'] ?? null,
             'deskripsi' => $validated['deskripsi'] ?? null,
             'nama_file' => $file->getClientOriginalName(),
             'file_path' => $path,
@@ -128,6 +129,7 @@ class ArsipDigitalController extends Controller
         return response()->json(['message' => 'File deleted successfully']);
     }
     
+    
     // Download file
     public function download($id)
     {
@@ -139,5 +141,65 @@ class ArsipDigitalController extends Controller
         
         $path = Storage::disk('public')->path($arsip->file_path);
         return response()->download($path, $arsip->nama_file);
+    }
+
+    // Get statistics for Arsip Digital page
+    public function getStats()
+    {
+        $totalDokumen = ArsipDigital::count();
+        
+        // Calculate total size
+        $totalBytes = 0;
+        foreach (ArsipDigital::all(['file_path']) as $file) {
+            if ($file->file_path && Storage::disk('public')->exists($file->file_path)) {
+                $totalBytes += Storage::disk('public')->size($file->file_path);
+            }
+        }
+        
+        // Format size
+        if ($totalBytes >= 1073741824) {
+            $ukuranTotal = number_format($totalBytes / 1073741824, 2) . ' GB';
+        } elseif ($totalBytes >= 1048576) {
+            $ukuranTotal = number_format($totalBytes / 1048576, 2) . ' MB';
+        } elseif ($totalBytes >= 1024) {
+            $ukuranTotal = number_format($totalBytes / 1024, 2) . ' KB';
+        } else {
+            $ukuranTotal = $totalBytes . ' B';
+        }
+        
+        // Get last access
+        $lastAccess = ArsipDigital::latest('updated_at')->first();
+        $aksesTerakhir = $lastAccess ? $lastAccess->updated_at->diffForHumans() : 'Belum ada data';
+        
+        return response()->json([
+            'total_dokumen' => $totalDokumen,
+            'ukuran_total' => $ukuranTotal,
+            'akses_terakhir' => $aksesTerakhir
+        ]);
+    }
+
+    // Get document count by category
+    public function getKategoriCount()
+    {
+        $counts = [
+            'UMUM' => ArsipDigital::where('kategori', 'UMUM')->count(),
+            'SDM' => ArsipDigital::where('kategori', 'SDM')->count(),
+            'ASSET' => ArsipDigital::where('kategori', 'ASSET')->count(),
+            'HUKUM' => ArsipDigital::where('kategori', 'HUKUM')->count(),
+            'KEUANGAN' => ArsipDigital::where('kategori', 'KEUANGAN')->count(),
+        ];
+        
+        return response()->json($counts);
+    }
+
+    // Get documents by category
+    public function getByKategori($kategori)
+    {
+        $dokumens = ArsipDigital::where('kategori', $kategori)
+            ->with(['instansi', 'processor'])
+            ->latest()
+            ->get();
+        
+        return response()->json($dokumens);
     }
 }

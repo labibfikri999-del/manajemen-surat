@@ -12,7 +12,6 @@
     <p class="mt-4 text-slate-700">Jika kamu melihat teks berwarna & bergaya, build assets berhasil.</p>
   </div>
   <script>
-    console.log('test_vite loaded');
   </script>
 </body>
 </html>

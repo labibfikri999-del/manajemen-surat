@@ -26,4 +26,15 @@ class ArsipDigital extends Model
     protected $casts = [
         'tanggal_upload' => 'date',
     ];
+
+    // Relationships
+    public function instansi()
+    {
+        return $this->belongsTo(\App\Models\Instansi::class);
+    }
+
+    public function processor()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'processor_id');
+    }
 }
