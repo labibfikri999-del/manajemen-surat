@@ -35,8 +35,8 @@ Route::middleware('auth')->group(function () {
     // Dashboard - semua role bisa akses
     Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
     
-    // ===== DIREKTUR ONLY =====
-    Route::middleware('role:direktur')->group(function () {
+    // ===== DIREKTUR & STAFF =====
+    Route::middleware('role:direktur,staff')->group(function () {
         Route::get('/validasi-dokumen', [PageController::class, 'validasiDokumen'])->name('validasi-dokumen');
         Route::get('/data-master', [PageController::class, 'dataMaster'])->name('data-master');
     });

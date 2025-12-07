@@ -28,7 +28,7 @@
             'name' => 'Validasi Dokumen',
             'route' => 'validasi-dokumen',
             'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-            'roles' => ['direktur'],
+            'roles' => ['direktur', 'staff'],
         ],
         [
             'name' => 'Proses Dokumen',
@@ -58,7 +58,7 @@
             'name' => 'Data Master',
             'route' => 'data-master',
             'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2C7.6 2 4 3.8 4 6v12c0 2.2 3.6 4 8 4s8-1.8 8-4V6c0-2.2-3.6-4-8-4zM4 10c0 2.2 3.6 4 8 4s8-1.8 8-4"/>',
-            'roles' => ['direktur'],
+            'roles' => ['direktur', 'staff'],
         ],
     ];
     
