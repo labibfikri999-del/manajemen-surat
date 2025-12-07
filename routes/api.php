@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Dokumen;
 use App\Models\User;
 use App\Models\ArsipDigital;
+use App\Http\Controllers\Api\BalasanApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,21 +20,53 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Statistics API endpoints
 Route::middleware('web')->group(function () {
     
-    // Surat Masuk = Dokumen dengan status pending, disetujui, review, diproses, selesai
+    // Surat Masuk = Dokumen dengan jenis 'surat_masuk' atau null (legacy)
     Route::get('/surat-masuk', function () {
-        $count = Dokumen::whereIn('status', ['pending', 'review', 'disetujui', 'diproses', 'selesai'])->count();
+        $user = auth()->user();
+        $count = 0;
+        if ($user && $user->instansi_id) {
+            $count = \App\Models\Dokumen::where(function($q) {
+                $q->where('jenis_dokumen', 'surat_masuk')
+                  ->orWhereNull('jenis_dokumen');
+            })
+            ->where('instansi_id', $user->instansi_id)
+            ->count();
+        } else if ($user) {
+            $count = \App\Models\Dokumen::where(function($q) {
+                $q->where('jenis_dokumen', 'surat_masuk')
+                  ->orWhereNull('jenis_dokumen');
+            })
+            ->where('user_id', $user->id)
+            ->count();
+        }
         return response()->json(['count' => $count]);
     });
 
-    // Surat Keluar = Dokumen dengan status ditolak atau yang sudah diarsipkan
+    // Surat Keluar = Dokumen dengan jenis 'surat_keluar'
     Route::get('/surat-keluar', function () {
-        $count = Dokumen::where('status', 'ditolak')->count();
+        $user = auth()->user();
+        $count = 0;
+        if ($user && $user->instansi_id) {
+            $count = \App\Models\Dokumen::where('jenis_dokumen', 'surat_keluar')
+                ->where('instansi_id', $user->instansi_id)
+                ->count();
+        } else if ($user) {
+            $count = \App\Models\Dokumen::where('jenis_dokumen', 'surat_keluar')
+                ->where('user_id', $user->id)
+                ->count();
+        }
         return response()->json(['count' => $count]);
     });
 
     // Arsip Digital = Dokumen dengan is_archived = true
     Route::get('/arsip-digital', function () {
-        $count = Dokumen::where('is_archived', true)->count();
+        $user = auth()->user();
+        $count = 0;
+        if ($user && $user->instansi_id) {
+            $count = \App\Models\ArsipDigital::where('instansi_id', $user->instansi_id)->count();
+        } else if ($user) {
+            $count = \App\Models\ArsipDigital::where('user_id', $user->id)->count();
+        }
         return response()->json(['count' => $count]);
     });
 
@@ -61,10 +94,15 @@ Route::middleware('web')->group(function () {
 
     // Statistik arsip (total, ukuran, akses terakhir)
     Route::get('/arsip-stats', function () {
-        $totalArsip = Dokumen::where('is_archived', true)->count();
-        
-        $totalBytes = Dokumen::where('is_archived', true)->sum('file_size');
-        
+        $user = auth()->user();
+        $query = Dokumen::where('is_archived', true);
+        if ($user && $user->instansi_id) {
+            $query->where('instansi_id', $user->instansi_id);
+        } else if ($user) {
+            $query->where('user_id', $user->id);
+        }
+        $totalArsip = $query->count();
+        $totalBytes = $query->sum('file_size');
         // Format ukuran
         if ($totalBytes >= 1073741824) {
             $totalSize = number_format($totalBytes / 1073741824, 2) . ' GB';
@@ -75,16 +113,11 @@ Route::middleware('web')->group(function () {
         } else {
             $totalSize = $totalBytes . ' B';
         }
-        
-        $lastAccess = Dokumen::where('is_archived', true)
-            ->orderBy('tanggal_arsip', 'desc')
-            ->first();
-        
+        $lastAccess = $query->orderBy('tanggal_arsip', 'desc')->first();
         $lastAccessText = 'Belum ada data';
         if ($lastAccess && $lastAccess->tanggal_arsip) {
             $lastAccessText = $lastAccess->tanggal_arsip->diffForHumans();
         }
-        
         return response()->json([
             'total_dokumen' => $totalArsip,
             'ukuran_total' => $totalSize,
@@ -94,12 +127,16 @@ Route::middleware('web')->group(function () {
 
     // Arsip by kategori (list dokumen)
     Route::get('/arsip-by-kategori/{kategori}', function ($kategori) {
-        $dokumens = Dokumen::with(['instansi', 'processor'])
+        $user = auth()->user();
+        $query = Dokumen::with(['instansi', 'processor'])
             ->where('is_archived', true)
-            ->where('kategori_arsip', strtoupper($kategori))
-            ->orderBy('tanggal_arsip', 'desc')
-            ->get();
-        
+            ->where('kategori_arsip', strtoupper($kategori));
+        if ($user && $user->instansi_id) {
+            $query->where('instansi_id', $user->instansi_id);
+        } else if ($user) {
+            $query->where('user_id', $user->id);
+        }
+        $dokumens = $query->orderBy('tanggal_arsip', 'desc')->get();
         return response()->json($dokumens);
     });
 
@@ -160,4 +197,10 @@ Route::middleware('web')->group(function () {
             'dokumen' => $dokumen
         ]);
     });
+
+    Route::get('/balasan/unread-count', [BalasanApiController::class, 'unreadCount']);
+    Route::get('/balasan/unread-list', [BalasanApiController::class, 'unreadList']);
+    Route::post('/balasan/mark-read/{id}', [BalasanApiController::class, 'markRead']);
+
+    Route::get('/dokumen/{id}/download-balasan', [App\Http\Controllers\DokumenController::class, 'downloadBalasan']);
 });

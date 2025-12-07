@@ -12,6 +12,7 @@ class ArsipDigital extends Model
     protected $table = 'arsip_digital';
     
     protected $fillable = [
+        'instansi_id',
         'nama_dokumen',
         'kategori',
         'deskripsi',

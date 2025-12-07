@@ -45,7 +45,9 @@ class ArsipDigitalController extends Controller
             $ukuran = $bytes . ' B';
         }
 
+        $user = auth()->user();
         $arsip = ArsipDigital::create([
+            'instansi_id' => $user->instansi_id ?? null,
             'nama_dokumen' => $validated['nama_dokumen'],
             'kategori' => $validated['kategori'] ?? null,
             'deskripsi' => $validated['deskripsi'] ?? null,

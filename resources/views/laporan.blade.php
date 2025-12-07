@@ -238,10 +238,10 @@
        }
     }
 
-    // Load on page ready and poll
+    // Load on page ready and poll with shorter interval for real-time feel
     document.addEventListener('DOMContentLoaded', () => {
         loadStatistics();
-        setInterval(loadStatistics, 10000); // 10s polling
+        setInterval(loadStatistics, 3000); // 3s polling for near real-time updates
     });
 
     // Button Actions

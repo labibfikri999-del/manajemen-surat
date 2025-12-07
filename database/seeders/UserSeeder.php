@@ -12,26 +12,30 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // 1. Direktur Yayasan (Admin)
-        User::create([
-            'name' => 'Direktur Yayasan',
-            'email' => 'direktur@yarsi-ntb.ac.id',
-            'password' => Hash::make('direktur@2025'),
-            'role' => 'direktur',
-            'jabatan' => 'Direktur Yayasan YARSI NTB',
-            'telepon' => '08123456789',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'direktur@yarsi-ntb.ac.id'],
+            [
+                'name' => 'Direktur Yayasan',
+                'password' => Hash::make('direktur@2025'),
+                'role' => 'direktur',
+                'jabatan' => 'Direktur Yayasan YARSI NTB',
+                'telepon' => '08123456789',
+                'is_active' => true,
+            ]
+        );
 
         // 2. Staff Direktur
-        User::create([
-            'name' => 'Staff Direktur',
-            'email' => 'staff@yarsi-ntb.ac.id',
-            'password' => Hash::make('staff@2025'),
-            'role' => 'staff',
-            'jabatan' => 'Staff Administrasi Direktur',
-            'telepon' => '08234567890',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'staff@yarsi-ntb.ac.id'],
+            [
+                'name' => 'Staff Direktur',
+                'password' => Hash::make('staff@2025'),
+                'role' => 'staff',
+                'jabatan' => 'Staff Administrasi Direktur',
+                'telepon' => '08234567890',
+                'is_active' => true,
+            ]
+        );
 
         // 3. User untuk setiap instansi (7 user) dengan password mudah
         $instansiUsers = [
@@ -48,16 +52,18 @@ class UserSeeder extends Seeder
             $instansi = Instansi::where('kode', $userData['instansi_kode'])->first();
             
             if ($instansi) {
-                User::create([
-                    'name' => $userData['name'],
-                    'email' => $userData['email'],
-                    'password' => Hash::make($userData['password']),
-                    'role' => 'instansi',
-                    'instansi_id' => $instansi->id,
-                    'jabatan' => $userData['name'],
-                    'telepon' => '081234567' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
-                    'is_active' => true,
-                ]);
+                User::updateOrCreate(
+                    ['email' => $userData['email']],
+                    [
+                        'name' => $userData['name'],
+                        'password' => Hash::make($userData['password']),
+                        'role' => 'instansi',
+                        'instansi_id' => $instansi->id,
+                        'jabatan' => $userData['name'],
+                        'telepon' => '081234567' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
+                        'is_active' => true,
+                    ]
+                );
             }
         }
     }

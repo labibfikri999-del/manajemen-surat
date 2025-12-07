@@ -25,14 +25,35 @@ class DataMasterController extends Controller
     public function getLaporanStats()
     {
         // 1. Counts
-        // "Masuk" = Dokumen from Instansi (not null)
-        $suratMasuk = \App\Models\Dokumen::where('instansi_id', '!=', null)->count();
-        // "Keluar" = Dokumen from Yarsi (instansi_id is null) - Assumption for now
-        $suratKeluar = \App\Models\Dokumen::where('instansi_id', null)->count();
+        // "Masuk" = Dokumen dengan jenis 'surat_masuk' atau (legacy: dari Admin/Tanpa Instansi)
+        $suratMasuk = \App\Models\Dokumen::where(function($q) {
+            $q->where('jenis_dokumen', 'surat_masuk')
+              ->orWhere(function($q2) {
+                  $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
+              });
+        })->count();
+
+        // "Keluar" = Dokumen dengan jenis 'surat_keluar' atau (legacy: dari Instansi)
+        // Sesuai request: Setiap upload dari user biasa (instansi) dianggap surat keluar
+        $suratKeluar = \App\Models\Dokumen::where(function($q) {
+            $q->where('jenis_dokumen', 'surat_keluar')
+              ->orWhere(function($q2) {
+                  $q2->whereNull('jenis_dokumen')->whereNotNull('instansi_id');
+              });
+        })->count();
+
         $arsip = \App\Models\ArsipDigital::count();
 
+        // Get Query Log
+        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+
         // 2. Monthly Data (Current Year) - Masuk
-        $monthlyData = \App\Models\Dokumen::where('instansi_id', '!=', null)
+        $monthlyData = \App\Models\Dokumen::where(function($q) {
+                $q->where('jenis_dokumen', 'surat_masuk')
+                  ->orWhere(function($q2) {
+                      $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
+                  });
+            })
             ->whereYear('created_at', date('Y'))
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
@@ -46,13 +67,12 @@ class DataMasterController extends Controller
         }
 
         // 3. Arsip Distribution
-        $arsipDist = \App\Models\ArsipDigital::selectRaw('kategori_id, COUNT(*) as count')
-             ->groupBy('kategori_id')
-             ->with('kategori')
+        $arsipDist = \App\Models\ArsipDigital::selectRaw('kategori, COUNT(*) as count')
+             ->groupBy('kategori')
              ->get()
              ->map(function($item) {
                  return [
-                     'label' => $item->kategori->nama ?? 'Umum',
+                     'label' => $item->kategori ?? 'Umum',
                      'count' => $item->count
                  ];
              });

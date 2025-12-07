@@ -6,15 +6,34 @@ use App\Models\Dokumen;
 use App\Models\Instansi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DokumenController extends Controller
 {
+    /**
+     * Download file balasan dokumen
+     */
+    public function downloadBalasan($id)
+    {
+        $dokumen = Dokumen::findOrFail($id);
+        if (!$dokumen->balasan_file || !Storage::disk('public')->exists($dokumen->balasan_file)) {
+            return response()->json(['error' => 'File balasan tidak ditemukan'], 404);
+        }
+        $downloadName = 'balasan_' . ($dokumen->file_name ?? 'dokumen') . '.' . pathinfo($dokumen->balasan_file, PATHINFO_EXTENSION);
+        return response()->download(
+            Storage::disk('public')->path($dokumen->balasan_file),
+            $downloadName,
+            ['Content-Type' => Storage::disk('public')->mimeType($dokumen->balasan_file)]
+        );
+    }
     /**
      * Display a listing of dokumen.
      */
     public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $query = Dokumen::with(['instansi', 'user', 'validator', 'processor']);
 
         // Filter berdasarkan role
@@ -47,7 +66,7 @@ class DokumenController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Hanya user instansi yang bisa upload
         if (!$user->isInstansi()) {
@@ -56,6 +75,7 @@ class DokumenController extends Controller
 
         $request->validate([
             'judul' => 'required|string|max:255',
+            'jenis' => 'required|string|in:surat_masuk,surat_keluar,proposal,laporan,sk,kontrak,lainnya',
             'deskripsi' => 'nullable|string',
             'file' => 'required|file|mimes:doc,docx,pdf|max:10240', // Word/PDF, Max 10MB
         ]);
@@ -71,6 +91,7 @@ class DokumenController extends Controller
         $dokumen = Dokumen::create([
             'nomor_dokumen' => $nomorDokumen,
             'judul' => $request->judul,
+            'jenis_dokumen' => $request->jenis,
             'deskripsi' => $request->deskripsi,
             'file_path' => $filePath,
             'file_name' => $fileName,
@@ -103,7 +124,7 @@ class DokumenController extends Controller
     public function update(Request $request, string $id)
     {
         $dokumen = Dokumen::findOrFail($id);
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Hanya user yang upload bisa edit, dan hanya jika status masih pending
         if ($dokumen->user_id !== $user->id || $dokumen->status !== 'pending') {
@@ -132,7 +153,7 @@ class DokumenController extends Controller
     public function destroy(string $id)
     {
         $dokumen = Dokumen::findOrFail($id);
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Hanya user yang upload bisa hapus, dan hanya jika status masih pending
         if ($dokumen->user_id !== $user->id || $dokumen->status !== 'pending') {
@@ -160,7 +181,7 @@ class DokumenController extends Controller
      */
     public function validasi(Request $request, string $id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!$user->isDirektur()) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -168,6 +189,7 @@ class DokumenController extends Controller
 
         $request->validate([
             'status' => 'required|in:disetujui,ditolak',
+            'prioritas' => 'nullable|in:BIASA,PENTING,MENDESAK', // Hanya required saat disetujui
             'catatan' => 'nullable|string',
             'signature' => 'nullable|string', // Base64 signature
         ]);
@@ -176,6 +198,7 @@ class DokumenController extends Controller
 
         $updateData = [
             'status' => $request->status,
+            'prioritas' => $request->prioritas,
             'catatan_validasi' => $request->catatan,
             'validated_by' => $user->id,
             'tanggal_validasi' => now(),
@@ -270,7 +293,7 @@ class DokumenController extends Controller
      */
     public function proses(Request $request, string $id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!$user->isStaff()) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -281,10 +304,10 @@ class DokumenController extends Controller
             'catatan' => 'nullable|string',
         ];
 
-        // Jika status selesai, wajib pilih kategori
+        // Jika status selesai, wajib pilih kategori dan file balasan opsional
         if ($request->status === 'selesai') {
             $rules['kategori_arsip'] = 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN';
-            $rules['file_pengganti'] = 'nullable|file|max:10240'; // Max 10MB
+            $rules['file_balasan'] = 'nullable|file|max:10240'; // Max 10MB
         }
 
         $request->validate($rules);
@@ -309,18 +332,24 @@ class DokumenController extends Controller
             $updateData['kategori_arsip'] = $request->kategori_arsip;
             $updateData['is_archived'] = true;
             $updateData['tanggal_arsip'] = now();
-            
-            // Handle file pengganti upload
-            if ($request->hasFile('file_pengganti')) {
-                $file = $request->file('file_pengganti');
+
+            // Handle file balasan upload
+            if ($request->hasFile('file_balasan')) {
+                $file = $request->file('file_balasan');
                 $fileName = $file->getClientOriginalName();
-                $filePath = $file->store('dokumen/' . $dokumen->instansi->kode . '/pengganti', 'public');
-                
-                $updateData['file_pengganti_path'] = $filePath;
-                $updateData['file_pengganti_name'] = $fileName;
-                $updateData['file_pengganti_type'] = $file->getClientOriginalExtension();
-                $updateData['file_pengganti_size'] = $file->getSize();
+                $filePath = $file->store('dokumen/' . $dokumen->instansi->kode . '/balasan', 'public');
+                $updateData['balasan_file'] = $filePath;
             }
+
+            // Set status terbaca balasan ke false untuk user pengirim
+            \DB::table('balasan_read_status')->updateOrInsert([
+                'dokumen_id' => $dokumen->id,
+                'user_id' => $dokumen->user_id,
+            ], [
+                'terbaca' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         $dokumen->update($updateData);

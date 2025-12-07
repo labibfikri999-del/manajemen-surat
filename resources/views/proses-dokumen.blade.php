@@ -138,7 +138,7 @@
     </div>
 
     {{-- Modal Proses --}}
-    <div id="prosesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div id="prosesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[100] p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div class="p-6 border-b">
                 <h3 class="text-lg font-semibold text-gray-900">Proses Dokumen</h3>
@@ -163,7 +163,7 @@
     </div>
 
     {{-- Modal Selesai --}}
-    <div id="selesaiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div id="selesaiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[100] p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div class="p-6 border-b">
                 <h3 class="text-lg font-semibold text-gray-900">Selesaikan & Arsipkan Dokumen</h3>
@@ -221,17 +221,18 @@
                     {{-- Upload File Pengganti --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            File Pengganti (Opsional)
+                            File Balasan (Opsional)
                         </label>
-                        <p class="text-xs text-gray-500 mb-2">Upload file pengganti jika dokumen sudah diubah (PDF, DOCX, XLS, dll)</p>
+                        <p class="text-xs text-gray-500 mb-2">Upload file balasan untuk pengirim dokumen (PDF, DOCX, XLS, dll)</p>
                         <label class="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-emerald-500 transition-colors bg-gray-50">
                             <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                             </svg>
                             <span class="text-sm text-gray-600" id="fileReplacementLabel">Pilih File</span>
-                            <input type="file" name="file_pengganti" id="fileReplacementInput" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                            <input type="file" name="file_balasan" id="fileBalasanInput" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
                         </label>
                         <p class="text-xs text-gray-500 mt-1" id="fileReplacementName"></p>
+                        <p class="text-xs text-gray-500 mt-1" id="fileBalasanName"></p>
                     </div>
                     
                     <div>
@@ -361,12 +362,18 @@
             }
         });
 
-        // File Replacement Input Handler
-        document.getElementById('fileReplacementInput').addEventListener('change', function() {
+        // File Balasan Input Handler
+        const fileBalasanInput = document.getElementById('fileBalasanInput');
+        const fileBalasanLabel = document.getElementById('fileReplacementLabel');
+        const fileBalasanName = document.getElementById('fileBalasanName');
+        fileBalasanInput.addEventListener('change', function() {
             if (this.files[0]) {
                 const file = this.files[0];
-                document.getElementById('fileReplacementLabel').textContent = '✓ File dipilih';
-                document.getElementById('fileReplacementName').textContent = '📄 ' + file.name;
+                fileBalasanLabel.textContent = '✓ File dipilih';
+                fileBalasanName.textContent = '📄 ' + file.name;
+            } else {
+                fileBalasanLabel.textContent = 'Pilih File';
+                fileBalasanName.textContent = '';
             }
         });
 
@@ -378,7 +385,7 @@
             const button = document.getElementById('submitSelesaiBtn');
             const catatan = document.querySelector('#selesaiForm textarea[name="catatan"]').value;
             const kategoriArsip = document.querySelector('#selesaiForm input[name="kategori_arsip"]:checked');
-            const fileReplacement = document.getElementById('fileReplacementInput').files[0];
+            const fileBalasan = document.getElementById('fileBalasanInput').files[0];
             
             if (!kategoriArsip) {
                 showToast('❌ Pilih kategori arsip terlebih dahulu', 'error');
@@ -394,8 +401,9 @@
                 formData.append('catatan', catatan);
                 formData.append('kategori_arsip', kategoriArsip.value);
                 
-                if (fileReplacement) {
-                    formData.append('file_pengganti', fileReplacement);
+                const fileBalasan = document.getElementById('fileBalasanInput').files[0];
+                if (fileBalasan) {
+                    formData.append('file_balasan', fileBalasan);
                 }
                 
                 const response = await fetch(`/api/dokumen/${documenId}/proses`, {

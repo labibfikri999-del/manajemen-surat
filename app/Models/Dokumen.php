@@ -12,6 +12,8 @@ class Dokumen extends Model
     protected $fillable = [
         'nomor_dokumen',
         'judul',
+        'jenis_dokumen',
+        'prioritas',
         'deskripsi',
         'file_path',
         'file_name',
@@ -21,6 +23,7 @@ class Dokumen extends Model
         'file_pengganti_name',
         'file_pengganti_type',
         'file_pengganti_size',
+        'balasan_file',
         'instansi_id',
         'user_id',
         'validated_by',
@@ -113,10 +116,24 @@ class Dokumen extends Model
     {
         $year = date('Y');
         $month = date('m');
-        $count = self::whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month)
-                    ->count() + 1;
+        $prefix = sprintf('DOC/%s/%s%s/', $instansiKode, $year, $month);
         
-        return sprintf('DOC/%s/%s%s/%04d', $instansiKode, $year, $month, $count);
+        // Cari dokumen dengan nomor tertinggi yang sesuai prefix
+        // Menggunakan orderBy nomor_dokumen untuk mendapatkan urutan terakhir yang benar
+        // terlepas dari ID atau created_at
+        $lastDoc = self::where('nomor_dokumen', 'like', $prefix . '%')
+                    ->orderByRaw('LENGTH(nomor_dokumen) DESC') // Antisipasi jika digit bertambah
+                    ->orderBy('nomor_dokumen', 'desc')
+                    ->first();
+        
+        if ($lastDoc) {
+            $parts = explode('/', $lastDoc->nomor_dokumen);
+            $lastNumber = intval(end($parts));
+            $count = $lastNumber + 1;
+        } else {
+            $count = 1;
+        }
+        
+        return sprintf('%s%04d', $prefix, $count);
     }
 }

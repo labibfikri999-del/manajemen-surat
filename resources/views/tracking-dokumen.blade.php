@@ -88,6 +88,7 @@
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jenis</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keterangan</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -110,6 +111,22 @@
                                                 @else
                                                     <span class="text-gray-400">-</span>
                                                 @endif
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-600">
+                                                <div class="flex flex-wrap gap-2 items-center">
+                                                    @if($dok->file_path)
+                                                        <a href="/storage/{{ $dok->file_path }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold shadow hover:bg-emerald-700 transition">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                            Lihat File
+                                                        </a>
+                                                    @endif
+                                                    @if($dok->balasan_file)
+                                                        <a href="/api/dokumen/{{ $dok->id }}/download-balasan" class="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-100 text-emerald-700 rounded-lg text-sm font-semibold shadow hover:bg-gray-200 transition" download>
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                            Download Balasan
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
