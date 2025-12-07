@@ -39,7 +39,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-emerald-600 text-xs md:text-sm">Klasifikasi</p>
-                <p class="text-xl md:text-2xl font-bold text-emerald-900">24</p>
+                <p id="countKlasifikasi" class="text-xl md:text-2xl font-bold text-emerald-900">...</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
             </div>
@@ -49,7 +49,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-emerald-600 text-xs md:text-sm">Departemen</p>
-                <p class="text-xl md:text-2xl font-bold text-emerald-900">8</p>
+                <p id="countDepartemen" class="text-xl md:text-2xl font-bold text-emerald-900">...</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
@@ -59,7 +59,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-emerald-600 text-xs md:text-sm">Pengguna</p>
-                <p class="text-xl md:text-2xl font-bold text-emerald-900">12</p>
+                <p id="countPengguna" class="text-xl md:text-2xl font-bold text-emerald-900">...</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 10H9M21 20.354A4 4 0 0012.646 15H11.354A4 4 0 003 20.354"/></svg>
             </div>
@@ -69,7 +69,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-emerald-600 text-xs md:text-sm">Lampiran</p>
-                <p class="text-xl md:text-2xl font-bold text-emerald-900">156</p>
+                <p id="countLampiran" class="text-xl md:text-2xl font-bold text-emerald-900">...</p>
               </div>
               <svg class="w-8 h-8 md:w-10 md:h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             </div>
@@ -83,104 +83,225 @@
             <button id="tabDepartemen" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="departemen">Departemen</button>
             <button id="tabPengguna" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="pengguna">Pengguna</button>
             <button id="tabLampiran" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="lampiran">Tipe Lampiran</button>
+            <button id="tabBackup" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="backup">Backup / Restore</button>
           </div>
 
           <div id="tabContent" class="p-4 md:p-6">
-            <div class="flex flex-col sm:flex-row gap-3 mb-6">
-              <button id="btnTambahKlasifikasi" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Tambah Klasifikasi
-              </button>
-              <input id="searchKlasifikasi" type="text" placeholder="Cari..." class="flex-1 px-4 py-2 border border-emerald-300 rounded focus:outline-none focus:border-emerald-500" aria-label="Cari klasifikasi" />
+            
+            {{-- VIEW KLASIFIKASI --}}
+            <div id="viewKlasifikasi">
+              <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                <button id="btnTambahKlasifikasi" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Tambah Klasifikasi
+                </button>
+                <input id="searchKlasifikasi" type="text" placeholder="Cari klasifikasi..." class="flex-1 px-4 py-2 border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
+              </div>
+              <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">No.</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
+                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBodyKlasifikasi" class="divide-y divide-gray-100"></tbody>
+                </table>
+              </div>
+              <div id="mobileCardKlasifikasi" class="md:hidden space-y-3"></div>
             </div>
 
-            {{-- Desktop Table View --}}
-            <div class="hidden md:block overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-emerald-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">No.</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Nama</th>
-                    <th class="px-6 py-3 text-right text-sm font-semibold text-emerald-900">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody id="tableBodyKlasifikasi" class="divide-y divide-emerald-100">
-                </tbody>
-              </table>
+            {{-- VIEW DEPARTEMEN --}}
+            <div id="viewDepartemen" class="hidden">
+              <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                <button id="btnTambahDepartemen" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Tambah Departemen
+                </button>
+                <input id="searchDepartemen" type="text" placeholder="Cari departemen..." class="flex-1 px-4 py-2 border border-gray-300 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+              </div>
+              <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Instansi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Alamat</th>
+                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBodyDepartemen" class="divide-y divide-gray-100"></tbody>
+                </table>
+              </div>
+              <div id="mobileCardDepartemen" class="md:hidden space-y-3"></div>
             </div>
 
-            {{-- Mobile Card View --}}
-            <div id="mobileCardContainer" class="md:hidden space-y-3">
+            {{-- VIEW PENGGUNA --}}
+            <div id="viewPengguna" class="hidden">
+              <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                <button id="btnTambahPengguna" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Tambah Pengguna
+                </button>
+                <input id="searchPengguna" type="text" placeholder="Cari pengguna..." class="flex-1 px-4 py-2 border border-gray-300 rounded focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+              </div>
+              <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Instansi</th>
+                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBodyPengguna" class="divide-y divide-gray-100"></tbody>
+                </table>
+              </div>
+              <div id="mobileCardPengguna" class="md:hidden space-y-3"></div>
             </div>
+
+            {{-- VIEW LAMPIRAN --}}
+            <div id="viewLampiran" class="hidden">
+              <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                <button id="btnTambahLampiran" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Tambah Tipe Lampiran
+                </button>
+                <input id="searchLampiran" type="text" placeholder="Cari tipe lampiran..." class="flex-1 px-4 py-2 border border-gray-300 rounded focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
+              </div>
+              <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">No.</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
+                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBodyLampiran" class="divide-y divide-gray-100"></tbody>
+                </table>
+              </div>
+              <div id="mobileCardLampiran" class="md:hidden space-y-3"></div>
+            </div>
+
+            {{-- VIEW BACKUP --}}
+            <div id="viewBackup" class="hidden space-y-6 animate-fade-in">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Database Backup -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                  <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                  </div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-2">Backup Database</h3>
+                  <p class="text-gray-500 text-sm mb-6">Unduh data database lengkap dalam format JSON. File ini berisi semua tabel dan relasi.</p>
+                  <a href="/api/backup/db" target="_blank" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full md:w-auto">
+                    Unduh Database (.json)
+                  </a>
+                </div>
+
+                <!-- File Backup -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                  <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                  </div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-2">Backup File Dokumen</h3>
+                  <p class="text-gray-500 text-sm mb-6">Unduh semua file dokumen yang diunggah dalam satu file arsip ZIP.</p>
+                  <a href="/api/backup/files" target="_blank" class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors w-full md:w-auto">
+                    Unduh File (.zip)
+                  </a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
     </main>
 
     {{-- Toast Notification --}}
-    <div id="toast" class="hidden fixed top-4 right-4 z-50 transform transition-all duration-300 ease-out">
-      <div class="bg-white rounded-lg shadow-2xl p-4 flex items-center gap-3 min-w-[320px] max-w-md border-l-4" id="toastContent">
-        <div id="toastIcon" class="shrink-0"></div>
-        <div class="flex-1">
-          <p id="toastMessage" class="text-sm font-medium text-gray-800"></p>
-        </div>
-        <button id="toastClose" class="text-gray-400 hover:text-gray-600">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+    <div id="toast" class="hidden fixed bottom-5 right-5 z-[200]">
+      <div id="toastContent" class="bg-white rounded-lg shadow-2xl p-4 flex items-center gap-3 min-w-[320px] max-w-md border-l-4">
+        <div id="toastIcon"></div>
+        <p id="toastMessage" class="text-sm font-medium text-gray-800"></p>
+        <button id="toastClose" class="ml-auto text-gray-400 hover:text-gray-600">×</button>
       </div>
     </div>
-
-    {{-- Confirmation Modal --}}
-    <div id="confirmModal" style="display: none;" class="fixed inset-0 z-[120] flex items-center justify-center">
-      <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
-      <div class="relative bg-white rounded-lg shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-900" id="confirmTitle">Konfirmasi Hapus</h3>
-            <p class="text-sm text-gray-600 mt-1" id="confirmMessage">Apakah Anda yakin ingin menghapus data ini?</p>
-          </div>
-        </div>
-        <div class="flex gap-3 justify-end">
-          <button id="confirmCancel" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-            Batal
-          </button>
-          <button id="confirmOk" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-            Hapus
-          </button>
-        </div>
-      </div>
-    </div>
-
+    <!-- (Toast logic preserved via existing script logic, markup slightly simplified above but we reuse existing) -->
+    
     {{-- Modal Form --}}
     <div id="modalBackdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[110] transition-opacity duration-200"></div>
-    <div id="modalForm" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-[120] w-full max-w-md mx-4 transition-all duration-200">
+    <div id="modalForm" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-[120] w-full max-w-lg mx-4 transition-all duration-200 max-h-[90vh] overflow-y-auto">
       <div class="p-6">
         <div class="flex items-center justify-between mb-6">
-          <h2 id="modalTitle" class="text-2xl font-bold text-emerald-900">Tambah Data</h2>
-          <button id="closeModal" class="text-emerald-400 hover:text-emerald-600 text-2xl">×</button>
+          <h2 id="modalTitle" class="text-2xl font-bold text-gray-900">Tambah Data</h2>
+          <button id="closeModal" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
         </div>
         
-        <form id="dataForm" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-emerald-700 mb-2" id="formLabel">Nama <span class="text-red-500">*</span></label>
-            <input type="text" id="formNama" placeholder="Masukkan nama..." required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+        <form id="dataForm" class="space-y-4" novalidate>
+          <!-- Shared Fields -->
+          <div id="fieldNamaContainer">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
+            <input type="text" id="formNama" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
 
-          <div id="formKodeContainer" class="hidden">
-            <label class="block text-sm font-medium text-emerald-700 mb-2">Kode</label>
-            <input type="text" id="formKode" placeholder="Masukkan kode..." class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+          <div id="fieldKodeContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Kode</label>
+            <input type="text" id="formKode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
 
-          <div id="formDeskripsiContainer" class="hidden">
-            <label class="block text-sm font-medium text-emerald-700 mb-2">Deskripsi</label>
-            <textarea id="formDeskripsi" rows="2" placeholder="Masukkan deskripsi..." class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"></textarea>
+          <!-- Departemen Specific -->
+          <div id="fieldAlamatContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+            <textarea id="formAlamat" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+          </div>
+
+          <!-- User Specific -->
+          <div id="fieldEmailContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+            <input type="email" id="formEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div id="fieldPasswordContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input type="password" id="formPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <p class="text-xs text-gray-500 mt-1" id="passHelpText">Biarkan kosong jika tidak ingin mengubah password.</p>
+          </div>
+
+          <div id="fieldRoleContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Role <span class="text-red-500">*</span></label>
+            <select id="formRole" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <option value="staff">Staff</option>
+              <option value="direktur">Direktur</option>
+              <option value="instansi">Instansi</option>
+            </select>
+          </div>
+
+          <div id="fieldInstansiContainer" class="hidden">
+             <label class="block text-sm font-medium text-gray-700 mb-2">Instansi Asal <span class="text-red-500">*</span></label>
+             <select id="formInstansi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+               <option value="">-- Pilih Instansi --</option>
+               @foreach($instansis as $ins)
+                 <option value="{{ $ins->id }}">{{ $ins->nama }}</option>
+               @endforeach
+             </select>
+          </div>
+
+          <div id="fieldJabatanContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Jabatan</label>
+            <input type="text" id="formJabatan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
           
-          <div class="flex gap-3 pt-4">
-            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition">Batal</button>
+          <div id="fieldTeleponContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Telepon</label>
+            <input type="text" id="formTelepon" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div class="flex gap-3 pt-4 border-t mt-4">
+            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Batal</button>
             <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Simpan</button>
           </div>
         </form>
@@ -189,76 +310,7 @@
   </div>
 
   <script>
-    const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('main');
-    const btnCollapse = document.getElementById('btnCollapse');
-    const btnOpenMobile = document.getElementById('btnOpenMobile');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-
-    let collapsed = false;
-
-    try {
-      const saved = localStorage.getItem('sidebar.collapsed');
-      if (saved === 'true') {
-        collapsed = true;
-        sidebar.classList.add('sidebar-collapsed');
-      }
-    } catch(e){ }
-
-    function setMainClass() {
-      if (!main) return;
-      if (collapsed) {
-        main.classList.remove('main-with-sidebar');
-        main.classList.add('main-with-sidebar-collapsed');
-      } else {
-        main.classList.remove('main-with-sidebar-collapsed');
-        main.classList.add('main-with-sidebar');
-      }
-    }
-    setMainClass();
-
-    if (btnCollapse) {
-      btnCollapse.addEventListener('click', ()=>{
-        collapsed = !collapsed;
-        if (collapsed) {
-          sidebar.classList.add('sidebar-collapsed');
-        } else {
-          sidebar.classList.remove('sidebar-collapsed');
-        }
-        try { localStorage.setItem('sidebar.collapsed', collapsed ? 'true' : 'false'); } catch(e){}
-        setMainClass();
-      });
-    }
-
-    function openMobile(){
-      console.log('openMobile called');
-      sidebar.classList.remove('sidebar-hidden-mobile');
-      mobileOverlay.classList.remove('hidden');
-    }
-    function closeMobile(){
-      console.log('closeMobile called');
-      sidebar.classList.add('sidebar-hidden-mobile');
-      mobileOverlay.classList.add('hidden');
-    }
-    
-    console.log('btnOpenMobile:', btnOpenMobile);
-    console.log('mobileOverlay:', mobileOverlay);
-    
-    if (btnOpenMobile) {
-      btnOpenMobile.addEventListener('click', function(e) {
-        console.log('Button clicked!', e);
-        openMobile();
-      });
-    }
-    if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobile);
-
-    sidebar.querySelectorAll('a').forEach(a=>{
-      a.addEventListener('click', function(){
-        if(window.innerWidth < 768) closeMobile();
-      });
-    });
-
-    // Toast notification function
+    // Toast & Confirm Logic
     function showToast(message, type = 'success') {
       const toast = document.getElementById('toast');
       const toastMessage = document.getElementById('toastMessage');
@@ -278,12 +330,11 @@
       toast.classList.remove('hidden');
       setTimeout(() => toast.classList.add('hidden'), 3000);
     }
+    
+    if(document.getElementById('toastClose')) {
+        document.getElementById('toastClose').addEventListener('click', () => { document.getElementById('toast').classList.add('hidden'); });
+    }
 
-    document.getElementById('toastClose').addEventListener('click', () => {
-      document.getElementById('toast').classList.add('hidden');
-    });
-
-    // Confirmation modal function
     function showConfirm(title, message) {
       return new Promise((resolve) => {
         const confirmModal = document.getElementById('confirmModal');
@@ -296,310 +347,519 @@
         confirmMessage.textContent = message;
         confirmModal.style.display = 'flex';
         
-        const handleOk = () => {
-          confirmModal.style.display = 'none';
-          cleanup();
-          resolve(true);
-        };
-        
-        const handleCancel = () => {
-          confirmModal.style.display = 'none';
-          cleanup();
-          resolve(false);
-        };
-        
-        const cleanup = () => {
-          confirmOk.removeEventListener('click', handleOk);
-          confirmCancel.removeEventListener('click', handleCancel);
-        };
+        const handleOk = () => { confirmModal.style.display = 'none'; cleanup(); resolve(true); };
+        const handleCancel = () => { confirmModal.style.display = 'none'; cleanup(); resolve(false); };
+        const cleanup = () => { confirmOk.removeEventListener('click', handleOk); confirmCancel.removeEventListener('click', handleCancel); };
         
         confirmOk.addEventListener('click', handleOk);
         confirmCancel.addEventListener('click', handleCancel);
       });
     }
 
-    function onResize(){
-      if(window.innerWidth >= 768) {
-        sidebar.classList.remove('sidebar-hidden-mobile');
-        mobileOverlay.classList.add('hidden');
-      } else {
-        sidebar.classList.add('sidebar-hidden-mobile');
-      }
-      setMainClass();
-    }
-    window.addEventListener('resize', onResize);
-    onResize();
+    document.addEventListener('DOMContentLoaded', function() {
+        // === DATA MASTER LOGIC ===
 
-    // CRUD untuk Data Master - Klasifikasi
-    const btnTambahKlasifikasi = document.getElementById('btnTambahKlasifikasi');
-    const tableBodyKlasifikasi = document.getElementById('tableBodyKlasifikasi');
-    const searchKlasifikasi = document.getElementById('searchKlasifikasi');
-    let allKlasifikasiData = [];
+        // State Variables
+        let currentTab = 'klasifikasi';
+        let dataCache = {
+          klasifikasi: [],
+          departemen: [],
+          pengguna: [],
+          lampiran: [],
+          backup: []
+        };
+        let currentModalType = null;
+        let isEditMode = false;
+        let editingId = null;
 
-    async function loadKlasifikasi() {
-      try {
-        const response = await fetch('/api/klasifikasi-list');
-        const data = await response.json();
-        allKlasifikasiData = data;
-        renderKlasifikasi();
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
+        // Tab Elements
+        const tabs = {
+          klasifikasi: document.getElementById('tabKlasifikasi'),
+          departemen: document.getElementById('tabDepartemen'),
+          pengguna: document.getElementById('tabPengguna'),
+          lampiran: document.getElementById('tabLampiran'),
+          backup: document.getElementById('tabBackup')
+        };
+        const views = {
+          klasifikasi: document.getElementById('viewKlasifikasi'),
+          departemen: document.getElementById('viewDepartemen'),
+          pengguna: document.getElementById('viewPengguna'),
+          lampiran: document.getElementById('viewLampiran'),
+          backup: document.getElementById('viewBackup')
+        };
 
-    function renderKlasifikasi() {
-      // Render desktop table view
-      tableBodyKlasifikasi.innerHTML = '';
-      
-      // Render mobile card view
-      const mobileCardContainer = document.getElementById('mobileCardContainer');
-      mobileCardContainer.innerHTML = '';
-      
-      allKlasifikasiData.forEach((item, index) => {
-        // Desktop table row
-        const row = document.createElement('tr');
-        row.classList.add('hover:bg-emerald-50');
-        row.dataset.id = item.id;
-        row.innerHTML = `
-          <td class="px-6 py-4 text-sm text-emerald-900">${index + 1}</td>
-          <td class="px-6 py-4"><span class="text-emerald-900 font-medium">${item.nama}</span></td>
-          <td class="px-6 py-4 text-right">
-            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition mr-2 btn-edit" aria-label="Edit klasifikasi ${item.nama}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              Edit
-            </button>
-            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete" aria-label="Hapus klasifikasi ${item.nama}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              Hapus
-            </button>
-          </td>
-        `;
-        tableBodyKlasifikasi.appendChild(row);
-        setupKlasifikasiButtons(row);
+        // Initialize Tabs
+        Object.keys(tabs).forEach(key => {
+          if(tabs[key]) {
+              tabs[key].addEventListener('click', () => switchTab(key));
+          }
+        });
+
+        function switchTab(key) {
+          currentTab = key;
+          // Update Tab Styles
+          Object.keys(tabs).forEach(k => {
+            if(tabs[k]) {
+                if(k === key) {
+                  tabs[k].classList.add('border-b-2', 'border-emerald-500', 'text-emerald-900');
+                  tabs[k].classList.remove('text-emerald-600');
+                } else {
+                  tabs[k].classList.remove('border-b-2', 'border-emerald-500', 'text-emerald-900');
+                  tabs[k].classList.add('text-emerald-600');
+                }
+            }
+          });
+          // Update Views
+          Object.keys(views).forEach(k => {
+            if(views[k]) {
+                if(k === key) views[k].classList.remove('hidden');
+                else views[k].classList.add('hidden');
+            }
+          });
+          // Load Data
+          loadData(key);
+        }
+
+        // Data Loaders
+        async function loadStats() {
+          try {
+            const res = await fetch('/api/master/stats');
+            if(res.ok) {
+                const data = await res.json();
+                if(document.getElementById('countKlasifikasi')) document.getElementById('countKlasifikasi').textContent = data.klasifikasi;
+                if(document.getElementById('countDepartemen')) document.getElementById('countDepartemen').textContent = data.departemen;
+                if(document.getElementById('countPengguna')) document.getElementById('countPengguna').textContent = data.pengguna;
+                if(document.getElementById('countLampiran')) document.getElementById('countLampiran').textContent = data.lampiran;
+            }
+          } catch(e) { console.error('Stats error:', e); }
+        }
+
+        async function loadData(type) {
+          let url = '';
+          if(type === 'klasifikasi') url = '/api/klasifikasi-list';
+          else if(type === 'departemen') url = '/api/departemen-list';
+          else if(type === 'pengguna') url = '/api/pengguna-list';
+          else if(type === 'lampiran') url = '/api/lampiran-list';
+          else if(type === 'backup') return; // Static view
+
+          try {
+            const res = await fetch(url + '?t=' + new Date().getTime()); // Cache busting
+            if(res.ok) {
+                const data = await res.json();
+                dataCache[type] = data;
+                renderData(type);
+            }
+          } catch(e) { console.error(`Load ${type} error:`, e); }
+        }
+
+        function renderData(type) {
+          if (type === 'klasifikasi') renderKlasifikasi(dataCache.klasifikasi);
+          if (type === 'departemen') renderDepartemen(dataCache.departemen);
+          if (type === 'pengguna') renderPengguna(dataCache.pengguna);
+          if (type === 'lampiran') renderLampiran(dataCache.lampiran);
+          if (type === 'backup') return;
+        }
+
+        // Renders
+        function renderKlasifikasi(data) {
+          const tbody = document.getElementById('tableBodyKlasifikasi');
+          const mobile = document.getElementById('mobileCardKlasifikasi');
+          if(!tbody || !mobile) return;
+          tbody.innerHTML = ''; mobile.innerHTML = '';
+          
+          data.forEach((item, i) => {
+            const row = `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">${i+1}</td>
+                <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
+                <td class="px-6 py-4 text-right">
+                  ${btnActions(item.id, item.nama, 'klasifikasi')}
+                </td>
+              </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+            
+            const card = `
+              <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                 <div class="mb-3"><div class="text-xs text-emerald-600 mb-1">No. ${i+1}</div><div class="text-base font-semibold">${item.nama}</div></div>
+                 <div class="flex gap-2">${btnActionsMobile(item.id, 'klasifikasi')}</div>
+              </div>`;
+            mobile.insertAdjacentHTML('beforeend', card);
+          });
+          attachListeners('klasifikasi');
+        }
+
+        function renderDepartemen(data) {
+          const tbody = document.getElementById('tableBodyDepartemen');
+          const mobile = document.getElementById('mobileCardDepartemen');
+          if(!tbody || !mobile) return;
+          tbody.innerHTML = ''; mobile.innerHTML = '';
+
+          data.forEach((item) => {
+            const row = `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">${item.kode || '-'}</td>
+                <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
+                 <td class="px-6 py-4 text-sm text-gray-600">${item.alamat || '-'}</td>
+                <td class="px-6 py-4 text-right">
+                  ${btnActions(item.id, item.nama, 'departemen')}
+                </td>
+              </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+            
+            const card = `
+              <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                 <div class="mb-3">
+                   <div class="text-xs text-gray-500 mb-1">${item.kode || '-'}</div>
+                   <div class="text-base font-semibold text-gray-900">${item.nama}</div>
+                   <div class="text-sm text-gray-600 mt-1">${item.alamat || '-'}</div>
+                 </div>
+                 <div class="flex gap-2">${btnActionsMobile(item.id, 'departemen')}</div>
+              </div>`;
+            mobile.insertAdjacentHTML('beforeend', card);
+          });
+          attachListeners('departemen');
+        }
+
+        function renderPengguna(data) {
+          const tbody = document.getElementById('tableBodyPengguna');
+          const mobile = document.getElementById('mobileCardPengguna');
+          if(!tbody || !mobile) return;
+          tbody.innerHTML = ''; mobile.innerHTML = '';
+
+          data.forEach((item) => {
+            const roleBadge = item.role === 'direktur' ? 'bg-purple-100 text-purple-800' :
+                              item.role === 'staff' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+            const instansiName = item.instansi ? item.instansi.nama : '-';
+            
+            const row = `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 font-medium text-gray-900">${item.name}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${item.email}</td>
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span></td>
+                <td class="px-6 py-4 text-sm text-gray-600">${instansiName}</td>
+                <td class="px-6 py-4 text-right">
+                  ${btnActions(item.id, item.name, 'pengguna')}
+                </td>
+              </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+
+            const card = `
+              <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                 <div class="mb-3">
+                   <div class="flex justify-between items-start">
+                     <div class="text-base font-semibold text-gray-900">${item.name}</div>
+                     <span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span>
+                   </div>
+                   <div class="text-sm text-gray-600 mt-1">${item.email}</div>
+                   <div class="text-sm text-gray-500 mt-1">${instansiName}</div>
+                 </div>
+                 <div class="flex gap-2">${btnActionsMobile(item.id, 'pengguna')}</div>
+              </div>`;
+            mobile.insertAdjacentHTML('beforeend', card);
+          });
+          attachListeners('pengguna');
+        }
+
+        function renderLampiran(data) {
+          const tbody = document.getElementById('tableBodyLampiran');
+          const mobile = document.getElementById('mobileCardLampiran');
+          if(!tbody || !mobile) return;
+          tbody.innerHTML = ''; mobile.innerHTML = '';
+
+          data.forEach((item, i) => {
+            const row = `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">${i+1}</td>
+                <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${item.kode || '-'}</td>
+                <td class="px-6 py-4 text-right">
+                  ${btnActions(item.id, item.nama, 'lampiran')}
+                </td>
+              </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+            
+            const card = `
+              <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                 <div class="mb-3">
+                   <div class="text-xs text-gray-500 mb-1">No. ${i+1}</div>
+                   <div class="text-base font-semibold text-gray-900">${item.nama}</div>
+                   <div class="text-sm text-gray-600 mt-1">${item.kode || '-'}</div>
+                 </div>
+                 <div class="flex gap-2">${btnActionsMobile(item.id, 'lampiran')}</div>
+              </div>`;
+            mobile.insertAdjacentHTML('beforeend', card);
+          });
+          attachListeners('lampiran');
+        }
+
+        function btnActions(id, name, type) {
+          return `
+            <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition mr-2 btn-edit" data-id="${id}" data-type="${type}">Edit</button>
+            <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete" data-id="${id}" data-type="${type}" data-name="${name}">Hapus</button>
+          `;
+        }
+        function btnActionsMobile(id, type) {
+          return `
+            <button class="flex-1 px-3 py-2 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition btn-edit" data-id="${id}" data-type="${type}">Edit</button>
+            <button class="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete" data-id="${id}" data-type="${type}">Hapus</button>
+          `;
+        }
+
+        function attachListeners(type) {
+          const parent = document.getElementById(`view${type.charAt(0).toUpperCase() + type.slice(1)}`);
+          if(!parent) return;
+          parent.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => openModal(type, true, btn.dataset.id));
+          });
+          parent.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const ok = await showConfirm('Konfirmasi', `Hapus data ${btn.dataset.name || 'ini'}?`);
+              if(ok) deleteItem(type, btn.dataset.id);
+            });
+          });
+        }
+
+        // === MODAL LOGIC ===
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const modalForm = document.getElementById('modalForm');
+        const dataForm = document.getElementById('dataForm');
         
-        // Mobile card
-        const card = document.createElement('div');
-        card.classList.add('bg-white', 'rounded-lg', 'border', 'border-emerald-200', 'p-4', 'shadow-sm');
-        card.dataset.id = item.id;
-        card.innerHTML = `
-          <div class="flex items-start justify-between mb-3">
-            <div class="flex-1">
-              <div class="text-xs text-emerald-600 mb-1">No. ${index + 1}</div>
-              <div class="text-base font-semibold text-emerald-900">${item.nama}</div>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition btn-edit-mobile" aria-label="Edit klasifikasi ${item.nama}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              Edit
-            </button>
-            <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete-mobile" aria-label="Hapus klasifikasi ${item.nama}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              Hapus
-            </button>
-          </div>
-        `;
-        mobileCardContainer.appendChild(card);
-        setupKlasifikasiButtonsMobile(card);
-      });
-    }
-    
-    function setupKlasifikasiButtonsMobile(card) {
-      const editBtn = card.querySelector('.btn-edit-mobile');
-      const deleteBtn = card.querySelector('.btn-delete-mobile');
-      if (editBtn) editBtn.addEventListener('click', () => editKlasifikasi(card));
-      if (deleteBtn) deleteBtn.addEventListener('click', async () => {
-        const confirmed = await showConfirm('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?');
-        if (confirmed) deleteKlasifikasi(card);
-      });
-    }
+        if(document.getElementById('closeModal')) document.getElementById('closeModal').addEventListener('click', closeModal);
+        if(document.getElementById('btnModalCancel')) document.getElementById('btnModalCancel').addEventListener('click', closeModal);
 
-    function setupKlasifikasiButtons(row) {
-      const editBtn = row.querySelector('.btn-edit');
-      const deleteBtn = row.querySelector('.btn-delete');
-      if (editBtn) editBtn.addEventListener('click', () => editKlasifikasi(row));
-      if (deleteBtn) deleteBtn.addEventListener('click', async () => {
-        const confirmed = await showConfirm('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?');
-        if (confirmed) deleteKlasifikasi(row);
-      });
-    }
+        // Add Listeners for "Tambah" buttons
+        if(document.getElementById('btnTambahKlasifikasi')) document.getElementById('btnTambahKlasifikasi').addEventListener('click', () => openModal('klasifikasi'));
+        if(document.getElementById('btnTambahDepartemen')) document.getElementById('btnTambahDepartemen').addEventListener('click', () => openModal('departemen'));
+        if(document.getElementById('btnTambahPengguna')) document.getElementById('btnTambahPengguna').addEventListener('click', () => openModal('pengguna'));
+        if(document.getElementById('btnTambahLampiran')) document.getElementById('btnTambahLampiran').addEventListener('click', () => openModal('lampiran'));
 
-    // Modal handling
-    const modalBackdrop = document.getElementById('modalBackdrop');
-    const modalForm = document.getElementById('modalForm');
-    const closeModalBtn = document.getElementById('closeModal');
-    const btnModalCancel = document.getElementById('btnModalCancel');
-    const dataForm = document.getElementById('dataForm');
-    let isEditMode = false;
-    let editingDataId = null;
+        // Field Containers
+        const fields = {
+          nama: document.getElementById('fieldNamaContainer'),
+          kode: document.getElementById('fieldKodeContainer'),
+          alamat: document.getElementById('fieldAlamatContainer'),
+          email: document.getElementById('fieldEmailContainer'),
+          password: document.getElementById('fieldPasswordContainer'),
+          role: document.getElementById('fieldRoleContainer'),
+          instansi: document.getElementById('fieldInstansiContainer'),
+          jabatan: document.getElementById('fieldJabatanContainer'),
+          telepon: document.getElementById('fieldTeleponContainer')
+        };
 
-    function openModal(isEdit = false, dataId = null) {
-      isEditMode = isEdit;
-      editingDataId = dataId;
-      const modalTitle = document.getElementById('modalTitle');
-      const formNama = document.getElementById('formNama');
-
-      if (isEdit && dataId) {
-        const item = allKlasifikasiData.find(d => d.id === dataId);
-        modalTitle.textContent = 'Edit Klasifikasi';
-        formNama.value = item.nama;
-      } else {
-        modalTitle.textContent = 'Tambah Klasifikasi';
-        formNama.value = '';
-      }
-
-      modalBackdrop.classList.remove('hidden');
-      modalForm.classList.remove('hidden');
-      formNama.focus();
-    }
-
-    function closeModal() {
-      modalBackdrop.classList.add('hidden');
-      modalForm.classList.add('hidden');
-      dataForm.reset();
-    }
-
-    closeModalBtn.addEventListener('click', closeModal);
-    btnModalCancel.addEventListener('click', closeModal);
-    modalBackdrop.addEventListener('click', closeModal);
-
-    btnTambahKlasifikasi.addEventListener('click', () => {
-      openModal(false);
-    });
-
-    dataForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formNama = document.getElementById('formNama');
-
-      if (!formNama.value) {
-        showToast('Nama harus diisi!', 'error');
-        return;
-      }
-
-      try {
-        if (isEditMode && editingDataId) {
-          const response = await fetch(`/api/klasifikasi/${editingDataId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ nama: formNama.value })
+        function openModal(type, isEdit = false, id = null) {
+          currentModalType = type;
+          isEditMode = isEdit;
+          editingId = id;
+          
+          // Reset Form & Required Attributes
+          dataForm.reset();
+          if(document.getElementById('formPassword')) document.getElementById('formPassword').required = false; 
+          
+          if(document.getElementById('modalTitle')) document.getElementById('modalTitle').textContent = (isEdit ? 'Edit ' : 'Tambah ') + type.charAt(0).toUpperCase() + type.slice(1);
+          
+          // Hide all fields first
+          Object.keys(fields).forEach(k => {
+             if(fields[k]) fields[k].classList.add('hidden');
           });
 
-          const responseText = await response.text();
-          let updatedData;
+          // Show relevant fields
+          if (type === 'klasifikasi') {
+            if(fields.nama) fields.nama.classList.remove('hidden');
+          } 
+          else if (type === 'departemen') {
+            if(fields.kode) fields.kode.classList.remove('hidden');
+            if(fields.nama) fields.nama.classList.remove('hidden');
+            if(fields.alamat) fields.alamat.classList.remove('hidden');
+          }
+          else if (type === 'pengguna') {
+            if(fields.nama) fields.nama.classList.remove('hidden');
+            if(fields.email) fields.email.classList.remove('hidden');
+            if(fields.password) fields.password.classList.remove('hidden'); // Optional if edit
+            
+            // Handling password hint
+            const hint = document.getElementById('passHelpText');
+            if(hint) hint.style.display = isEdit ? 'block' : 'none';
+            if(document.getElementById('formPassword')) document.getElementById('formPassword').required = !isEdit;
+
+            if(fields.role) fields.role.classList.remove('hidden');
+            if(fields.instansi) fields.instansi.classList.remove('hidden'); // Initially show, logic handles if needed
+            if(fields.jabatan) fields.jabatan.classList.remove('hidden');
+            if(fields.telepon) fields.telepon.classList.remove('hidden');
+            
+            // Trigger role change logic manually
+            handleRoleChange();
+          }
+          else if (type === 'lampiran') {
+            if(fields.nama) fields.nama.classList.remove('hidden');
+            if(fields.kode) fields.kode.classList.remove('hidden');
+          }
+
+          // If Edit, Fill Data
+          if (isEdit && id) {
+            const item = dataCache[type].find(d => d.id == id);
+            if (item) {
+              if (document.getElementById('formNama')) document.getElementById('formNama').value = item.nama || item.name || '';
+              if (document.getElementById('formKode')) document.getElementById('formKode').value = item.kode || '';
+              if (document.getElementById('formAlamat')) document.getElementById('formAlamat').value = item.alamat || '';
+              if (document.getElementById('formEmail')) document.getElementById('formEmail').value = item.email || '';
+              if (document.getElementById('formRole')) document.getElementById('formRole').value = item.role || 'staff';
+              if (document.getElementById('formJabatan')) document.getElementById('formJabatan').value = item.jabatan || '';
+              if (document.getElementById('formTelepon')) document.getElementById('formTelepon').value = item.telepon || '';
+              if (document.getElementById('formInstansi') && item.instansi_id) document.getElementById('formInstansi').value = item.instansi_id;
+              
+              if(type === 'pengguna') handleRoleChange();
+            }
+          }
+
+          if(modalBackdrop) modalBackdrop.classList.remove('hidden');
+          if(modalForm) modalForm.classList.remove('hidden');
+        }
+
+        function closeModal() {
+          if(modalBackdrop) modalBackdrop.classList.add('hidden');
+          if(modalForm) modalForm.classList.add('hidden');
+        }
+
+        // Role Change Logic for Pengguna
+        const formRole = document.getElementById('formRole');
+        if(formRole) {
+            formRole.addEventListener('change', handleRoleChange);
+        }
+        function handleRoleChange() {
+          if(!formRole) return;
+          const val = formRole.value;
+          const instansiContainer = document.getElementById('fieldInstansiContainer');
+          if(instansiContainer) {
+              if (val === 'instansi') {
+                instansiContainer.classList.remove('hidden');
+              } else {
+                instansiContainer.classList.add('hidden');
+                document.getElementById('formInstansi').value = '';
+              }
+          }
+        }
+
+        // Submit Logic
+        if(dataForm) {
+            dataForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              console.log('Form submitted'); // Debug log
+              
+              const payload = {};
+              const type = currentModalType;
+              
+              // Collect Data based on type
+              if (document.getElementById('formNama') && document.getElementById('formNama').value) payload[type === 'pengguna' ? 'name' : 'nama'] = document.getElementById('formNama').value;
+              
+              if (type === 'klasifikasi') {
+                // Just name
+              } 
+              else if (type === 'departemen') {
+                payload.kode = document.getElementById('formKode').value;
+                payload.alamat = document.getElementById('formAlamat').value;
+              }
+              else if (type === 'pengguna') {
+                payload.email = document.getElementById('formEmail').value;
+                if(document.getElementById('formPassword').value) payload.password = document.getElementById('formPassword').value;
+                payload.role = document.getElementById('formRole').value;
+                payload.jabatan = document.getElementById('formJabatan').value;
+                payload.telepon = document.getElementById('formTelepon').value;
+                
+                // Explicitly handle instansi_id nullification
+                if(payload.role === 'instansi') {
+                    payload.instansi_id = document.getElementById('formInstansi').value;
+                } else {
+                    payload.instansi_id = null;
+                }
+              }
+              else if (type === 'lampiran') {
+                payload.kode = document.getElementById('formKode').value;
+              }
+
+              // Determine URL and Method
+              let url = '';
+              let method = isEditMode ? 'PUT' : 'POST';
+              
+              if (type === 'klasifikasi') url = isEditMode ? `/api/klasifikasi/${editingId}` : '/api/klasifikasi-store';
+              else if (type === 'departemen') url = isEditMode ? `/api/departemen/${editingId}` : '/api/departemen-store';
+              else if (type === 'pengguna') url = isEditMode ? `/api/pengguna/${editingId}` : '/api/pengguna-store';
+              else if (type === 'lampiran') url = isEditMode ? `/api/lampiran/${editingId}` : '/api/lampiran-store';
+
+              try {
+                const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                const res = await fetch(url, {
+                  method: method,
+                  headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                  body: JSON.stringify(payload)
+                });
+                
+                const json = await res.json();
+                if (res.ok) {
+                  closeModal(); // Close first!
+                  showToast('Berhasil menyimpan data!', 'success');
+                  loadData(type);
+                  loadStats();
+                } else {
+                  // Better error handling
+                  let msg = json.message || 'Gagal menyimpan';
+                  if(json.errors) {
+                    msg = Object.values(json.errors).flat().join('<br>');
+                  }
+                  showToast(msg, 'error');
+                }
+              } catch (e) {
+                console.error(e);
+                showToast('Terjadi kesalahan server', 'error');
+              }
+            });
+        }
+
+        // Delete Logic
+        async function deleteItem(type, id) {
+          let url = '';
+          if (type === 'klasifikasi') url = `/api/klasifikasi/${id}`;
+          else if (type === 'departemen') url = `/api/departemen/${id}`;
+          else if (type === 'pengguna') url = `/api/pengguna/${id}`;
+          else if (type === 'lampiran') url = `/api/lampiran/${id}`;
+
           try {
-            updatedData = JSON.parse(responseText);
-          } catch (e) {
-            console.error('Response text:', responseText);
-            showToast('Error: Respons server tidak valid.', 'error');
-            return;
-          }
-
-          if (response.ok) {
-            const index = allKlasifikasiData.findIndex(item => item.id === editingDataId);
-            if (index !== -1) allKlasifikasiData[index] = updatedData;
-            renderKlasifikasi();
-            closeModal();
-            showToast('Data berhasil diperbarui!', 'success');
-          } else {
-            showToast('Error: ' + (updatedData.message || 'Gagal memperbarui data'), 'error');
-          }
-        } else {
-          const response = await fetch('/api/klasifikasi-store', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ nama: formNama.value })
-          });
-
-          const responseText = await response.text();
-          let newData;
-          try {
-            newData = JSON.parse(responseText);
-          } catch (e) {
-            console.error('Response text:', responseText);
-            showToast('Error: Respons server tidak valid.', 'error');
-            return;
-          }
-
-          if (response.ok) {
-            allKlasifikasiData.unshift(newData);
-            renderKlasifikasi();
-            closeModal();
-            showToast('Data berhasil disimpan!', 'success');
-          } else {
-            showToast('Error: ' + (newData.message || 'Gagal menyimpan data'), 'error');
-          }
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const res = await fetch(url, {
+              method: 'DELETE',
+              headers: { 'X-CSRF-TOKEN': csrf }
+            });
+            if (res.ok) {
+              showToast('Data berhasil dihapus', 'success');
+              loadData(type);
+              loadStats();
+            } else {
+              showToast('Gagal menghapus data', 'error');
+            }
+          } catch (e) { console.error(e); }
         }
-      } catch (error) {
-        console.error('Error:', error);
-        showToast('Error: ' + error.message, 'error');
-      }
-    });
 
-    async function saveNewKlasifikasi(nama) {
-      try {
-        const response = await fetch('/api/klasifikasi-store', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-          },
-          body: JSON.stringify({ nama: nama })
-        });
-        if (response.ok) {
-          const newData = await response.json();
-          allKlasifikasiData.unshift(newData);
-          renderKlasifikasi();
-          alert('Klasifikasi berhasil ditambah!');
-        }
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
-    }
-
-    function editKlasifikasi(row) {
-      const id = row.dataset.id;
-      openModal(true, id);
-    }
-
-    async function deleteKlasifikasi(row) {
-      const id = parseInt(row.dataset.id);
-      try {
-        const response = await fetch(`/api/klasifikasi/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        // Search Logic
+        ['Klasifikasi', 'Departemen', 'Pengguna', 'Lampiran'].forEach(name => {
+          const input = document.getElementById('search' + name);
+          const type = name.toLowerCase();
+          if(input) {
+            input.addEventListener('input', (e) => {
+              const q = e.target.value.toLowerCase();
+              const rows = document.querySelectorAll(`#view${name} tbody tr`);
+              const cards = document.querySelectorAll(`#mobileCard${name} > div`);
+              
+              rows.forEach(row => row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none');
+              cards.forEach(card => card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none');
+            });
           }
         });
-        if (response.ok) {
-          allKlasifikasiData = allKlasifikasiData.filter(item => parseInt(item.id) !== id);
-          renderKlasifikasi();
-          showToast('Klasifikasi berhasil dihapus!', 'success');
-        }
-      } catch (error) {
-        showToast('Error: ' + error.message, 'error');
-      }
-    }
 
-    searchKlasifikasi.addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase();
-      // Search in desktop table
-      document.querySelectorAll('#tableBodyKlasifikasi tr').forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
-      // Search in mobile cards
-      document.querySelectorAll('#mobileCardContainer > div').forEach(card => {
-        card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
+        // Initial Load
+        switchTab('klasifikasi');
+        loadStats();
+        // Realtime polling
+        setInterval(loadStats, 10000); // Poll stats every 10s
     });
-
-    loadKlasifikasi();
   </script>
   @include('partials.scripts')
 </body>

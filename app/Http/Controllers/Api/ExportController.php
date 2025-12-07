@@ -11,31 +11,50 @@ class ExportController extends Controller
 {
     public function exportPdf(Request $request)
     {
-        // Ambil semua surat dengan filters jika ada
-        $query = SuratMasuk::with('klasifikasi');
+        // Use Dokumen model
+        $query = \App\Models\Dokumen::with(['instansi', 'validator', 'processor']);
         
+        $user = auth()->user();
+        if ($user && $user->role === 'instansi') {
+            $query->where('instansi_id', $user->instansi_id);
+        }
+
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('no_surat', 'like', "%$search%")
-                  ->orWhere('pengirim', 'like', "%$search%")
-                  ->orWhere('perihal', 'like', "%$search%");
+                $q->where('judul', 'like', "%$search%")
+                  ->orWhere('deskripsi', 'like', "%$search%")
+                  ->orWhereHas('instansi', function($q2) use ($search) {
+                      $q2->where('nama', 'like', "%$search%");
+                  });
             });
         }
         
-        if ($request->klasifikasi_id) {
-            $query->where('klasifikasi_id', $request->klasifikasi_id);
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->period) {
+            $period = $request->period;
+            if ($period === 'daily') {
+                $query->whereDate('created_at', now());
+            } elseif ($period === 'monthly') {
+                $query->whereMonth('created_at', now()->month)
+                      ->whereYear('created_at', now()->year);
+            } elseif ($period === 'yearly') {
+                $query->whereYear('created_at', now()->year);
+            }
         }
         
-        $surats = $query->orderBy('tanggal', 'desc')->get();
+        $dokumens = $query->orderBy('created_at', 'desc')->get();
         
-        $html = view('exports.surat_pdf', ['surats' => $surats])->render();
+        $html = view('exports.surat_pdf', ['dokumens' => $dokumens])->render();
         
         $pdf = Pdf::loadHTML($html)
-                  ->setPaper('a4')
+                  ->setPaper('a4', 'landscape')
                   ->setOption('isRemoteEnabled', true);
         
-        return $pdf->download('surat-masuk-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->download('laporan-dokumen-' . now()->format('Y-m-d') . '.pdf');
     }
     
     public function exportCsv(Request $request)

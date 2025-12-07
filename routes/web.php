@@ -46,8 +46,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/proses-dokumen', [PageController::class, 'prosesDokumen'])->name('proses-dokumen');
     });
     
-    // ===== INSTANSI ONLY =====
-    Route::middleware('role:instansi')->group(function () {
+    // ===== INSTANSI & STAFF =====
+    Route::middleware('role:instansi,staff')->group(function () {
         Route::get('/upload-dokumen', [PageController::class, 'uploadDokumen'])->name('upload-dokumen');
         Route::get('/tracking-dokumen', [PageController::class, 'trackingDokumen'])->name('tracking-dokumen');
     });
@@ -79,11 +79,41 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::post('/klasifikasi-store', [DataMasterController::class,'storeKlasifikasi']);
     Route::put('/klasifikasi/{id}', [DataMasterController::class,'updateKlasifikasi']);
     Route::delete('/klasifikasi/{id}', [DataMasterController::class,'destroyKlasifikasi']);
+
+    // Data Master Extras (Stats, Departemen, Pengguna, Tipe Lampiran)
+    Route::get('/master/stats', [DataMasterController::class, 'getStats']);
+    Route::get('/laporan/stats', [DataMasterController::class, 'getLaporanStats']);
+    
+    Route::get('/departemen-list', [DataMasterController::class,'indexDepartemen']);
+    Route::post('/departemen-store', [DataMasterController::class,'storeDepartemen']);
+    Route::put('/departemen/{id}', [DataMasterController::class,'updateDepartemen']);
+    Route::delete('/departemen/{id}', [DataMasterController::class,'destroyDepartemen']);
+
+    Route::get('/pengguna-list', [DataMasterController::class,'indexPengguna']);
+    Route::post('/pengguna-store', [DataMasterController::class,'storePengguna']);
+    Route::put('/pengguna/{id}', [DataMasterController::class,'updatePengguna']);
+    Route::delete('/pengguna/{id}', [DataMasterController::class,'destroyPengguna']);
+
+    Route::get('/lampiran-list', [DataMasterController::class,'indexTipeLampiran']);
+    Route::post('/lampiran-store', [DataMasterController::class,'storeTipeLampiran']);
+    Route::put('/lampiran/{id}', [DataMasterController::class,'updateTipeLampiran']);
+    Route::delete('/lampiran/{id}', [DataMasterController::class,'destroyTipeLampiran']);
+
     Route::get('/export/pdf', [ExportController::class,'exportPdf']);
     Route::get('/export/csv', [ExportController::class,'exportCsv']);
+
+    // Backup Routes
+    Route::get('/backup/db', [\App\Http\Controllers\Api\BackupController::class, 'backupDb']);
+    Route::get('/backup/files', [\App\Http\Controllers\Api\BackupController::class, 'backupFiles']);
     
     // Dokumen API
     Route::apiResource('dokumen', DokumenController::class);
+    Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
     Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
     Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
+    Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
+});
+
+Route::get('/debug-db', function() {
+    return App\Models\Dokumen::latest()->take(5)->get(['id', 'judul', 'file_name', 'file_path', 'status']);
 });

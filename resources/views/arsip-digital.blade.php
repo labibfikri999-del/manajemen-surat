@@ -474,11 +474,11 @@
             (dok.processor ? dok.processor.name : 'N/A') +
           '</td>' +
           '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">' +
-            '<a href="/storage/' + downloadPath + '" target="_blank" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">' +
+            '<a href="/api/dokumen/' + dok.id + '/download" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">' +
               '<svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>' +
               'Download' +
             '</a>' +
-            (hasPengganti ? '<a href="/storage/' + dok.file_path + '" target="_blank" class="text-gray-600 hover:text-gray-900 text-xs">File Asli</a>' : '') +
+            (hasPengganti ? '<a href="/api/dokumen/' + dok.id + '/download?original=true" class="text-gray-600 hover:text-gray-900 text-xs">File Asli</a>' : '') +
           '</td>' +
         '</tr>';
       }).join('');

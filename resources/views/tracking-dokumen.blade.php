@@ -133,5 +133,48 @@
     </div>
 
     @include('partials.scripts')
+    <script>
+        // Auto-refresh logic for real-time updates
+        setInterval(async () => {
+            // Check if any modal is open (prevent reload while user is working)
+            // Tracking page doesn't have modals, but good to be safe/consistent
+            const modals = document.querySelectorAll('[id$="Modal"]');
+            const isModalOpen = Array.from(modals).some(m => !m.classList.contains('hidden'));
+            if (isModalOpen) return;
+
+            try {
+                // Fetch current page content silently
+                const response = await fetch(window.location.href);
+                if (!response.ok) return;
+                
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                
+                // Compare only the main content logic (exclude tokens/scripts)
+                const currentContent = document.querySelector('div.max-w-7xl').innerHTML;
+                const newContent = doc.querySelector('div.max-w-7xl').innerHTML;
+                
+                // Simple comparison - if content changed (e.g. status update, new item), reload
+                // Note: time difference (e.g. '1 min ago') will also trigger this, which is acceptable
+                if (currentContent !== newContent) {
+                    // Create toast if not exists
+                    if (typeof showToast === 'undefined') {
+                        // Minimal toast fallback
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow z-50';
+                        toast.innerText = 'Data diperbarui ...';
+                        document.body.appendChild(toast);
+                    } else {
+                        showToast('Data baru terdeteksi, memuat ulang...', 'info');
+                    }
+                    
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            } catch (e) {
+                console.error('Auto-refresh check failed', e);
+            }
+        }, 10000); // Check every 10 seconds
+    </script>
 </body>
 </html>

@@ -17,7 +17,7 @@
     .sidebar {
         width: var(--sidebar-w);
         min-width: var(--sidebar-w);
-        transition: width .25s ease, transform .25s ease;
+        transition: width .3s cubic-bezier(0.4, 0, 0.2, 1), transform .3s cubic-bezier(0.4, 0, 0.2, 1);
         position: fixed;
         top: var(--header-h);
         left: 0;
@@ -25,9 +25,9 @@
         z-index: 50;
         overflow-y: auto;
         overflow-x: hidden;
-        background: white;
-        border-right: 1px solid #e5e7eb;
-        box-shadow: 4px 0 24px rgba(0,0,0,0.04);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border-right: 1px solid #e2e8f0;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.02);
     }
     .sidebar::-webkit-scrollbar { width: 4px; }
     .sidebar::-webkit-scrollbar-track { background: transparent; }
@@ -72,34 +72,37 @@
     /* Floating collapse button outside sidebar */
     .btn-collapse-outer {
         position: fixed;
-        top: calc(var(--header-h) + 1rem);
-        left: calc(var(--sidebar-w) - 14px);
-        width: 28px;
-        height: 28px;
+        top: calc(var(--header-h) + 1.25rem);
+        left: calc(var(--sidebar-w) - 16px);
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         background: white;
-        border: 1px solid var(--primary-light);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         z-index: 60;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.25s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .btn-collapse-outer:hover {
-        background: var(--primary-lighter);
-        box-shadow: 0 4px 12px rgba(16,185,129,0.2);
+        background: var(--primary);
+        border-color: var(--primary);
+        box-shadow: 0 6px 16px rgba(16,185,129,0.3);
+        transform: scale(1.1);
     }
     .btn-collapse-outer svg {
-        width: 16px;
-        height: 16px;
-        color: var(--primary-dark);
-        transition: transform 0.25s ease;
+        width: 18px;
+        height: 18px;
+        color: #64748b;
+        transition: all 0.3s ease;
     }
+    .btn-collapse-outer:hover svg { color: white; }
     .sidebar.sidebar-collapsed ~ .btn-collapse-outer,
     .sidebar-collapsed-state .btn-collapse-outer {
-        left: calc(var(--sidebar-collapsed-w) - 14px);
+        left: calc(var(--sidebar-collapsed-w) - 16px);
     }
     .sidebar.sidebar-collapsed ~ .btn-collapse-outer svg,
     .sidebar-collapsed-state .btn-collapse-outer svg {
@@ -131,17 +134,23 @@
         gap: 0.875rem; 
         padding: 0.75rem 1rem; 
         border-radius: 0.75rem; 
-        transition: all 0.2s cubic-bezier(.4,0,.2,1); 
-        color: #374151; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        color: #475569; 
         font-weight: 500;
-        margin: 0.25rem 0;
+        margin: 0.35rem 0.5rem;
+        border: 1px solid transparent;
     }
     .nav-item.active { 
         background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-lighter) 100%); 
         color: var(--primary-dark); 
-        border-left: 4px solid var(--primary); 
+        border: 1px solid rgba(16, 185, 129, 0.1);
         font-weight: 600; 
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+    }
+    .nav-item:hover:not(.active) { 
+        background: #f1f5f9; 
+        transform: translateX(4px); 
+        color: #1e293b;
     }
     .nav-item:hover:not(.active) { 
         background: var(--primary-lighter); 
@@ -164,20 +173,26 @@
     .tooltip { position: relative; }
     .tooltip-text { 
         position: absolute; 
-        left: calc(100% + 10px); 
+        left: calc(100% + 15px); 
         top: 50%; 
-        transform: translateY(-50%); 
-        background: #065f46; 
+        transform: translateY(-50%) translateX(10px); 
+        background: #1e293b; 
         color: white; 
-        padding: 0.5rem 0.75rem; 
-        border-radius: 0.375rem; 
+        padding: 0.6rem 1rem; 
+        border-radius: 0.5rem; 
         white-space: nowrap; 
         opacity: 0; 
         pointer-events: none; 
-        transition: opacity 0.3s ease; 
-        font-size: 0.8125rem;
-        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        font-size: 0.875rem;
+        font-weight: 500;
         z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .sidebar.sidebar-collapsed .nav-item:hover .tooltip-text,
+    .sidebar.sidebar-collapsed .nav-item-locked:hover .tooltip-text { 
+        opacity: 1; 
+        transform: translateY(-50%) translateX(0);
     }
     .tooltip-text::before {
         content: '';

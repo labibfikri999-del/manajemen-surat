@@ -148,7 +148,7 @@
 
     {{-- Copyright --}}
     <p class="text-center text-xs text-gray-400 mt-6">
-      © {{ date('Y') }} Yayasan YARSI NTB. All rights reserved.
+      © {{ date('Y') }} Yayasan Rumah Sakit Islam NTB. All rights reserved.
     </p>
   </div>
 

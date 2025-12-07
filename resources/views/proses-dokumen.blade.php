@@ -100,7 +100,7 @@
                                         
                                         <div class="flex gap-2">
                                             @if($dok->file_path)
-                                                <a href="{{ Storage::url($dok->file_path) }}" target="_blank" 
+                                                <a href="{{ route('dokumen.download', $dok->id) }}"
                                                    class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                                     Download
@@ -249,6 +249,28 @@
 
     @include('partials.scripts')
     <script>
+        // Auto-refresh logic (Realtime)
+        setInterval(async () => {
+            const modals = document.querySelectorAll('[id$="Modal"]');
+            const isModalOpen = Array.from(modals).some(m => !m.classList.contains('hidden'));
+            if (isModalOpen) return;
+
+            try {
+                const response = await fetch(window.location.href);
+                if (!response.ok) return;
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const newContent = doc.querySelector('div.max-w-7xl').innerHTML;
+                const currentContent = document.querySelector('div.max-w-7xl').innerHTML;
+                
+                if (newContent !== currentContent) {
+                    showToast('Data baru masuk, memuat ulang...', 'info');
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            } catch(e) {}
+        }, 10000);
+
         // Toast Notification Function
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');

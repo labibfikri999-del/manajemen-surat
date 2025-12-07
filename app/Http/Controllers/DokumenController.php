@@ -57,7 +57,7 @@ class DokumenController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'file' => 'required|file|mimes:doc,docx|max:10240', // Hanya WORD, Max 10MB
+            'file' => 'required|file|mimes:doc,docx,pdf|max:10240', // Word/PDF, Max 10MB
         ]);
 
         // Upload file
@@ -143,12 +143,18 @@ class DokumenController extends Controller
         if (Storage::disk('public')->exists($dokumen->file_path)) {
             Storage::disk('public')->delete($dokumen->file_path);
         }
+        if ($dokumen->signature_path && Storage::disk('public')->exists($dokumen->signature_path)) {
+            Storage::disk('public')->delete($dokumen->signature_path);
+        }
 
         $dokumen->delete();
 
         return response()->json(['message' => 'Dokumen berhasil dihapus']);
     }
 
+    /**
+     * Validasi dokumen (Direktur only)
+     */
     /**
      * Validasi dokumen (Direktur only)
      */
@@ -163,16 +169,95 @@ class DokumenController extends Controller
         $request->validate([
             'status' => 'required|in:disetujui,ditolak',
             'catatan' => 'nullable|string',
+            'signature' => 'nullable|string', // Base64 signature
         ]);
 
         $dokumen = Dokumen::findOrFail($id);
 
-        $dokumen->update([
+        $updateData = [
             'status' => $request->status,
             'catatan_validasi' => $request->catatan,
             'validated_by' => $user->id,
             'tanggal_validasi' => now(),
-        ]);
+        ];
+
+        // Handle Signature if Approved
+        if ($request->status === 'disetujui' && $request->filled('signature')) {
+            try {
+                // 1. Decode & Save Signature Image
+                $signatureData = $request->signature;
+                $signatureData = str_replace('data:image/png;base64,', '', $signatureData);
+                $signatureData = str_replace(' ', '+', $signatureData);
+                $imageContent = base64_decode($signatureData);
+
+                $signatureFilename = 'signature_' . $dokumen->id . '_' . time() . '.png';
+                $signaturePath = 'signatures/' . $signatureFilename;
+                
+                Storage::disk('public')->put($signaturePath, $imageContent);
+                $updateData['signature_path'] = $signaturePath;
+
+                // 2. Embed to PDF if applicable
+                $extension = strtolower(pathinfo($dokumen->file_path, PATHINFO_EXTENSION));
+                if ($extension === 'pdf') {
+                    $originalPath = Storage::disk('public')->path($dokumen->file_path);
+                    $signatureAbsPath = Storage::disk('public')->path($signaturePath);
+                    $signedFileName = pathinfo($dokumen->file_name, PATHINFO_FILENAME) . '_signed.pdf';
+                    $signedPath = dirname($dokumen->file_path) . '/' . $signedFileName;
+                    $signedAbsPath = Storage::disk('public')->path($signedPath);
+
+                    // Initialize FPDI
+                    $pdf = new \setasign\Fpdi\Fpdi();
+                    
+                    // Import original file
+                    $pageCount = $pdf->setSourceFile($originalPath);
+
+                    // Copy all existing pages
+                    for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                        $templateId = $pdf->importPage($pageNo);
+                        $size = $pdf->getTemplateSize($templateId);
+                        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                        $pdf->useTemplate($templateId);
+                    }
+
+                    // Add NEW Page for Signature
+                    $pdf->AddPage();
+                    $pdf->SetFont('Arial', 'B', 16);
+                    $pdf->Cell(0, 10, 'LEMBAR PENGESAHAN DIGITAL', 0, 1, 'C');
+                    $pdf->Ln(10);
+
+                    $pdf->SetFont('Arial', '', 12);
+                    $pdf->Cell(0, 10, 'Dokumen ini telah divalidasi dan ditandatangani secara digital oleh:', 0, 1, 'L');
+                    $pdf->Ln(5);
+                    
+                    $pdf->SetFont('Arial', 'B', 12);
+                    $pdf->Cell(0, 10, strtoupper($user->name), 0, 1, 'L');
+                    $pdf->SetFont('Arial', '', 11);
+                    $pdf->Cell(0, 10, 'Direktur YARSI NTB', 0, 1, 'L');
+                    $pdf->Cell(0, 10, 'Tanggal: ' . now()->format('d F Y H:i'), 0, 1, 'L');
+                    $pdf->Ln(10);
+
+                    // Place Signature Image (x, y, w, h)
+                    $pdf->Image($signatureAbsPath, 10, $pdf->GetY(), 60); 
+                    
+                    $pdf->Ln(40);
+                    $pdf->SetFont('Arial', 'I', 8);
+                    $pdf->Cell(0, 10, 'Dokumen ini sah dan valid secara sistem.', 0, 1, 'L');
+
+                    // Output new PDF
+                    $pdf->Output($signedAbsPath, 'F');
+
+                    // Update DB point to new signed file
+                    $updateData['file_path'] = $signedPath;
+                    $updateData['file_name'] = $signedFileName;
+                }
+
+            } catch (\Exception $e) {
+                \Log::error('Signature Error: ' . $e->getMessage());
+                // Continue validation even if signing fails, but log it
+            }
+        }
+
+        $dokumen->update($updateData);
 
         return response()->json([
             'message' => 'Dokumen berhasil divalidasi',
@@ -259,6 +344,27 @@ class DokumenController extends Controller
             return response()->json(['error' => 'File tidak ditemukan'], 404);
         }
 
-        return Storage::disk('public')->download($dokumen->file_path, $dokumen->file_name);
+        // Ensure filename has extension
+        $downloadName = $dokumen->file_name;
+        
+        // Sanitize filename
+        $downloadName = str_replace(['/', '\\'], '_', $downloadName);
+        
+        $extension = pathinfo($downloadName, PATHINFO_EXTENSION);
+        
+        // If no extension, try to guess or default to pdf
+        if (empty($extension)) {
+            $type = $dokumen->file_type ?? 'pdf';
+            // Default to pdf if type is unknown or just 'file'
+            if (empty($type) || $type === 'file') $type = 'pdf';
+            $downloadName .= '.' . $type;
+        }
+
+        // Explicitly return download response with headers
+        return response()->download(
+            Storage::disk('public')->path($dokumen->file_path), 
+            $downloadName,
+            ['Content-Type' => Storage::disk('public')->mimeType($dokumen->file_path)]
+        );
     }
 }

@@ -14,8 +14,8 @@ class UserSeeder extends Seeder
         // 1. Direktur Yayasan (Admin)
         User::create([
             'name' => 'Direktur Yayasan',
-            'email' => 'direktur@yarsi.ac.id',
-            'password' => Hash::make('direktur123'),
+            'email' => 'direktur@yarsi-ntb.ac.id',
+            'password' => Hash::make('direktur@2025'),
             'role' => 'direktur',
             'jabatan' => 'Direktur Yayasan YARSI NTB',
             'telepon' => '08123456789',
@@ -25,8 +25,8 @@ class UserSeeder extends Seeder
         // 2. Staff Direktur
         User::create([
             'name' => 'Staff Direktur',
-            'email' => 'staff@yarsi.ac.id',
-            'password' => Hash::make('staff123'),
+            'email' => 'staff@yarsi-ntb.ac.id',
+            'password' => Hash::make('staff@2025'),
             'role' => 'staff',
             'jabatan' => 'Staff Administrasi Direktur',
             'telepon' => '08234567890',
@@ -35,13 +35,13 @@ class UserSeeder extends Seeder
 
         // 3. User untuk setiap instansi (7 user) dengan password mudah
         $instansiUsers = [
-            ['instansi_kode' => 'RSI', 'name' => 'Admin RSI Siti Hajar', 'email' => 'rsi@yarsi.ac.id', 'password' => 'rsi123'],
-            ['instansi_kode' => 'IKYM', 'name' => 'Admin Institut Kesehatan', 'email' => 'ikym@yarsi.ac.id', 'password' => 'ikym123'],
-            ['instansi_kode' => 'SMK', 'name' => 'Admin SMK Yarsi', 'email' => 'smk@yarsi.ac.id', 'password' => 'smk123'],
-            ['instansi_kode' => 'SMAIT', 'name' => 'Admin SMA IT Yarsi', 'email' => 'smait@yarsi.ac.id', 'password' => 'smait123'],
-            ['instansi_kode' => 'SMPIT', 'name' => 'Admin SMP IT Yarsi', 'email' => 'smpit@yarsi.ac.id', 'password' => 'smpit123'],
-            ['instansi_kode' => 'SDIT', 'name' => 'Admin SD IT Fauziah', 'email' => 'sdit@yarsi.ac.id', 'password' => 'sdit123'],
-            ['instansi_kode' => 'TK', 'name' => 'Admin TK Yarsi', 'email' => 'tk@yarsi.ac.id', 'password' => 'tk123'],
+            ['instansi_kode' => 'RSI', 'name' => 'Admin RSI Siti Hajar', 'email' => 'instansi1@yarsi-ntb.ac.id', 'password' => 'mataram10'],
+            ['instansi_kode' => 'IKYM', 'name' => 'Admin Institut Kesehatan', 'email' => 'instansi2@yarsi-ntb.ac.id', 'password' => 'mataram10'],
+            ['instansi_kode' => 'SMK', 'name' => 'Admin SMK Yarsi', 'email' => 'instansi3@yarsi-ntb.ac.id', 'password' => 'mataram10'],
+            ['instansi_kode' => 'SMAIT', 'name' => 'Admin SMA IT Yarsi', 'email' => 'instansi4@yarsi-ntb.ac.id', 'password' => 'mataram10'],
+            ['instansi_kode' => 'SMPIT', 'name' => 'Admin SMP IT Yarsi', 'email' => 'instansi5@yarsi-ntb.ac.id', 'password' => 'mataram10'],
+            ['instansi_kode' => 'SDIT', 'name' => 'Admin SD IT Fauziah', 'email' => 'instansi6@yarsi-ntb.ac.id', 'password' => 'mataram10'],
+            ['instansi_kode' => 'TK', 'name' => 'Admin TK Yarsi', 'email' => 'instansi7@yarsi-ntb.ac.id', 'password' => 'mataram10'],
         ];
 
         foreach ($instansiUsers as $index => $userData) {

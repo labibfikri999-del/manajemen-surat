@@ -99,15 +99,15 @@
             <div class="mt-6 pt-6 border-t border-emerald-100">
               <h3 class="text-sm font-semibold text-emerald-900 mb-3">Laporan Terbaru</h3>
               <ul class="space-y-2 text-sm">
-                <li class="p-2 bg-emerald-50 rounded border border-emerald-100 hover:bg-emerald-100 cursor-pointer">
+                <li onclick="window.location.href='/api/export/pdf?period=daily'" class="p-2 bg-emerald-50 rounded border border-emerald-100 hover:bg-emerald-100 cursor-pointer transition-colors">
                   <p class="font-medium text-emerald-900">Laporan Harian</p>
                   <p class="text-xs text-emerald-500 mt-1">Perbarui setiap hari</p>
                 </li>
-                <li class="p-2 bg-blue-50 rounded border border-blue-100 hover:bg-blue-100 cursor-pointer">
+                <li onclick="window.location.href='/api/export/pdf?period=monthly'" class="p-2 bg-blue-50 rounded border border-blue-100 hover:bg-blue-100 cursor-pointer transition-colors">
                   <p class="font-medium text-blue-900">Laporan Bulanan</p>
                   <p class="text-xs text-blue-500 mt-1">Perbarui setiap bulan</p>
                 </li>
-                <li class="p-2 bg-indigo-50 rounded border border-indigo-100 hover:bg-indigo-100 cursor-pointer">
+                <li onclick="window.location.href='/api/export/pdf?period=yearly'" class="p-2 bg-indigo-50 rounded border border-indigo-100 hover:bg-indigo-100 cursor-pointer transition-colors">
                   <p class="font-medium text-indigo-900">Laporan Tahunan</p>
                   <p class="text-xs text-indigo-500 mt-1">Perbarui setiap tahun</p>
                 </li>
@@ -138,21 +138,14 @@
 
     async function loadStatistics() {
       try {
-        const [resMasuk, resKeluar, resArsip] = await Promise.all([
-          fetch('/api/surat-masuk'),
-          fetch('/api/surat-keluar'),
-          fetch('/api/arsip-digital')
-        ]);
+        const response = await fetch('/api/laporan/stats');
+        const data = await response.json();
 
-        const dataMasuk = await resMasuk.json();
-        const dataKeluar = await resKeluar.json();
-        const dataArsip = await resArsip.json();
+        // Update counts
+        const totalMasuk = data.surat_masuk;
+        const totalKeluar = data.surat_keluar;
+        const totalArsip = data.arsip_digital;
 
-        const totalMasuk = Array.isArray(dataMasuk) ? dataMasuk.length : 0;
-        const totalKeluar = Array.isArray(dataKeluar) ? dataKeluar.length : 0;
-        const totalArsip = Array.isArray(dataArsip) ? dataArsip.length : 0;
-
-        // Update statistics
         document.getElementById('totalMasuk').textContent = totalMasuk;
         document.getElementById('totalKeluar').textContent = totalKeluar;
         document.getElementById('totalArsip').textContent = totalArsip;
@@ -167,102 +160,103 @@
           document.getElementById('statKeluar').textContent = `${totalKeluar} surat (${percentKeluar}%)`;
           document.getElementById('progressMasuk').style.width = percentMasuk + '%';
           document.getElementById('progressKeluar').style.width = percentKeluar + '%';
+        } else {
+             document.getElementById('statMasuk').textContent = `0 surat (0%)`;
+             document.getElementById('statKeluar').textContent = `0 surat (0%)`;
+             document.getElementById('progressMasuk').style.width = '0%';
+             document.getElementById('progressKeluar').style.width = '0%';
         }
 
-        // Initialize charts
-        initCharts(dataMasuk, dataArsip);
+        // Initialize Charts with new data structure
+        updateCharts(data);
       } catch(e) {
         console.error('Error loading statistics:', e);
       }
     }
 
-    function initCharts(dataMasuk, dataArsip) {
-      // Chart 1: Monthly Surat Data
-      const ctxMonthly = document.getElementById('chartSuratMonthly')?.getContext('2d');
-      if (ctxMonthly) {
-        // Group by month
-        const monthData = {};
-        dataMasuk.forEach(item => {
-          if (item.tanggal_diterima) {
-            const month = new Date(item.tanggal_diterima).toLocaleDateString('id-ID', { month: 'short' });
-            monthData[month] = (monthData[month] || 0) + 1;
-          }
-        });
+    function updateCharts(data) {
+       const ctxMonthly = document.getElementById('chartSuratMonthly')?.getContext('2d');
+       if (ctxMonthly) {
+         const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+         const values = data.monthly_masuk || new Array(12).fill(0);
 
-        const labels = Object.keys(monthData).length > 0 
-          ? Object.keys(monthData) 
-          : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+         if (chartSuratMonthly) {
+             chartSuratMonthly.data.datasets[0].data = values;
+             chartSuratMonthly.update();
+         } else {
+             chartSuratMonthly = new Chart(ctxMonthly, {
+               type: 'bar',
+               data: {
+                 labels: labels,
+                 datasets: [{
+                   label: 'Surat Masuk',
+                   data: values,
+                   backgroundColor: '#0ea5e9',
+                   borderColor: '#0284c7',
+                   borderWidth: 1,
+                   borderRadius: 4
+                 }]
+               },
+               options: {
+                 responsive: true,
+                 maintainAspectRatio: true,
+                 plugins: { legend: { display: true, position: 'top' } },
+                 scales: { y: { beginAtZero: true } }
+               }
+             });
+         }
+       }
 
-        if (chartSuratMonthly) chartSuratMonthly.destroy();
-        
-        chartSuratMonthly = new Chart(ctxMonthly, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Surat Diterima',
-              data: labels.map(m => monthData[m] || 0),
-              backgroundColor: '#0ea5e9',
-              borderColor: '#0284c7',
-              borderWidth: 1,
-              borderRadius: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-              legend: { display: true, position: 'top' }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
-      }
-
-      // Chart 2: Arsip Digital Distribution (Pie)
-      const ctxArsip = document.getElementById('chartArsipType')?.getContext('2d');
-      if (ctxArsip && dataArsip.length > 0) {
-        const typeCount = {};
-        dataArsip.forEach(item => {
-          const type = item.tipe || 'Lainnya';
-          typeCount[type] = (typeCount[type] || 0) + 1;
-        });
-
-        if (chartArsipType) chartArsipType.destroy();
-
-        chartArsipType = new Chart(ctxArsip, {
-          type: 'doughnut',
-          data: {
-            labels: Object.keys(typeCount),
-            datasets: [{
-              data: Object.values(typeCount),
-              backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-              borderColor: '#fff',
-              borderWidth: 2
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-              legend: { display: true, position: 'bottom' }
-            }
-          }
-        });
-      }
+       const ctxArsip = document.getElementById('chartArsipType')?.getContext('2d');
+       if (ctxArsip) {
+           const labels = data.arsip_distribution.map(d => d.label);
+           const counts = data.arsip_distribution.map(d => d.count);
+           
+           if (chartArsipType) {
+               chartArsipType.data.labels = labels;
+               chartArsipType.data.datasets[0].data = counts;
+               chartArsipType.update();
+           } else {
+               chartArsipType = new Chart(ctxArsip, {
+                 type: 'doughnut',
+                 data: {
+                   labels: labels,
+                   datasets: [{
+                     data: counts,
+                     backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                     borderColor: '#fff',
+                     borderWidth: 2
+                   }]
+                 },
+                 options: {
+                   responsive: true,
+                   maintainAspectRatio: true,
+                   plugins: { legend: { display: true, position: 'bottom' } }
+                 }
+               });
+           }
+       }
     }
 
-    // Load on page ready
-    document.addEventListener('DOMContentLoaded', loadStatistics);
+    // Load on page ready and poll
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStatistics();
+        setInterval(loadStatistics, 10000); // 10s polling
+    });
 
     // Button Actions
     const btnBuatLaporan = document.getElementById('btnBuatLaporan');
     if (btnBuatLaporan) {
       btnBuatLaporan.addEventListener('click', () => {
-        showToast('Fitur buat laporan sedang dalam pengembangan', 'info');
+         window.location.href = '/api/export/pdf';
       });
+    }
+
+    const btnCetakLaporan = document.getElementById('btnCetakLaporan');
+    if (btnCetakLaporan) {
+        btnCetakLaporan.addEventListener('click', () => {
+            window.location.href = '/api/export/pdf';
+        });
     }
 
     // Toast notification function

@@ -65,32 +65,43 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 10%">No Surat</th>
-                <th style="width: 12%">Tanggal</th>
-                <th style="width: 20%">Pengirim</th>
-                <th style="width: 35%">Perihal</th>
-                <th style="width: 23%">Klasifikasi</th>
+                <th style="width: 15%">Tanggal</th>
+                <th style="width: 20%">Instansi</th>
+                <th style="width: 25%">Judul / Deskripsi</th>
+                <th style="width: 15%">Status</th>
+                <th style="width: 25%">Keterangan</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($surats as $surat)
+            @forelse($dokumens as $dok)
                 <tr>
-                    <td>{{ $surat->no_surat }}</td>
-                    <td>{{ \Carbon\Carbon::parse($surat->tanggal)->format('d/m/Y') }}</td>
-                    <td>{{ $surat->pengirim }}</td>
-                    <td>{{ $surat->perihal }}</td>
-                    <td>{{ $surat->klasifikasi->nama ?? '-' }}</td>
+                    <td>{{ $dok->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $dok->instansi->nama ?? 'Umum' }}</td>
+                    <td>
+                        <strong>{{ $dok->judul }}</strong><br>
+                        <span style="color: #666; font-size: 10px;">{{ \Illuminate\Support\Str::limit($dok->deskripsi, 50) }}</span>
+                    </td>
+                    <td>{{ ucfirst($dok->status) }}</td>
+                    <td>
+                        @if($dok->status == 'disetujui')
+                            Valid: {{ $dok->tanggal_validasi ? $dok->tanggal_validasi->format('d/m/Y') : '-' }}
+                        @elseif($dok->status == 'selesai')
+                            Selesai: {{ $dok->tanggal_selesai ? $dok->tanggal_selesai->format('d/m/Y') : '-' }}
+                        @else
+                            -
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 20px;">Tidak ada data</td>
+                    <td colspan="5" style="text-align: center; padding: 20px;">Tidak ada dokumen ditemukan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Total: {{ count($surats) }} surat</p>
+        <p>Total: {{ count($dokumens) }} dokumen</p>
         <p>Dokumen ini dicetak secara otomatis dari sistem Manajemen Surat Masuk</p>
     </div>
 </body>
