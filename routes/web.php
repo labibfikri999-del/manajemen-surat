@@ -79,7 +79,7 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::get('/arsip-stats', [ArsipDigitalController::class, 'getStats']);
     Route::get('/arsip-kategori-count', [ArsipDigitalController::class, 'getKategoriCount']);
     Route::get('/arsip-by-kategori/{kategori}', [ArsipDigitalController::class, 'getByKategori']);
-    Route::post('/arsip-upload', [ArsipDigitalController::class, 'store']);
+    // Note: POST /api/arsip-digital already handled by apiResource above (line 75)
     
     Route::apiResource('klasifikasi', DataMasterController::class);
     Route::get('/klasifikasi-list', [DataMasterController::class,'indexKlasifikasi']);

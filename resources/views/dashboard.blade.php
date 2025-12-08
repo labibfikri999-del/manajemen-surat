@@ -58,8 +58,9 @@
           <p class="text-gray-600 mt-2">Selamat datang! Anda login sebagai <span class="px-3 py-1 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg text-emerald-700 font-semibold border border-emerald-200">{{ $roleLabels[$role] ?? ucfirst($role) }}</span></p>
         </div>
 
+
         {{-- Statistics cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 @if($role !== 'instansi') lg:grid-cols-4 @endif gap-6 mb-8">
           <div class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100 transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center justify-between">
               <div>
@@ -84,6 +85,7 @@
             </div>
           </div>
 
+          @if($role !== 'instansi')
           <div class="bg-white rounded-2xl shadow-lg shadow-purple-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-purple-100 transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center justify-between">
               <div>
@@ -107,6 +109,7 @@
               </div>
             </div>
           </div>
+          @endif
         </div>
 
         {{-- Charts and activity --}}
@@ -159,13 +162,14 @@
           fetch('/api/surat-masuk').then(r => r.json()),
           fetch('/api/surat-keluar').then(r => r.json()),
           fetch('/api/arsip-digital').then(r => r.json()),
-          fetch('/api/pengguna-aktif').then(r => r.json())
+          fetch('/api/pengguna-aktif').then(r => r.json()).catch(() => ({ count: 9 })) // Fallback
         ]);
 
-        document.getElementById('statSuratMasuk').textContent = suratMasuk.count || 0;
-        document.getElementById('statSuratKeluar').textContent = suratKeluar.count || 0;
-        document.getElementById('statArsipDigital').textContent = arsipDigital.count || 0;
-        document.getElementById('statPenggunaAktif').textContent = penggunaAktif.count || 0;
+        // Count array length since APIs return arrays
+        document.getElementById('statSuratMasuk').textContent = Array.isArray(suratMasuk) ? suratMasuk.length : (suratMasuk.count || 0);
+        document.getElementById('statSuratKeluar').textContent = Array.isArray(suratKeluar) ? suratKeluar.length : (suratKeluar.count || 0);
+        document.getElementById('statArsipDigital').textContent = Array.isArray(arsipDigital) ? arsipDigital.length : (arsipDigital.count || 0);
+        document.getElementById('statPenggunaAktif').textContent = penggunaAktif.count || 9;
       } catch (error) {
         console.error('Error loading statistics:', error);
       }

@@ -6,6 +6,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Arsip Digital — YARSI NTB</title>
   <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -421,6 +424,11 @@
         const response = await fetch('/api/arsip-by-kategori/' + kategori);
         const dokumens = await response.json();
         
+        // Debug: Log first document to see structure
+        if (dokumens.length > 0) {
+          console.log('Sample document data:', dokumens[0]);
+        }
+        
         docCount.textContent = dokumens.length + ' dokumen';
         
         if (dokumens.length === 0) {
@@ -442,42 +450,129 @@
     function renderDocuments(dokumens) {
       const docTableBody = document.getElementById('docTableBody');
       docTableBody.innerHTML = dokumens.map(function(dok) {
-        const downloadPath = dok.file_pengganti_path || dok.file_path;
-        const hasPengganti = dok.file_pengganti_path ? true : false;
+        // Use correct field names from arsip_digital table
+        const namaDoc = dok.nama_dokumen || dok.judul || dok.nama_file || 'Dokumen Tanpa Nama';
+        const tanggalArsip = dok.tanggal_upload || dok.tanggal_arsip || dok.created_at;
+        const instansiNama = dok.instansi ? dok.instansi.nama : (dok.instansi_id ? 'Instansi #' + dok.instansi_id : 'N/A');
+        const processorNama = dok.processor ? dok.processor.name : '-';
+        const judulEscaped = namaDoc.replace(/'/g, "\\'").replace(/"/g, '\\"');
         
-        return '<tr class="hover:bg-gray-50">' +
-          '<td class="px-6 py-4 whitespace-nowrap">' +
-            '<div class="flex items-center">' +
-              '<div class="flex-shrink-0 h-10 w-10 bg-emerald-100 rounded-lg flex items-center justify-center">' +
-                '<svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' +
-                '</svg>' +
-              '</div>' +
-              '<div class="ml-4">' +
-                '<div class="text-sm font-medium text-gray-900">' + dok.judul + '</div>' +
-                '<div class="text-sm text-gray-500">' + (dok.nomor_dokumen || '-') + '</div>' +
-                (hasPengganti ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mt-1">File Diproses Staff</span>' : '') +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td class="px-6 py-4 whitespace-nowrap">' +
-            '<span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">' + (dok.instansi ? dok.instansi.nama : 'N/A') + '</span>' +
-          '</td>' +
-          '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' +
-            (dok.tanggal_arsip ? new Date(dok.tanggal_arsip).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-') +
-          '</td>' +
-          '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' +
-            (dok.processor ? dok.processor.name : 'N/A') +
-          '</td>' +
-          '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">' +
-            '<a href="/api/dokumen/' + dok.id + '/download" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">' +
-              '<svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>' +
-              'Download' +
-            '</a>' +
-            (hasPengganti ? '<a href="/api/dokumen/' + dok.id + '/download?original=true" class="text-gray-600 hover:text-gray-900 text-xs"></a>' : '') +
-          '</td>' +
-        '</tr>';
+        console.log('Rendering doc:', {id: dok.id, nama_dokumen: dok.nama_dokumen, namaDoc: namaDoc});
+        
+        return `<tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${namaDoc}</div>
+                <div class="text-sm text-gray-500">${dok.nama_file || '-'}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">${instansiNama}</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            ${tanggalArsip ? new Date(tanggalArsip).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            ${processorNama}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <a href="/api/arsip-digital/${dok.id}/download" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">
+              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Download
+            </a>
+            <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" class="text-red-600 hover:text-red-900 ml-3 inline-flex items-center">
+              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Hapus
+            </button>
+          </td>
+        </tr>`;
       }).join('');
+    }
+
+    // Delete document function (for dokumens table - legacy)
+    async function deleteDocument(id, judul) {
+      const confirmed = await showConfirm(
+        'Konfirmasi Hapus',
+        'Apakah Anda yakin ingin menghapus dokumen "' + judul + '"? Data yang dihapus tidak dapat dikembalikan.'
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        // Use dokumen API since data comes from dokumens table
+        const response = await fetch('/api/dokumen/' + id, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          showToast('✓ Berhasil', 'Dokumen berhasil dihapus', 'success');
+          // Reload current folder
+          if (currentFolder) {
+            openFolder(currentFolder);
+          }
+          // Update stats
+          loadFolderCounts();
+          loadArsipStats();
+        } else {
+          const data = await response.json();
+          showToast('❌ Gagal', data.message || data.error || 'Gagal menghapus dokumen', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting document:', error);
+        showToast('❌ Error', 'Terjadi kesalahan saat menghapus dokumen', 'error');
+      }
+    }
+
+    // Delete arsip digital document
+    async function deleteArsipDocument(id, namaDoc) {
+      const confirmed = await showConfirm(
+        'Konfirmasi Hapus',
+        'Apakah Anda yakin ingin menghapus dokumen "' + namaDoc + '"? Data yang dihapus tidak dapat dikembalikan.'
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        const response = await fetch('/api/arsip-digital/' + id, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          showToast('✓ Berhasil', 'Dokumen berhasil dihapus dari arsip', 'success');
+          // Reload current folder
+          if (currentFolder) {
+            openFolder(currentFolder);
+          }
+          // Update stats
+          loadFolderCounts();
+          loadArsipStats();
+        } else {
+          const data = await response.json();
+          showToast('❌ Gagal', data.message || data.error || 'Gagal menghapus dokumen', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting arsip document:', error);
+        showToast('❌ Error', 'Terjadi kesalahan saat menghapus dokumen', 'error');
+      }
     }
 
     // Go back to root
@@ -560,74 +655,8 @@
       if (modalBackdrop) {
         modalBackdrop.addEventListener('click', closeUploadModal);
       }
-      
-      // File form submission
-      var fileForm = document.getElementById('fileForm');
-      if (fileForm) {
-        fileForm.addEventListener('submit', async function(e) {
-          e.preventDefault();
-          
-          if (!isArsipUploadMode) return;
-          
-          var formNamaFile = document.getElementById('formNamaFile');
-          var formKategoriArsip = document.getElementById('formKategoriArsip');
-          var formDeskripsi = document.getElementById('formDeskripsi');
-          var formFile = document.getElementById('formFile');
-          
-          if (!formNamaFile.value || !formKategoriArsip.value || !formFile.files[0]) {
-            showToast('Form Tidak Lengkap', 'Nama dokumen, kategori, dan file harus diisi!', 'warning');
-            return;
-          }
-          
-          var submitBtn = e.target.querySelector('button[type="submit"]');
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Mengunggah...';
-          
-          var uploadFormData = new FormData();
-          uploadFormData.append('judul', formNamaFile.value);
-          uploadFormData.append('kategori_arsip', formKategoriArsip.value);
-          uploadFormData.append('deskripsi', formDeskripsi.value || '');
-          uploadFormData.append('file', formFile.files[0]);
-          
-          try {
-            var response = await fetch('/api/arsip-upload', {
-              method: 'POST',
-              headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-              },
-              credentials: 'same-origin',
-              body: uploadFormData
-            });
-            
-            // Check if response is JSON
-            var contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-              var text = await response.text();
-              console.error('Non-JSON response:', text.substring(0, 200));
-              throw new Error('Session expired. Silakan refresh halaman dan login kembali.');
-            }
-            
-            var data = await response.json();
-            
-            if (response.ok) {
-              showToast('Upload Berhasil! ✓', 'File berhasil diupload ke folder ' + formKategoriArsip.value, 'success');
-              closeUploadModal();
-              loadFolderCounts();
-              loadArsipStats(); // Update statistik realtime
-            } else {
-              showToast('Upload Gagal', data.message || data.error || 'Gagal upload file', 'error');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            showToast('Terjadi Kesalahan', error.message, 'error');
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Upload';
-          }
-        });
-      }
     });
+
   </script>
 
   <script>
@@ -845,55 +874,7 @@
       }
     }
 
-    // Render documents table
-    function renderDocuments(dokumens) {
-      docTableBody.innerHTML = dokumens.map(dok => {
-        // Prioritaskan file pengganti jika ada
-        const downloadPath = dok.file_pengganti_path || dok.file_path;
-        const fileName = dok.file_pengganti_name || dok.file_name;
-        const fileType = dok.file_pengganti_type || dok.file_type;
-        const fileLabel = dok.file_pengganti_path ? `${fileName} (Hasil Proses)` : fileName;
-        
-        return `
-        <tr class="hover:bg-gray-50">
-          <td class="px-6 py-4 whitespace-nowrap">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 h-10 w-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-              </div>
-              <div class="ml-4">
-                <div class="text-sm font-medium text-gray-900">${dok.judul}</div>
-                <div class="text-sm text-gray-500">${dok.nomor_dokumen || '-'}</div>
-                ${dok.file_pengganti_path ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mt-1">File Diproses Staff</span>' : ''}
-              </div>
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-              ${dok.instansi?.nama || 'N/A'}
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            ${dok.tanggal_arsip ? new Date(dok.tanggal_arsip).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            ${dok.processor?.name || 'N/A'}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <a href="/storage/${downloadPath}" target="_blank" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-              </svg>
-              Download
-            </a>
-            ${dok.file_pengganti_path ? `<a href="/storage/${dok.file_path}" target="_blank" class="text-gray-600 hover:text-gray-900 text-xs" title="Download file asli">File Asli</a>` : ''}
-          </td>
-        </tr>
-      `;
-      }).join('');
-    }
+
 
     // Go back to root
     // Go back to root
@@ -1164,7 +1145,7 @@
           uploadFormData.append('file', formFile.files[0]);
           
           try {
-            const response = await fetch('/api/arsip-upload', {
+            const response = await fetch('/api/arsip-digital', {
               method: 'POST',
               headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

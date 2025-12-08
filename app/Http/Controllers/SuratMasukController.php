@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\SuratMasuk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class SuratMasukController extends Controller
 {
     // Get all surat masuk
     public function index()
     {
-        $data = SuratMasuk::latest()->get()->map(function($item) {
+        $user = Auth::user();
+        $query = SuratMasuk::query();
+        
+        // Role-based filtering
+        if ($user->role === 'instansi') {
+            $query->where('instansi_id', $user->instansi_id);
+        }
+        // staff & direktur see all data
+        
+        $data = $query->latest()->get()->map(function($item) {
             $item->file_url = $item->file ? Storage::url($item->file) : null;
             return $item;
         });

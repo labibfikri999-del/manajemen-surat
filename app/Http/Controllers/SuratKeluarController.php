@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\SuratKeluar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class SuratKeluarController extends Controller
 {
     // Get all surat keluar
     public function index()
     {
-        $data = SuratKeluar::latest()->get()->map(function($item) {
+        $user = Auth::user();
+        $query = SuratKeluar::query();
+        
+        // Role-based filtering
+        if ($user->role === 'instansi') {
+            $query->where('instansi_id', $user->instansi_id);
+        }
+        // staff & direktur see all data
+        
+        $data = $query->latest()->get()->map(function($item) {
             $item->file_url = $item->file ? Storage::url($item->file) : null;
             return $item;
         });
@@ -38,6 +48,13 @@ class SuratKeluarController extends Controller
         }
 
         $validated['status'] = 'Draft';
+        
+        // Auto-assign instansi_id for instansi users
+        $user = Auth::user();
+        if ($user->role === 'instansi') {
+            $validated['instansi_id'] = $user->instansi_id;
+        }
+        
         $surat = SuratKeluar::create($validated);
         $surat->file_url = $surat->file ? Storage::url($surat->file) : null;
 

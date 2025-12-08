@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class SuratMasuk extends Model {
     use HasFactory;
     protected $table = 'surat_masuk';
-    protected $fillable = ['nomor_surat','tanggal_diterima','pengirim','perihal','file','klasifikasi_id'];
+    protected $fillable = ['instansi_id', 'nomor_surat','tanggal_diterima','pengirim','perihal','file','klasifikasi_id'];
 
     public function klasifikasi() {
         return $this->belongsTo(Klasifikasi::class, 'klasifikasi_id');
+    }
+
+    public function instansi() {
+        return $this->belongsTo(Instansi::class, 'instansi_id');
     }
 }

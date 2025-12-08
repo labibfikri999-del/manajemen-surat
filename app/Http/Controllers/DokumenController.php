@@ -102,8 +102,19 @@ class DokumenController extends Controller
             'status' => 'pending',
         ]);
 
+        // Auto-create Surat Keluar for instansi users
+        \App\Models\SuratKeluar::create([
+            'instansi_id' => $user->instansi_id,
+            'nomor_surat' => $nomorDokumen,
+            'tanggal_keluar' => now(),
+            'tujuan' => 'Direktur YARSI NTB',
+            'perihal' => $request->judul,
+            'file' => $filePath,
+            'status' => 'Terkirim',
+        ]);
+
         return response()->json([
-            'message' => 'Dokumen berhasil diupload',
+            'message' => 'Dokumen berhasil diupload dan surat keluar telah dibuat',
             'dokumen' => $dokumen->load(['instansi', 'user'])
         ], 201);
     }
@@ -350,13 +361,23 @@ class DokumenController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            // Auto-create Surat Masuk for instansi user (balasan dari staff)
+            \App\Models\SuratMasuk::create([
+                'instansi_id' => $dokumen->instansi_id,
+                'nomor_surat' => 'BAL/' . $dokumen->nomor_dokumen,
+                'tanggal_diterima' => now(),
+                'pengirim' => 'Staff YARSI NTB',
+                'perihal' => 'Balasan: ' . $dokumen->judul,
+                'file' => $updateData['balasan_file'] ?? null,
+            ]);
         }
 
         $dokumen->update($updateData);
 
         return response()->json([
             'message' => $request->status === 'selesai' 
-                ? 'Dokumen berhasil diselesaikan dan diarsipkan ke folder ' . $request->kategori_arsip 
+                ? 'Dokumen berhasil diselesaikan, diarsipkan ke folder ' . $request->kategori_arsip . ', dan surat masuk telah dibuat untuk instansi'
                 : 'Status dokumen berhasil diupdate',
             'dokumen' => $dokumen->load(['instansi', 'user', 'validator', 'processor'])
         ]);
