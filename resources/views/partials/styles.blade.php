@@ -12,8 +12,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html,body,#app { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     .transition-smooth { transition: all .22s cubic-bezier(.2,.8,.2,1); }
-    html, body { overflow-x: hidden; background: #f8fafc; }
-    .site-header { height: var(--header-h); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+    html, body { overflow: hidden; /* Prevent body scroll - fix for mobile jitter */ background: #f8fafc; overscroll-behavior: none; }
+    .site-header { height: var(--header-h); flex-shrink: 0; /* Prevent shrink */ position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
     .sidebar {
         width: var(--sidebar-w);
         min-width: var(--sidebar-w);

@@ -7,6 +7,11 @@
         'staff' => 'Staff Direktur', 
         'instansi' => $user->instansi->nama ?? 'Instansi',
     ];
+    // Fetch all instansi for staff
+    $instansis = [];
+    if ($user->isStaff()) {
+        $instansis = \App\Models\Instansi::where('is_active', true)->orderBy('nama')->get();
+    }
 @endphp
 <!doctype html>
 <html lang="id">
@@ -14,7 +19,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <title>Upload Dokumen — YARSI NTB</title>
+    <title>{{ $user->isStaff() ? 'Kirim Dokumen' : 'Upload Dokumen' }} — YARSI NTB</title>
     <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,8 +38,8 @@
 
                 {{-- Page header --}}
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-emerald-900">Upload Dokumen</h1>
-                    <p class="text-emerald-600 mt-2">Upload dokumen untuk validasi oleh Direktur</p>
+                    <h1 class="text-3xl font-bold text-emerald-900">{{ $user->isStaff() ? 'Kirim Dokumen' : 'Upload Dokumen' }}</h1>
+                    <p class="text-emerald-600 mt-2">{{ $user->isStaff() ? 'Kirim dokumen ke internal atau eksternal' : 'Upload dokumen untuk validasi oleh Direktur' }}</p>
                 </div>
 
                 {{-- Upload Form --}}
@@ -50,6 +55,30 @@
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                                     placeholder="Masukkan judul dokumen...">
                             </div>
+
+                            {{-- Tujuan Instansi (Khusus Staff) --}}
+                            @if($user->isStaff())
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan Instansi (Opsional)</label>
+                                    <select name="tujuan_instansi_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                        <option value="">-- Pilih Tujuan Instansi (Kosongkan jika hanya kirim email) --</option>
+                                        @foreach($instansis as $instansi)
+                                            <option value="{{ $instansi->id }}">{{ $instansi->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            {{-- Kirim Email Eksternal (Opsional) --}}
+                            @if($user->isStaff())
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kirim ke Email (Opsional)</label>
+                                    <input type="email" name="email_eksternal" 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400"
+                                        placeholder="Contoh: dinas.pendidikan@example.com">
+                                    <p class="text-xs text-gray-500 mt-1">Isi jika ingin mengirim salinan dokumen ke email luar sistem.</p>
+                                </div>
+                            @endif
 
                             {{-- Jenis Dokumen --}}
                             <div>
@@ -97,11 +126,8 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                     </svg>
-                                    Upload Dokumen
+                                    {{ $user->isStaff() ? 'Kirim Dokumen' : 'Upload Dokumen' }}
                                 </button>
-                                <a href="{{ route('tracking-dokumen') }}" class="px-6 py-3.5 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all">
-                                    Lihat Status
-                                </a>
                             </div>
                         </div>
                     </form>

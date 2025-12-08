@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArsipDigital;
+use App\Models\Dokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,7 @@ class ArsipDigitalController extends Controller
     // Get all files
     public function index()
     {
-        $data = ArsipDigital::latest()->get()->map(function($item) {
+        $data = Dokumen::where('is_archived', true)->latest('tanggal_arsip')->get()->map(function($item) {
             $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
             return $item;
         });
@@ -118,14 +118,18 @@ class ArsipDigitalController extends Controller
     // Delete file
     public function destroy($id)
     {
-        $arsip = ArsipDigital::findOrFail($id);
+        $dokumen = Dokumen::findOrFail($id);
         
-        // Delete file from storage
-        if ($arsip->file_path && Storage::disk('public')->exists($arsip->file_path)) {
-            Storage::disk('public')->delete($arsip->file_path);
+        // Soft delete or hard delete? Usually hard delete for arsip cleanup if requested
+        // But Dokumen might be referenced elsewhere. 
+        // For now, let's just set is_archived = false? No, user wants to delete.
+        // Let's do delete() which will be consistent.
+        
+        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
+            Storage::disk('public')->delete($dokumen->file_path);
         }
         
-        $arsip->delete();
+        $dokumen->delete();
         return response()->json(['message' => 'File deleted successfully']);
     }
     
@@ -133,28 +137,22 @@ class ArsipDigitalController extends Controller
     // Download file
     public function download($id)
     {
-        $arsip = ArsipDigital::findOrFail($id);
+        $arsip = Dokumen::findOrFail($id);
         
         if (!$arsip->file_path || !Storage::disk('public')->exists($arsip->file_path)) {
             return response()->json(['message' => 'File not found'], 404);
         }
         
         $path = Storage::disk('public')->path($arsip->file_path);
-        return response()->download($path, $arsip->nama_file);
+        return response()->download($path, $arsip->file_name ?? 'dokumen.pdf');
     }
 
     // Get statistics for Arsip Digital page
     public function getStats()
     {
-        $totalDokumen = ArsipDigital::count();
-        
-        // Calculate total size
-        $totalBytes = 0;
-        foreach (ArsipDigital::all(['file_path']) as $file) {
-            if ($file->file_path && Storage::disk('public')->exists($file->file_path)) {
-                $totalBytes += Storage::disk('public')->size($file->file_path);
-            }
-        }
+        $query = Dokumen::where('is_archived', true);
+        $totalDokumen = $query->count();
+        $totalBytes = $query->sum('file_size');
         
         // Format size
         if ($totalBytes >= 1073741824) {
@@ -168,7 +166,7 @@ class ArsipDigitalController extends Controller
         }
         
         // Get last access
-        $lastAccess = ArsipDigital::latest('updated_at')->first();
+        $lastAccess = Dokumen::where('is_archived', true)->latest('updated_at')->first();
         $aksesTerakhir = $lastAccess ? $lastAccess->updated_at->diffForHumans() : 'Belum ada data';
         
         return response()->json([
@@ -182,11 +180,11 @@ class ArsipDigitalController extends Controller
     public function getKategoriCount()
     {
         $counts = [
-            'UMUM' => ArsipDigital::where('kategori', 'UMUM')->count(),
-            'SDM' => ArsipDigital::where('kategori', 'SDM')->count(),
-            'ASSET' => ArsipDigital::where('kategori', 'ASSET')->count(),
-            'HUKUM' => ArsipDigital::where('kategori', 'HUKUM')->count(),
-            'KEUANGAN' => ArsipDigital::where('kategori', 'KEUANGAN')->count(),
+            'UMUM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'UMUM')->count(),
+            'SDM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SDM')->count(),
+            'ASSET' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'ASSET')->count(),
+            'HUKUM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'HUKUM')->count(),
+            'KEUANGAN' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'KEUANGAN')->count(),
         ];
         
         return response()->json($counts);
@@ -195,9 +193,10 @@ class ArsipDigitalController extends Controller
     // Get documents by category
     public function getByKategori($kategori)
     {
-        $dokumens = ArsipDigital::where('kategori', $kategori)
+        $dokumens = Dokumen::where('is_archived', true)
+            ->where('kategori_arsip', $kategori)
             ->with(['instansi', 'processor'])
-            ->latest()
+            ->latest('tanggal_arsip')
             ->get();
         
         return response()->json($dokumens);

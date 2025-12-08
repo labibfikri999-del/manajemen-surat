@@ -203,4 +203,24 @@ Route::middleware('web')->group(function () {
     Route::post('/balasan/mark-read/{id}', [BalasanApiController::class, 'markRead']);
 
     Route::get('/dokumen/{id}/download-balasan', [App\Http\Controllers\DokumenController::class, 'downloadBalasan']);
+
+    // Notifikasi Counting
+    Route::get('/notifikasi/count', function () {
+        $user = auth()->user();
+        if (!$user) return response()->json(['count' => 0]);
+
+        if ($user->role === 'direktur') {
+            // Count dokumen waiting for validation
+            $count = \App\Models\Dokumen::where('status', 'menunggu_validasi')->count();
+            return response()->json(['count' => $count]);
+        } 
+        
+        if ($user->role === 'staff') {
+            // Count dokumen approved (ready for processing)
+            $count = \App\Models\Dokumen::where('status', 'disetujui')->count();
+            return response()->json(['count' => $count]);
+        }
+
+        return response()->json(['count' => 0]);
+    });
 });

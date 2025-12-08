@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\DokumenMasukMail;
 
 class DokumenController extends Controller
 {
@@ -47,16 +49,20 @@ class DokumenController extends Controller
         // Direktur bisa lihat semua
 
         // Filter by status
-        if ($request->has('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
         // Filter by instansi (untuk direktur)
         if ($request->has('instansi_id') && $request->instansi_id) {
             $query->where('instansi_id', $request->instansi_id);
         }
 
-        $dokumens = $query->orderBy('created_at', 'desc')->get();
+        // Sorting Custom: AMAT SEGERA > SEGERA > BIASA > Created At
+        $dokumens = $query->orderByRaw("
+            CASE 
+                WHEN prioritas = 'AMAT SEGERA' THEN 1 
+                WHEN prioritas = 'SEGERA' THEN 2 
+                WHEN prioritas = 'BIASA' THEN 3 
+                ELSE 4 
+            END
+        ")->orderBy('created_at', 'desc')->get();
 
         return response()->json($dokumens);
     }
@@ -68,8 +74,8 @@ class DokumenController extends Controller
     {
         $user = Auth::user();
 
-        // Hanya user instansi yang bisa upload
-        if (!$user->isInstansi()) {
+        // Hanya user instansi dan staff yang bisa upload (Direktur tidak boleh)
+        if (!$user->isInstansi() && !$user->isStaff()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -77,18 +83,38 @@ class DokumenController extends Controller
             'judul' => 'required|string|max:255',
             'jenis' => 'required|string|in:surat_masuk,surat_keluar,proposal,laporan,sk,kontrak,lainnya',
             'deskripsi' => 'nullable|string',
+            'tujuan_instansi_id' => 'nullable|exists:instansis,id',
+            'email_eksternal' => 'nullable|email', // Validasi email eksternal
             'file' => 'required|file|mimes:doc,docx,pdf|max:10240', // Word/PDF, Max 10MB
         ]);
 
         // Upload file
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName();
-        $filePath = $file->store('dokumen/' . $user->instansi->kode, 'public');
+        // Instansi Kode Logic
+        $instansiKode = 'YAYASAN';
+        $targetInstansiId = null;
+
+        // Jika user adalah instansi, gunakan kodenya
+        if ($user->isInstansi()) {
+            $instansiKode = $user->instansi->kode;
+            $targetInstansiId = $user->instansi_id;
+        } 
+        // Jika Staff memilih tujuan instansi
+        elseif ($request->filled('tujuan_instansi_id') && $user->isStaff()) {
+            $targetInstansi = \App\Models\Instansi::find($request->tujuan_instansi_id);
+            if ($targetInstansi) {
+                $instansiKode = $targetInstansi->kode;
+                $targetInstansiId = $targetInstansi->id;
+            }
+        }
+        
+        $filePath = $file->store('dokumen/' . $instansiKode, 'public');
 
         // Generate nomor dokumen
-        $nomorDokumen = Dokumen::generateNomorDokumen($user->instansi->kode);
+        $nomorDokumen = Dokumen::generateNomorDokumen($instansiKode);
 
-        $dokumen = Dokumen::create([
+        $createData = [
             'nomor_dokumen' => $nomorDokumen,
             'judul' => $request->judul,
             'jenis_dokumen' => $request->jenis,
@@ -97,21 +123,66 @@ class DokumenController extends Controller
             'file_name' => $fileName,
             'file_type' => $file->getClientOriginalExtension(),
             'file_size' => $file->getSize(),
-            'instansi_id' => $user->instansi_id,
             'user_id' => $user->id,
+            'instansi_id' => $targetInstansiId,
             'status' => 'pending',
-        ]);
+        ];
 
-        // Auto-create Surat Keluar for instansi users
-        \App\Models\SuratKeluar::create([
-            'instansi_id' => $user->instansi_id,
-            'nomor_surat' => $nomorDokumen,
-            'tanggal_keluar' => now(),
-            'tujuan' => 'Direktur YARSI NTB',
-            'perihal' => $request->judul,
-            'file' => $filePath,
-            'status' => 'Terkirim',
-        ]);
+        // Jika Staff mengirim ke Instansi atau Email Eksternal
+        if ($user->isStaff() && ($targetInstansiId || $request->filled('email_eksternal'))) {
+            $createData['status'] = 'disetujui'; // Bypass validation logic
+            // Set balasan_file ONLY if targetInstansiId is set (internal flow), otherwise it's just an external send
+            if ($targetInstansiId) {
+                $createData['balasan_file'] = $filePath;
+            }
+        }
+
+        $dokumen = Dokumen::create($createData);
+
+        // Jika Staff mengirim ke Instansi, buat notifikasi balasan
+        if ($user->isStaff() && $targetInstansiId) {
+             $targetUsers = \App\Models\User::where('instansi_id', $targetInstansiId)->get();
+             foreach ($targetUsers as $targetUser) {
+                 \DB::table('balasan_read_status')->insert([
+                    'dokumen_id' => $dokumen->id,
+                    'user_id' => $targetUser->id,
+                    'terbaca' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                 ]);
+             }
+             
+             // KIRIM EMAIL KE INSTANSI
+             if (isset($targetInstansi) && $targetInstansi->email) {
+                 try {
+                     Mail::to($targetInstansi->email)->send(new DokumenMasukMail($dokumen));
+                 } catch (\Exception $e) {
+                     \Log::error('Gagal kirim email dokumen masuk: ' . $e->getMessage());
+                 }
+             }
+        }
+        
+        // KIRIM EMAIL EKSTERNAL (Jika Staff input email manual)
+        if ($user->isStaff() && $request->filled('email_eksternal')) {
+             try {
+                 Mail::to($request->email_eksternal)->send(new DokumenMasukMail($dokumen));
+             } catch (\Exception $e) {
+                 \Log::error('Gagal kirim email eksternal: ' . $e->getMessage());
+             }
+        }
+
+        // Auto-create Surat Keluar ONLY for instansi users
+        if ($user->isInstansi()) {
+             \App\Models\SuratKeluar::create([
+                'instansi_id' => $user->instansi_id,
+                'nomor_surat' => $nomorDokumen,
+                'tanggal_keluar' => now(),
+                'tujuan' => 'Direktur YARSI NTB',
+                'perihal' => $request->judul,
+                'file' => $filePath,
+                'status' => 'Terkirim',
+            ]);
+        }
 
         return response()->json([
             'message' => 'Dokumen berhasil diupload dan surat keluar telah dibuat',
@@ -200,96 +271,28 @@ class DokumenController extends Controller
 
         $request->validate([
             'status' => 'required|in:disetujui,ditolak',
-            'prioritas' => 'nullable|in:BIASA,PENTING,MENDESAK', // Hanya required saat disetujui
+            'prioritas' => 'nullable|in:BIASA,SEGERA,AMAT SEGERA', // Update prioritas values
+            'disposisi_tujuan' => 'nullable|in:KEUANGAN,SDM,HUKUM,ASSET,UMUM', // New field
             'catatan' => 'nullable|string',
-            'signature' => 'nullable|string', // Base64 signature
         ]);
 
         $dokumen = Dokumen::findOrFail($id);
 
+        // Append disposisi instruction to catatan if exists
+        $catatanVallidasi = $request->catatan;
+        if ($request->filled('disposisi_tujuan')) {
+            $catatanVallidasi = "[DISPOSISI: " . $request->disposisi_tujuan . "] " . $catatanVallidasi;
+        }
+
         $updateData = [
             'status' => $request->status,
             'prioritas' => $request->prioritas,
-            'catatan_validasi' => $request->catatan,
+            'catatan_validasi' => $catatanVallidasi,
             'validated_by' => $user->id,
             'tanggal_validasi' => now(),
         ];
 
-        // Handle Signature if Approved
-        if ($request->status === 'disetujui' && $request->filled('signature')) {
-            try {
-                // 1. Decode & Save Signature Image
-                $signatureData = $request->signature;
-                $signatureData = str_replace('data:image/png;base64,', '', $signatureData);
-                $signatureData = str_replace(' ', '+', $signatureData);
-                $imageContent = base64_decode($signatureData);
 
-                $signatureFilename = 'signature_' . $dokumen->id . '_' . time() . '.png';
-                $signaturePath = 'signatures/' . $signatureFilename;
-                
-                Storage::disk('public')->put($signaturePath, $imageContent);
-                $updateData['signature_path'] = $signaturePath;
-
-                // 2. Embed to PDF if applicable
-                $extension = strtolower(pathinfo($dokumen->file_path, PATHINFO_EXTENSION));
-                if ($extension === 'pdf') {
-                    $originalPath = Storage::disk('public')->path($dokumen->file_path);
-                    $signatureAbsPath = Storage::disk('public')->path($signaturePath);
-                    $signedFileName = pathinfo($dokumen->file_name, PATHINFO_FILENAME) . '_signed.pdf';
-                    $signedPath = dirname($dokumen->file_path) . '/' . $signedFileName;
-                    $signedAbsPath = Storage::disk('public')->path($signedPath);
-
-                    // Initialize FPDI
-                    $pdf = new \setasign\Fpdi\Fpdi();
-                    
-                    // Import original file
-                    $pageCount = $pdf->setSourceFile($originalPath);
-
-                    // Copy all existing pages
-                    for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-                        $templateId = $pdf->importPage($pageNo);
-                        $size = $pdf->getTemplateSize($templateId);
-                        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-                        $pdf->useTemplate($templateId);
-                    }
-
-                    // Add NEW Page for Signature
-                    $pdf->AddPage();
-                    $pdf->SetFont('Arial', 'B', 16);
-                    $pdf->Cell(0, 10, 'LEMBAR PENGESAHAN DIGITAL', 0, 1, 'C');
-                    $pdf->Ln(10);
-
-                    $pdf->SetFont('Arial', '', 12);
-                    $pdf->Cell(0, 10, 'Dokumen ini telah divalidasi dan ditandatangani secara digital oleh:', 0, 1, 'L');
-                    $pdf->Ln(5);
-                    
-                    $pdf->SetFont('Arial', 'B', 12);
-                    $pdf->Cell(0, 10, strtoupper($user->name), 0, 1, 'L');
-                    $pdf->SetFont('Arial', '', 11);
-                    $pdf->Cell(0, 10, 'Direktur YARSI NTB', 0, 1, 'L');
-                    $pdf->Cell(0, 10, 'Tanggal: ' . now()->format('d F Y H:i'), 0, 1, 'L');
-                    $pdf->Ln(10);
-
-                    // Place Signature Image (x, y, w, h)
-                    $pdf->Image($signatureAbsPath, 10, $pdf->GetY(), 60); 
-                    
-                    $pdf->Ln(40);
-                    $pdf->SetFont('Arial', 'I', 8);
-                    $pdf->Cell(0, 10, 'Dokumen ini sah dan valid secara sistem.', 0, 1, 'L');
-
-                    // Output new PDF
-                    $pdf->Output($signedAbsPath, 'F');
-
-                    // Update DB point to new signed file
-                    $updateData['file_path'] = $signedPath;
-                    $updateData['file_name'] = $signedFileName;
-                }
-
-            } catch (\Exception $e) {
-                \Log::error('Signature Error: ' . $e->getMessage());
-                // Continue validation even if signing fails, but log it
-            }
-        }
 
         $dokumen->update($updateData);
 

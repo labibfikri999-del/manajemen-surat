@@ -13,10 +13,10 @@
             'roles' => ['direktur', 'staff', 'instansi'],
         ],
         [
-            'name' => 'Upload Dokumen',
+            'name' => ($role == 'staff') ? 'Kirim Dokumen' : 'Upload Dokumen',
             'route' => 'upload-dokumen',
             'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>',
-            'roles' => ['instansi'],
+            'roles' => ['instansi', 'staff'],
         ],
         [
             'name' => 'Tracking Dokumen',

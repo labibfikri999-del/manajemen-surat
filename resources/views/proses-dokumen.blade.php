@@ -13,6 +13,12 @@
         'diproses' => 'bg-purple-100 text-purple-800',
         'selesai' => 'bg-emerald-100 text-emerald-800',
     ];
+
+    $priorityColors = [
+        'AMAT SEGERA' => 'bg-red-100 text-red-800 border-red-200',
+        'SEGERA' => 'bg-amber-100 text-amber-800 border-amber-200',
+        'BIASA' => 'bg-blue-100 text-blue-800 border-blue-200',
+    ];
 @endphp
 <!doctype html>
 <html lang="id">
@@ -48,43 +54,116 @@
                 @include('partials.flash-messages')
 
                 {{-- Page header --}}
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-emerald-900">Proses Dokumen</h1>
-                    <p class="text-emerald-600 mt-2">Kelola dokumen yang sudah divalidasi Direktur</p>
-                </div>
-
-                {{-- Stats --}}
-                <div class="grid grid-cols-3 gap-4 mb-8">
-                    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-                        <div class="text-3xl font-bold text-green-600">{{ $dokumens->where('status', 'disetujui')->count() }}</div>
-                        <div class="text-sm text-gray-600">Perlu Diproses</div>
+                <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-emerald-900">Proses Dokumen</h1>
+                        <p class="text-emerald-600 mt-2">Kelola dokumen yang sudah divalidasi Direktur</p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
-                        <div class="text-3xl font-bold text-purple-600">{{ $dokumens->where('status', 'diproses')->count() }}</div>
-                        <div class="text-sm text-gray-600">Sedang Diproses</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-emerald-500">
-                        <div class="text-3xl font-bold text-emerald-600">{{ $dokumens->count() }}</div>
-                        <div class="text-sm text-gray-600">Total</div>
+                    <div class="bg-white px-6 py-3 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-4 animate-fade-in">
+                        <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Total Surat Masuk</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $dokumens->count() }} Dokumen</p>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Dokumen List --}}
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="p-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Dokumen dari Direktur</h2>
+                {{-- Folder Grid (Desktop & Mobile) --}}
+                <div id="folderGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in">
+                    <!-- Folder: AMAT SEGERA -->
+                    <div onclick="openPriorityFolder('AMAT SEGERA')" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-red-200">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                            <svg class="w-24 h-24 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                        </div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-red-600 transition">Amat Segera</h3>
+                                <p class="text-sm text-gray-500">Prioritas Tertinggi</p>
+                            </div>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="text-3xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'AMAT SEGERA')->count() }}</div>
+                            <span class="text-xs font-medium px-2 py-1 bg-red-50 text-red-700 rounded-lg">Dokumen</span>
+                        </div>
+                    </div>
+
+                    <!-- Folder: SEGERA -->
+                    <div onclick="openPriorityFolder('SEGERA')" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-amber-200">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                            <svg class="w-24 h-24 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition">Segera</h3>
+                                <p class="text-sm text-gray-500">Prioritas Menengah</p>
+                            </div>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="text-3xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'SEGERA')->count() }}</div>
+                            <span class="text-xs font-medium px-2 py-1 bg-amber-50 text-amber-700 rounded-lg">Dokumen</span>
+                        </div>
+                    </div>
+
+                    <!-- Folder: BIASA -->
+                    <div onclick="openPriorityFolder('BIASA')" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-blue-200">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                            <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                        </div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition">Biasa / Normal</h3>
+                                <p class="text-sm text-gray-500">Prioritas Standar</p>
+                            </div>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="text-3xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'BIASA')->count() + $dokumens->where('prioritas', null)->count() }}</div>
+                            <span class="text-xs font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-lg">Dokumen</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Dokumen List (Container) --}}
+                <div id="documentList" class="bg-white rounded-xl shadow-lg overflow-hidden hidden animate-slide-up">
+                    <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <button onclick="closePriorityFolder()" class="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500 hover:text-gray-900">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                            </button>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900" id="folderTitle">Folder Dokumen</h2>
+                                <p class="text-sm text-gray-500" id="folderSubtitle">Menampilkan dokumen dalam folder ini</p>
+                            </div>
+                        </div>
                     </div>
                     
                     @if($dokumens->count() > 0)
                         <div class="divide-y divide-gray-200">
                             @foreach($dokumens as $dok)
-                                <div class="p-4 hover:bg-gray-50">
+                                <div class="p-4 hover:bg-gray-50 transition-colors duration-150 document-item" 
+                                     data-priority="{{ $dok->prioritas ?? 'BIASA' }}"
+                                     data-status="{{ $dok->status }}">
                                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                         <div class="flex-1">
                                             <div class="flex items-center gap-3">
                                                 <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$dok->status] ?? 'bg-gray-100 text-gray-800' }}">
                                                     {{ ucfirst($dok->status) }}
                                                 </span>
+                                                @if($dok->prioritas)
+                                                    <span class="inline-flex px-2 py-1 text-xs font-bold border rounded-full {{ $priorityColors[$dok->prioritas] ?? 'bg-gray-100 text-gray-800' }}">
+                                                        {{ $dok->prioritas }}
+                                                    </span>
+                                                @endif
                                                 <span class="text-xs text-gray-500">Validasi: {{ $dok->tanggal_validasi ? $dok->tanggal_validasi->format('d M Y') : '-' }}</span>
                                             </div>
                                             <h3 class="mt-2 font-semibold text-gray-900">{{ $dok->judul }}</h3>
@@ -125,17 +204,11 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="p-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <p class="mt-2 text-gray-500">Belum ada dokumen yang perlu diproses</p>
+                        <div class="p-8 text-center text-gray-400">
+                             Belum ada dokumen.
                         </div>
                     @endif
                 </div>
-            </div>
-        </main>
-    </div>
 
     {{-- Modal Proses --}}
     <div id="prosesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[100] p-4">
@@ -250,27 +323,7 @@
 
     @include('partials.scripts')
     <script>
-        // Auto-refresh logic (Realtime)
-        setInterval(async () => {
-            const modals = document.querySelectorAll('[id$="Modal"]');
-            const isModalOpen = Array.from(modals).some(m => !m.classList.contains('hidden'));
-            if (isModalOpen) return;
 
-            try {
-                const response = await fetch(window.location.href);
-                if (!response.ok) return;
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const newContent = doc.querySelector('div.max-w-7xl').innerHTML;
-                const currentContent = document.querySelector('div.max-w-7xl').innerHTML;
-                
-                if (newContent !== currentContent) {
-                    showToast('Data baru masuk, memuat ulang...', 'info');
-                    setTimeout(() => window.location.reload(), 1500);
-                }
-            } catch(e) {}
-        }, 10000);
 
         // Toast Notification Function
         function showToast(message, type = 'success') {
@@ -439,9 +492,89 @@
             if (e.target === this) closeProsesModal();
         });
 
+        // Folder Navigation Logic
+        function openPriorityFolder(priority) {
+            // Update Title
+            const folderTitle = document.getElementById('folderTitle');
+            const folderSubtitle = document.getElementById('folderSubtitle');
+            
+            let title = '';
+            let subtitle = '';
+            
+            switch(priority) {
+                case 'AMAT SEGERA':
+                    title = 'Folder: Amat Segera';
+                    subtitle = 'Dokumen dengan prioritas tertinggi yang harus segera diproses';
+                    break;
+                case 'SEGERA':
+                    title = 'Folder: Segera';
+                    subtitle = 'Dokumen prioritas menengah';
+                    break;
+                case 'BIASA':
+                    title = 'Folder: Biasa / Normal';
+                    subtitle = 'Dokumen standar';
+                    break;
+            }
+            
+            folderTitle.textContent = title;
+            folderSubtitle.textContent = subtitle;
+            
+            // Filter Items
+            const items = document.querySelectorAll('.document-item');
+            let hasVisibleItems = false;
+            
+            items.forEach(item => {
+                // If priority is BIASA, also show items with no priority (null/empty)
+                const itemPriority = item.getAttribute('data-priority');
+                
+                if (itemPriority === priority || (priority === 'BIASA' && !itemPriority)) {
+                    item.classList.remove('hidden');
+                    hasVisibleItems = true;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+            
+            // Toggle Views
+            document.getElementById('folderGrid').classList.add('hidden');
+            document.getElementById('documentList').classList.remove('hidden');
+            
+            if (!hasVisibleItems) {
+                // Show empty state if needed? (Already handled by empty list check in Blade, but filtering might hide all)
+            }
+        }
+
+        function closePriorityFolder() {
+            document.getElementById('documentList').classList.add('hidden');
+            document.getElementById('folderGrid').classList.remove('hidden');
+        }
+
         document.getElementById('selesaiModal').addEventListener('click', function(e) {
             if (e.target === this) closeSelesaiModal();
         });
+
+        // Notification Logic for Staff
+        let lastNotifCount = -1;
+        async function checkNotifications() {
+            try {
+                const res = await fetch('/api/notifikasi/count');
+                const data = await res.json();
+                const newCount = data.count;
+
+                if (lastNotifCount !== -1 && newCount > lastNotifCount) {
+                     const diff = newCount - lastNotifCount;
+                     showToast(`🔔 Ada ${diff} dokumen baru siap diproses!`, 'success');
+                }
+                lastNotifCount = newCount;
+            } catch (e) {
+                console.error("Notif check failed", e);
+            }
+        }
+        
+        // Initial check
+        checkNotifications();
+        // Poll every 10 seconds
+        setInterval(checkNotifications, 10000);
     </script>
 </body>
 </html>

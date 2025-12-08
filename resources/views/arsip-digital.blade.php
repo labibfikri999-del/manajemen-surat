@@ -457,6 +457,10 @@
         const processorNama = dok.processor ? dok.processor.name : '-';
         const judulEscaped = namaDoc.replace(/'/g, "\\'").replace(/"/g, '\\"');
         
+        const filePath = dok.file_path || '';
+        const fileExt = filePath.split('.').pop();
+        const fileUrl = filePath ? '/storage/' + filePath : '#';
+        
         console.log('Rendering doc:', {id: dok.id, nama_dokumen: dok.nama_dokumen, namaDoc: namaDoc});
         
         return `<tr class="hover:bg-gray-50">
@@ -483,12 +487,12 @@
             ${processorNama}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <a href="/api/arsip-digital/${dok.id}/download" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">
+            <button onclick="showPreviewModal('${fileUrl}', '${judulEscaped}', '${fileExt}')" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">
               <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
-              Download
-            </a>
+              Lihat
+            </button>
             <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" class="text-red-600 hover:text-red-900 ml-3 inline-flex items-center">
               <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -622,6 +626,57 @@
       document.getElementById('modalBackdrop').classList.add('hidden');
       isArsipUploadMode = false;
     }
+
+    function showPreviewModal(url, title, extension) {
+        const modal = document.getElementById('previewModal');
+        const frame = document.getElementById('previewFrame');
+        const titleEl = document.getElementById('previewTitle');
+        const loading = document.getElementById('previewLoading');
+        const error = document.getElementById('previewError');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadFallback = document.getElementById('downloadFallback');
+
+        // Hide Navbar
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = 'none';
+
+        titleEl.textContent = title;
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+        frame.src = url;
+        
+        downloadBtn.href = url;
+        downloadFallback.href = url;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Handle non-previewable files roughly
+        const previewable = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'txt'];
+        if (!previewable.includes(extension.toLowerCase())) {
+            loading.classList.add('hidden');
+            error.classList.remove('hidden');
+        }
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('previewModal');
+        const frame = document.getElementById('previewFrame');
+        
+        // Show Navbar
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = '';
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        frame.src = ''; // Stop loading
+    }
+    
+    // Close modal on click outside
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('previewModal');
+        if (modal && e.target === modal) closePreviewModal();
+    });
 
     // Initialize when DOM ready
     document.addEventListener('DOMContentLoaded', function() {
@@ -1332,6 +1387,50 @@
     
     }); // End of DOMContentLoaded
   </script>
+    {{-- Modal Preview Dokumen --}}
+    <div id="previewModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col mx-auto transform transition-all scale-100">
+            <div class="p-4 border-b flex items-center justify-between bg-gray-50 rounded-t-2xl">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span id="previewTitle">Preview Dokumen</span>
+                    </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="downloadBtn" href="#" target="_blank" class="p-2 text-gray-500 hover:text-emerald-600 hover:bg-white rounded-lg transition" title="Download / Buka di Tab Baru">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    <button onclick="closePreviewModal()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-white rounded-lg transition" title="Tutup">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 bg-gray-100 relative p-0 overflow-hidden rounded-b-2xl">
+                <div id="previewLoading" class="absolute inset-0 flex items-center justify-center bg-white z-10">
+                    <div class="flex flex-col items-center gap-3">
+                        <svg class="animate-spin w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="text-sm text-gray-500 font-medium">Memuat dokumen...</p>
+                    </div>
+                </div>
+                <iframe id="previewFrame" class="w-full h-full border-0" onload="document.getElementById('previewLoading').classList.add('hidden')"></iframe>
+                <div id="previewError" class="absolute inset-0 flex items-center justify-center bg-white hidden z-20">
+                    <div class="text-center p-8 max-w-md">
+                        <div class="bg-amber-100 text-amber-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Tidak dapat menampilkan preview</h4>
+                        <p class="text-gray-600 mb-6">Format file ini mungkin tidak didukung untuk preview langsung oleh browser anda.</p>
+                        <a id="downloadFallback" href="#" target="_blank" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download File
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
   @include('partials.scripts')
 </body>
 </html>
