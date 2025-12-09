@@ -111,7 +111,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                     </svg>
                                     <p class="mt-2 text-sm text-gray-600">Drag & drop file disini, atau</p>
-                                    <label class="mt-2 inline-block px-4 py-2 bg-emerald-600 text-white rounded-lg cursor-pointer hover:bg-emerald-700 transition">
+                                    <label class="btn btn-primary mt-2">
                                         <span>Pilih File</span>
                                         <input type="file" name="file" class="hidden" accept=".doc,.docx,.pdf" required id="fileInput">
                                     </label>
@@ -122,7 +122,7 @@
 
                             {{-- Submit --}}
                             <div class="flex gap-4">
-                                <button type="submit" class="flex-1 px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 flex items-center justify-center gap-2" id="submitBtn">
+                                <button type="submit" class="btn btn-lg btn-primary w-full shadow-lg" id="submitBtn">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                     </svg>

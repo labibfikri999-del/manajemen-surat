@@ -81,7 +81,7 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::get('/arsip-by-kategori/{kategori}', [ArsipDigitalController::class, 'getByKategori']);
     // Note: POST /api/arsip-digital already handled by apiResource above (line 75)
     
-    Route::apiResource('klasifikasi', DataMasterController::class);
+    // Route::apiResource('klasifikasi', DataMasterController::class); // Removed to avoid conflict with manual routes
     Route::get('/klasifikasi-list', [DataMasterController::class,'indexKlasifikasi']);
     Route::post('/klasifikasi-store', [DataMasterController::class,'storeKlasifikasi']);
     Route::put('/klasifikasi/{id}', [DataMasterController::class,'updateKlasifikasi']);
@@ -124,3 +124,7 @@ Route::prefix('api')->middleware('auth')->group(function(){
 Route::get('/debug-db', function() {
     return App\Models\Dokumen::latest()->take(5)->get(['id', 'judul', 'file_name', 'file_path', 'status']);
 });
+
+Route::get('/concept-qr', function () {
+    return view('concept-qr');
+})->name('concept-qr');

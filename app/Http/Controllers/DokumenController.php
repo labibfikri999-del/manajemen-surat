@@ -97,6 +97,9 @@ class DokumenController extends Controller
 
         // Jika user adalah instansi, gunakan kodenya
         if ($user->isInstansi()) {
+            if (!$user->instansi) {
+                return response()->json(['error' => 'User Instansi tidak memiliki data instansi yang valid.'], 400);
+            }
             $instansiKode = $user->instansi->kode;
             $targetInstansiId = $user->instansi_id;
         } 

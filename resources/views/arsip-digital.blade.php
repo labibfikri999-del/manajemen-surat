@@ -69,11 +69,11 @@
             <button onclick="goToRoot()" class="hover:text-emerald-600 font-medium">📁 Arsip Digital</button>
             <span id="breadcrumbPath"></span>
           </div>
-          <button id="btnBack" class="hidden bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 flex items-center justify-center gap-2">
+          <button id="btnBack" class="hidden btn btn-sm btn-secondary">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Kembali
           </button>
-          <button id="btnUploadArsip" class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center justify-center gap-2 transition">
+          <button id="btnUploadArsip" class="btn btn-sm btn-primary">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Upload File
           </button>
@@ -231,7 +231,7 @@
     </div>
 
     {{-- Confirmation Modal --}}
-    <div id="confirmModal" style="display: none;" class="fixed inset-0 z-[120] flex items-center justify-center">
+    <div id="confirmModal" class="hidden fixed inset-0 z-[120] items-center justify-center">
       <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
       <div class="relative bg-white rounded-lg shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all">
         <div class="flex items-center gap-4 mb-4">
@@ -244,10 +244,10 @@
           </div>
         </div>
         <div class="flex gap-3 justify-end">
-          <button id="confirmCancel" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+          <button id="confirmCancel" class="btn btn-secondary">
             Batal
           </button>
-          <button id="confirmOk" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+          <button id="confirmOk" class="btn btn-danger">
             Hapus
           </button>
         </div>
@@ -307,8 +307,8 @@
           </div>
           
           <div class="flex gap-3 pt-4">
-            <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition">Batal</button>
-            <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Upload</button>
+            <button type="button" id="btnModalCancel" class="flex-1 btn btn-secondary border-emerald-200 text-emerald-700 hover:bg-emerald-50">Batal</button>
+            <button type="submit" class="flex-1 btn btn-primary">Upload</button>
           </div>
         </form>
       </div>
@@ -368,6 +368,45 @@
       }, 500);
     }
 
+    // ========== CONFIRMATION MODAL FUNCTION (GLOBAL) ==========
+    function showConfirm(title, message) {
+      return new Promise((resolve) => {
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmTitle = document.getElementById('confirmTitle');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmOk = document.getElementById('confirmOk');
+        const confirmCancel = document.getElementById('confirmCancel');
+        
+        confirmTitle.textContent = title;
+        confirmMessage.textContent = message;
+        
+        confirmModal.classList.remove('hidden');
+        confirmModal.classList.add('flex');
+        
+        const handleOk = () => {
+          confirmModal.classList.add('hidden');
+          confirmModal.classList.remove('flex');
+          cleanup();
+          resolve(true);
+        };
+        
+        const handleCancel = () => {
+          confirmModal.classList.add('hidden');
+          confirmModal.classList.remove('flex');
+          cleanup();
+          resolve(false);
+        };
+        
+        const cleanup = () => {
+          confirmOk.removeEventListener('click', handleOk);
+          confirmCancel.removeEventListener('click', handleCancel);
+        };
+        
+        confirmOk.addEventListener('click', handleOk);
+        confirmCancel.addEventListener('click', handleCancel);
+      });
+    }
+
     // ========== LOAD STATISTICS ==========
     function loadArsipStats() {
       fetch('/api/arsip-stats')
@@ -421,7 +460,8 @@
       
       // Load documents
       try {
-        const response = await fetch('/api/arsip-by-kategori/' + kategori);
+        const timestamp = new Date().getTime();
+        const response = await fetch('/api/arsip-by-kategori/' + kategori + '?t=' + timestamp);
         const dokumens = await response.json();
         
         // Debug: Log first document to see structure
@@ -463,7 +503,7 @@
         
         console.log('Rendering doc:', {id: dok.id, nama_dokumen: dok.nama_dokumen, namaDoc: namaDoc});
         
-        return `<tr class="hover:bg-gray-50">
+        return `<tr id="row-${dok.id}" class="hover:bg-gray-50">
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
               <div class="flex-shrink-0 h-10 w-10 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -487,14 +527,15 @@
             ${processorNama}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <button onclick="showPreviewModal('${fileUrl}', '${judulEscaped}', '${fileExt}')" class="text-emerald-600 hover:text-emerald-900 mr-3 inline-flex items-center">
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button onclick="showPreviewModal('${fileUrl}', '${judulEscaped}', '${fileExt}')" class="btn btn-sm btn-secondary mr-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
               Lihat
             </button>
-            <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" class="text-red-600 hover:text-red-900 ml-3 inline-flex items-center">
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" class="btn btn-sm btn-danger">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
               Hapus
@@ -562,7 +603,12 @@
         
         if (response.ok) {
           showToast('✓ Berhasil', 'Dokumen berhasil dihapus dari arsip', 'success');
-          // Reload current folder
+          
+          // Optimistic UI update: Remove row immediately
+          const row = document.getElementById('row-' + id);
+          if (row) row.remove();
+          
+          // Reload current folder (background refresh)
           if (currentFolder) {
             openFolder(currentFolder);
           }
@@ -1033,9 +1079,9 @@
         
         // File view button
         let viewBtn = '';
-        if (item.file_url) {
-          viewBtn = `<a href="${item.file_url}" target="_blank" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">Lihat</a>`;
-        }
+          if (item.file_url) {
+            viewBtn = `<a href="${item.file_url}" target="_blank" class="btn btn-xs btn-secondary text-green-700 bg-green-50 border-green-200">Lihat</a>`;
+          }
         
         card.innerHTML = `
           <div class="flex items-center justify-between mb-3">
@@ -1047,11 +1093,11 @@
           ${item.kategori ? `<p class="text-xs text-emerald-400 mt-1">Kategori: ${item.kategori}</p>` : ''}
           <div class="flex gap-2 mt-3">
             ${viewBtn}
-            <button class="inline-flex items-center gap-1 text-xs font-medium bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition btn-edit">
+            <button class="btn btn-xs btn-primary btn-edit">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Edit
             </button>
-            <button class="inline-flex items-center gap-1 text-xs font-medium bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition btn-delete">
+            <button class="btn btn-xs btn-danger btn-delete">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               Hapus
             </button>
@@ -1398,10 +1444,10 @@
                     </h3>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a id="downloadBtn" href="#" target="_blank" class="p-2 text-gray-500 hover:text-emerald-600 hover:bg-white rounded-lg transition" title="Download / Buka di Tab Baru">
+                    <a id="downloadBtn" href="#" target="_blank" class="btn btn-ghost btn-ghost-primary" title="Download / Buka di Tab Baru">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
-                    <button onclick="closePreviewModal()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-white rounded-lg transition" title="Tutup">
+                    <button onclick="closePreviewModal()" class="btn btn-ghost btn-ghost-danger" title="Tutup">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
@@ -1421,7 +1467,7 @@
                         </div>
                         <h4 class="text-lg font-bold text-gray-900 mb-2">Tidak dapat menampilkan preview</h4>
                         <p class="text-gray-600 mb-6">Format file ini mungkin tidak didukung untuk preview langsung oleh browser anda.</p>
-                        <a id="downloadFallback" href="#" target="_blank" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
+                        <a id="downloadFallback" href="#" target="_blank" class="btn btn-primary">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             Download File
                         </a>

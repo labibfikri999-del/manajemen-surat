@@ -309,7 +309,7 @@
     </div>
 
     {{-- Confirm Modal --}}
-    <div id="confirmModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
+    <div id="confirmModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
       <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4 transform transition-all scale-100">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -370,10 +370,10 @@
         
         confirmTitle.textContent = title;
         confirmMessage.textContent = message;
-        confirmModal.style.display = 'flex';
+        confirmModal.classList.remove('hidden'); // Use class manipulation
         
-        const handleOk = () => { confirmModal.style.display = 'none'; cleanup(); resolve(true); };
-        const handleCancel = () => { confirmModal.style.display = 'none'; cleanup(); resolve(false); };
+        const handleOk = () => { confirmModal.classList.add('hidden'); cleanup(); resolve(true); };
+        const handleCancel = () => { confirmModal.classList.add('hidden'); cleanup(); resolve(false); };
         const cleanup = () => { confirmOk.removeEventListener('click', handleOk); confirmCancel.removeEventListener('click', handleCancel); };
         
         confirmOk.addEventListener('click', handleOk);

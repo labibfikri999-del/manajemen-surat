@@ -73,62 +73,71 @@
                 {{-- Folder Grid (Desktop & Mobile) --}}
                 <div id="folderGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in">
                     <!-- Folder: AMAT SEGERA -->
-                    <div onclick="openPriorityFolder('AMAT SEGERA')" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-red-200">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                            <svg class="w-24 h-24 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                    <div onclick="openPriorityFolder('AMAT SEGERA')" class="group relative overflow-hidden bg-gradient-to-br from-white to-red-50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border border-red-100 hover:border-red-300">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-110 duration-500">
+                           <svg class="w-32 h-32 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22M12 6l7.53 13H4.47M11 10v4h2v-4m-2 6v2h2v-2" /></svg>
                         </div>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform duration-300">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                </div>
+                                <span class="px-3 py-1 text-xs font-bold text-red-700 bg-red-100/80 rounded-full backdrop-blur-sm border border-red-200">CRITICAL</span>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-red-600 transition">Amat Segera</h3>
-                                <p class="text-sm text-gray-500">Prioritas Tertinggi</p>
+                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-red-700 transition">Amat Segera</h3>
+                                <p class="text-sm text-gray-500 mb-4">Prioritas Tertinggi</p>
+                                <div class="flex items-end justify-between border-t border-red-100 pt-3">
+                                    <div class="text-4xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'AMAT SEGERA')->count() }}</div>
+                                    <span class="text-xs font-medium text-gray-400 mb-1">Dokumen</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-end justify-between">
-                            <div class="text-3xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'AMAT SEGERA')->count() }}</div>
-                            <span class="text-xs font-medium px-2 py-1 bg-red-50 text-red-700 rounded-lg">Dokumen</span>
                         </div>
                     </div>
 
                     <!-- Folder: SEGERA -->
-                    <div onclick="openPriorityFolder('SEGERA')" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-amber-200">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                            <svg class="w-24 h-24 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <div onclick="openPriorityFolder('SEGERA')" class="group relative overflow-hidden bg-gradient-to-br from-white to-amber-50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border border-amber-100 hover:border-amber-300">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-110 duration-500">
+                            <svg class="w-32 h-32 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
                         </div>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform duration-300">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                </div>
+                                <span class="px-3 py-1 text-xs font-bold text-amber-700 bg-amber-100/80 rounded-full backdrop-blur-sm border border-amber-200">URGENT</span>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition">Segera</h3>
-                                <p class="text-sm text-gray-500">Prioritas Menengah</p>
+                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-amber-700 transition">Segera</h3>
+                                <p class="text-sm text-gray-500 mb-4">Prioritas Menengah</p>
+                                <div class="flex items-end justify-between border-t border-amber-100 pt-3">
+                                    <div class="text-4xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'SEGERA')->count() }}</div>
+                                    <span class="text-xs font-medium text-gray-400 mb-1">Dokumen</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-end justify-between">
-                            <div class="text-3xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'SEGERA')->count() }}</div>
-                            <span class="text-xs font-medium px-2 py-1 bg-amber-50 text-amber-700 rounded-lg">Dokumen</span>
                         </div>
                     </div>
 
                     <!-- Folder: BIASA -->
-                    <div onclick="openPriorityFolder('BIASA')" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-blue-200">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                            <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                    <div onclick="openPriorityFolder('BIASA')" class="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer border border-blue-100 hover:border-blue-300">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-110 duration-500">
+                             <svg class="w-32 h-32 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
                         </div>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                                </div>
+                                <span class="px-3 py-1 text-xs font-bold text-blue-700 bg-blue-100/80 rounded-full backdrop-blur-sm border border-blue-200">NORMAL</span>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition">Biasa / Normal</h3>
-                                <p class="text-sm text-gray-500">Prioritas Standar</p>
+                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition">Biasa / Normal</h3>
+                                <p class="text-sm text-gray-500 mb-4">Prioritas Standar</p>
+                                <div class="flex items-end justify-between border-t border-blue-100 pt-3">
+                                    <div class="text-4xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'BIASA')->count() + $dokumens->where('prioritas', null)->count() }}</div>
+                                    <span class="text-xs font-medium text-gray-400 mb-1">Dokumen</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-end justify-between">
-                            <div class="text-3xl font-bold text-gray-900">{{ $dokumens->where('prioritas', 'BIASA')->count() + $dokumens->where('prioritas', null)->count() }}</div>
-                            <span class="text-xs font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-lg">Dokumen</span>
                         </div>
                     </div>
                 </div>
