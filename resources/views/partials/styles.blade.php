@@ -100,13 +100,77 @@
         transition: all 0.3s ease;
     }
     .btn-collapse-outer:hover svg { color: white; }
-    .sidebar.sidebar-collapsed ~ .btn-collapse-outer,
-    .sidebar-collapsed-state .btn-collapse-outer {
-        left: calc(var(--sidebar-collapsed-w) - 16px);
-    }
+    /* Toggle Logic */
+    .btn-collapse-outer .icon-menu { display: block; }
+    .btn-collapse-outer .icon-arrow { display: none; }
+    
+    .sidebar.sidebar-collapsed ~ .btn-collapse-outer .icon-menu,
+    .sidebar-collapsed-state .btn-collapse-outer .icon-menu { display: none; }
+    
+    .sidebar.sidebar-collapsed ~ .btn-collapse-outer .icon-arrow,
+    .sidebar-collapsed-state .btn-collapse-outer .icon-arrow { display: block; }
+
+    /* Remove Rotation defined previously */
     .sidebar.sidebar-collapsed ~ .btn-collapse-outer svg,
     .sidebar-collapsed-state .btn-collapse-outer svg {
-        transform: rotate(180deg);
+        transform: none !important;
+    }
+
+    /* FIX BUTTON POSITIONING */
+    .sidebar.sidebar-collapsed ~ .btn-collapse-outer,
+    .sidebar-collapsed-state .btn-collapse-outer {
+        left: calc(var(--sidebar-collapsed-w) - 16px) !important; 
+    }
+
+    /* Fix Notifications in Collapsed State */
+    .sidebar.sidebar-collapsed .nav-item { position: relative; }
+    .sidebar.sidebar-collapsed .bg-red-500 {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 10px;
+        height: 10px;
+        padding: 0;
+        font-size: 0;
+        border-radius: 50%;
+        margin: 0 !important;
+        border: 2px solid white;
+    }
+
+    /* Fix Profile Card in Collapsed */
+    .sidebar.sidebar-collapsed .role-badge { padding: 0.5rem; overflow: hidden; }
+    .sidebar.sidebar-collapsed .role-badge .w-12 { margin: 0; }
+
+    /* COMPLETELY HIDE SCROLLBAR IN COLLAPSED */
+    .sidebar.sidebar-collapsed {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none !important;  /* Firefox */
+        overflow-y: auto;
+    }
+    .sidebar.sidebar-collapsed::-webkit-scrollbar {
+        width: 0px !important;
+        background: transparent !important;
+        -webkit-appearance: none !important;
+        display: none !important;
+    }
+    .sidebar.sidebar-collapsed::-webkit-scrollbar-thumb {
+        background: transparent !important;
+        display: none !important;
+    }
+    .sidebar.sidebar-collapsed::-webkit-scrollbar-track {
+        background: transparent !important;
+        display: none !important;
+    }
+
+    /* Fixed Icon Centering */
+    .sidebar.sidebar-collapsed .nav-item,
+    .sidebar.sidebar-collapsed .nav-item-locked {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
     }
     @media (max-width: 767.98px) {
         .btn-collapse-outer { display: none !important; }

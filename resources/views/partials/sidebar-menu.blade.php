@@ -162,6 +162,7 @@
 <div id="mobileOverlay" class="mobile-overlay hidden"></div>
 
 {{-- Floating collapse button (outside sidebar) --}}
-<button id="btnCollapse" class="btn-collapse-outer hidden md:flex" title="Toggle Sidebar">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+<button id="btnCollapse" class="btn-collapse-outer hidden md:flex" title="Buka/Tutup Sidebar">
+    <svg fill="none" class="w-6 h-6 icon-menu" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <svg fill="none" class="w-6 h-6 icon-arrow" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
 </button>
