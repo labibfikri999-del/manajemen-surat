@@ -11,9 +11,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DokumenMasukMail;
+use App\Services\TelegramService;
 
 class DokumenController extends Controller
 {
+    protected $telegram;
+
+    public function __construct(\App\Services\TelegramService $telegram)
+    {
+        $this->telegram = $telegram;
+    }
     /**
      * Download file balasan dokumen
      */
@@ -187,6 +194,20 @@ class DokumenController extends Controller
             ]);
         }
 
+        // === NOTIFIKASI TELEGRAM KE DIREKTUR ===
+        // Cari user direktur yang punya chat_id
+        $direkturs = \App\Models\User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
+        foreach ($direkturs as $dir) {
+            $instansiName = $user->instansi->nama ?? 'User Internal';
+            $loginUrl = 'https://e-yarsi.id/login';
+            $msg = "*DOKUMEN MASUK BARU* 📄\n" .
+                   "Judul: _{$request->judul}_\n" .
+                   "Instansi: _{$instansiName}_\n\n" .
+                   "Mohon segera divalidasi.\n" .
+                   "[Login Aplikasi]($loginUrl)";
+            $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
+        }
+
         return response()->json([
             'message' => 'Dokumen berhasil diupload dan surat keluar telah dibuat',
             'dokumen' => $dokumen->load(['instansi', 'user'])
@@ -298,6 +319,21 @@ class DokumenController extends Controller
 
 
         $dokumen->update($updateData);
+
+        // === NOTIFIKASI TELEGRAM KE STAFF (JIKA DISETUJUI) ===
+        if ($request->status === 'disetujui') {
+            $staffs = \App\Models\User::where('role', 'staff')->whereNotNull('telegram_chat_id')->get();
+            foreach ($staffs as $staff) {
+                $loginUrl = 'https://e-yarsi.id/login';
+                $msg = "*DOKUMEN TELAH DIVALIDASI* ✅\n" .
+                       "Judul: _{$dokumen->judul}_\n" .
+                       "Oleh: _Direktur_\n" .
+                       "Status: *DISETUJUI*\n\n" .
+                       "Mohon segera diproses/tindak lanjuti.\n" .
+                       "[Login Aplikasi]($loginUrl)";
+                $this->telegram->sendMessage($staff->telegram_chat_id, $msg);
+            }
+        }
 
         return response()->json([
             'message' => 'Dokumen berhasil divalidasi',
@@ -422,5 +458,72 @@ class DokumenController extends Controller
             $downloadName,
             ['Content-Type' => Storage::disk('public')->mimeType($dokumen->file_path)]
         );
+    }
+
+    /**
+     * Show form for automatic letter generation
+     */
+    public function createSurat()
+    {
+        return view('buat-surat');
+    }
+
+    /**
+     * Generate PDF and Store
+     */
+    public function storeGeneratedSurat(Request $request)
+    {
+        $request->validate([
+            'nomor_surat' => 'required|string|unique:dokumens,nomor_dokumen',
+            'lampiran' => 'nullable|string',
+            'perihal' => 'required|string',
+            'tujuan' => 'required|string',
+            'tempat' => 'required|string',
+            'tanggal' => 'required|date',
+            'isi' => 'required|string',
+            'nama_ttd' => 'required|string',
+            'jabatan_ttd' => 'required|string'
+        ]);
+
+        $data = $request->all();
+
+        // 1. Generate PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.kop-surat', compact('data'));
+        $pdf->setPaper('A4', 'portrait');
+
+        // 2. Store PDF
+        $fileName = 'surat_' . time() . '.pdf';
+        $filePath = 'dokumen/generated/' . $fileName;
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        // 3. Create Database Record
+        $user = Auth::user();
+        $dokumen = Dokumen::create([
+            'nomor_dokumen' => $request->nomor_surat,
+            'judul' => $request->perihal,
+            'jenis_dokumen' => 'surat_keluar',
+            'deskripsi' => 'Surat Keluar Otomatis',
+            'file_path' => $filePath,
+            'file_name' => $fileName,
+            'file_type' => 'pdf',
+            'file_size' => Storage::disk('public')->size($filePath),
+            'user_id' => $user->id,
+            'instansi_id' => $user->instansi_id, 
+            'status' => 'pending', 
+        ]);
+
+        // 4. Notify Direktur
+        $direkturs = \App\Models\User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
+        foreach ($direkturs as $dir) {
+            $loginUrl = 'https://e-yarsi.id/login'; // Fixed URL
+            $msg = "*SURAT KELUAR BARU* 📤\n" .
+                   "Judul: _{$request->perihal}_\n" .
+                   "Oleh: _{$user->name}_\n\n" .
+                   "Mohon diperiksa/ditandatangani.\n" .
+                   "[Login Aplikasi]($loginUrl)";
+            $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
+        }
+
+        return redirect()->route('arsip-digital')->with('success', 'Surat berhasil dibuat dan disimpan ke Arsip!');
     }
 }

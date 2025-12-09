@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
     // ===== STAFF ONLY =====
     Route::middleware('role:staff')->group(function () {
         Route::get('/proses-dokumen', [PageController::class, 'prosesDokumen'])->name('proses-dokumen');
+        Route::get('/buat-surat', [DokumenController::class, 'createSurat'])->name('buat-surat');
+        Route::post('/buat-surat', [DokumenController::class, 'storeGeneratedSurat'])->name('buat-surat.store');
     });
     
     // ===== INSTANSI & STAFF =====

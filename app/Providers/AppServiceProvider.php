@@ -19,6 +19,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share badge counts with sidebar
+        \Illuminate\Support\Facades\View::composer('partials.sidebar-menu', function ($view) {
+            $user = auth()->user();
+            $countValidasi = 0;
+            $countProses = 0;
+
+            if ($user) {
+                if ($user->role === 'direktur') {
+                    $countValidasi = \App\Models\Dokumen::where('status', 'pending')->count();
+                }
+                if ($user->role === 'staff') {
+                    $countProses = \App\Models\Dokumen::where('status', 'disetujui')->count();
+                }
+            }
+
+            $view->with('countValidasi', $countValidasi)
+                 ->with('countProses', $countProses);
+        });
     }
 }

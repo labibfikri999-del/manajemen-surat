@@ -239,6 +239,24 @@
 
                     </div>
                     
+                    <div id="disposisiArea" class="hidden animate-fade-in mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Disposisi Ke (Opsional)</label>
+                        <div class="relative">
+                            <select name="disposisi_tujuan" class="w-full px-4 py-3 border border-gray-300 rounded-xl appearance-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow bg-white">
+                                <option value="">-- Pilih Tujuan Disposisi --</option>
+                                <option value="KEUANGAN">KEUANGAN & ADMIN</option>
+                                <option value="SDM">SDM & KEPEGAWAIAN</option>
+                                <option value="HUKUM">HUKUM & LEGAL</option>
+                                <option value="ASSET">ASSET & LOGISTIK</option>
+                                <option value="UMUM">UMUM & RUMAH TANGGA</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Pilih departemen jika surat ini perlu ditindaklanjuti spesifik.</p>
+                    </div>
+                    
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan Tambahan (Opsional)</label>
@@ -285,15 +303,21 @@
 
         function toggleSignatureArea(value) {
             const prioritasArea = document.getElementById('prioritasArea');
+            const disposisiArea = document.getElementById('disposisiArea'); // New
             const prioritasRadios = prioritasArea.querySelectorAll('input[name="prioritas"]');
+            
             if (value === 'disetujui') {
                 prioritasArea.classList.remove('hidden');
+                if(disposisiArea) disposisiArea.classList.remove('hidden'); // Show Disposisi
+                
                 // Set required only when visible
                 prioritasRadios.forEach(radio => {
                     radio.required = true;
                 });
             } else {
                 prioritasArea.classList.add('hidden');
+                if(disposisiArea) disposisiArea.classList.add('hidden'); // Hide Disposisi
+                
                 prioritasRadios.forEach(radio => {
                     radio.required = false;
                 });

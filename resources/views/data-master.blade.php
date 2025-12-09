@@ -300,6 +300,15 @@
             <input type="text" id="formTelepon" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
 
+          <div id="fieldTelegramContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">ID Telegram</label>
+            <input type="text" id="formTelegram" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Contoh: 123456789">
+            <p class="text-xs text-gray-500 mt-1">
+              Wajib untuk Direktur & Staff agar menerima notifikasi. 
+              <br>Cara dapat ID: Chat ke Bot <b>@YarsiSuratBot</b> (nama samaran), ketik <code>/start</code>.
+            </p>
+          </div>
+
           <div class="flex gap-3 pt-4 border-t mt-4">
             <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Batal</button>
             <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Simpan</button>
@@ -668,7 +677,9 @@
           role: document.getElementById('fieldRoleContainer'),
           instansi: document.getElementById('fieldInstansiContainer'),
           jabatan: document.getElementById('fieldJabatanContainer'),
-          telepon: document.getElementById('fieldTeleponContainer')
+          jabatan: document.getElementById('fieldJabatanContainer'),
+          telepon: document.getElementById('fieldTeleponContainer'),
+          telegram: document.getElementById('fieldTelegramContainer')
         };
 
         function openModal(type, isEdit = false, id = null) {
@@ -710,6 +721,7 @@
             if(fields.instansi) fields.instansi.classList.remove('hidden'); // Initially show, logic handles if needed
             if(fields.jabatan) fields.jabatan.classList.remove('hidden');
             if(fields.telepon) fields.telepon.classList.remove('hidden');
+            if(fields.telegram) fields.telegram.classList.remove('hidden');
             
             // Trigger role change logic manually
             handleRoleChange();
@@ -730,6 +742,7 @@
               if (document.getElementById('formRole')) document.getElementById('formRole').value = item.role || 'staff';
               if (document.getElementById('formJabatan')) document.getElementById('formJabatan').value = item.jabatan || '';
               if (document.getElementById('formTelepon')) document.getElementById('formTelepon').value = item.telepon || '';
+              if (document.getElementById('formTelegram')) document.getElementById('formTelegram').value = item.telegram_chat_id || '';
               if (document.getElementById('formInstansi') && item.instansi_id) document.getElementById('formInstansi').value = item.instansi_id;
               
               if(type === 'pengguna') handleRoleChange();
@@ -787,7 +800,9 @@
                 if(document.getElementById('formPassword').value) payload.password = document.getElementById('formPassword').value;
                 payload.role = document.getElementById('formRole').value;
                 payload.jabatan = document.getElementById('formJabatan').value;
+                payload.jabatan = document.getElementById('formJabatan').value;
                 payload.telepon = document.getElementById('formTelepon').value;
+                payload.telegram_chat_id = document.getElementById('formTelegram').value;
                 
                 // Explicitly handle instansi_id nullification
                 if(payload.role === 'instansi') {
