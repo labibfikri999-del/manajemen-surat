@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/proses-dokumen', [PageController::class, 'prosesDokumen'])->name('proses-dokumen');
         Route::get('/buat-surat', [DokumenController::class, 'createSurat'])->name('buat-surat');
         Route::post('/buat-surat', [DokumenController::class, 'storeGeneratedSurat'])->name('buat-surat.store');
+        Route::post('/buat-surat/download-word', [DokumenController::class, 'downloadWord'])->name('buat-surat.download-word');
     });
     
     // ===== INSTANSI & STAFF =====
@@ -81,6 +82,7 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::get('/arsip-stats', [ArsipDigitalController::class, 'getStats']);
     Route::get('/arsip-kategori-count', [ArsipDigitalController::class, 'getKategoriCount']);
     Route::get('/arsip-by-kategori/{kategori}', [ArsipDigitalController::class, 'getByKategori']);
+    Route::get('/arsip-download-kategori/{kategori}', [ArsipDigitalController::class, 'downloadKategori']);
     // Note: POST /api/arsip-digital already handled by apiResource above (line 75)
     
     // Route::apiResource('klasifikasi', DataMasterController::class); // Removed to avoid conflict with manual routes

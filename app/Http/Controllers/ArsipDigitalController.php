@@ -221,4 +221,43 @@ class ArsipDigitalController extends Controller
         
         return response()->json($dokumens);
     }
+    // Download all files in a category as ZIP
+    public function downloadKategori($kategori)
+    {
+        $dokumens = Dokumen::where('is_archived', true)
+            ->where('kategori_arsip', $kategori)
+            ->get();
+
+        if ($dokumens->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada dokumen dalam kategori ini untuk diunduh.');
+        }
+
+        $zipFileName = 'Arsip_' . $kategori . '_' . date('Ymd_His') . '.zip';
+        $tempDir = storage_path('app/public/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $zipPath = $tempDir . '/' . $zipFileName;
+
+        $zip = new \ZipArchive;
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($dokumens as $dok) {
+                if ($dok->file_path && Storage::disk('public')->exists($dok->file_path)) {
+                    $absolutePath = Storage::disk('public')->path($dok->file_path);
+                    // Prevent duplicate names in zip
+                    $fileNameInZip = $dok->nama_file ?? basename($dok->file_path);
+                    $zip->addFile($absolutePath, $fileNameInZip);
+                }
+            }
+            $zip->close();
+        } else {
+            return redirect()->back()->with('error', 'Gagal membuat file ZIP.');
+        }
+
+        if (file_exists($zipPath)) {
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+        } else {
+            return redirect()->back()->with('error', 'File ZIP gagal dibuat.');
+        }
+    }
 }

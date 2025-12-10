@@ -27,6 +27,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.styles')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
     <div id="app" class="flex flex-col">
@@ -88,49 +89,78 @@
                 {{-- Dokumen List --}}
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                     @if($dokumens->count() > 0)
-                        <div class="divide-y divide-gray-200" id="dokumenList">
-                            @foreach($dokumens as $dok)
-                                <div class="dokumen-item p-4 hover:bg-gray-50" data-status="{{ $dok->status }}">
-                                    <div class="flex flex-col md:flex-row md:items-start gap-4">
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-3">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Instansi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keterangan</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200" id="dokumenList">
+                                    @foreach($dokumens as $dok)
+                                        <tr class="dokumen-item hover:bg-gray-50" data-status="{{ $dok->status }}">
+                                            <td class="px-4 py-3 text-sm text-gray-600">
+                                                {{ $dok->tanggal_validasi ? $dok->tanggal_validasi->timezone('Asia/Makassar')->format('d/m/Y H:i') : '-' }}
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="font-medium text-gray-900">{{ $dok->judul }}</div>
+                                                <div class="text-xs text-gray-500">{{ Str::limit($dok->deskripsi, 50) }}</div>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-600">
+                                                {{ $dok->instansi->nama ?? 'N/A' }}
+                                            </td>
+                                            <td class="px-4 py-3">
                                                 <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$dok->status] ?? 'bg-gray-100 text-gray-800' }}">
                                                     {{ ucfirst($dok->status) }}
                                                 </span>
-                                                <span class="text-xs text-gray-500">{{ $dok->tanggal_validasi ? $dok->tanggal_validasi->timezone('Asia/Makassar')->format('d M Y, H:i') : '-' }}</span>
-                                            </div>
-                                            <h3 class="mt-2 font-semibold text-gray-900">{{ $dok->judul }}</h3>
-                                            <p class="text-sm text-gray-600">{{ $dok->deskripsi }}</p>
-                                            <div class="mt-2 flex flex-wrap gap-2 text-xs">
-                                                <span class="px-2 py-1 bg-gray-100 rounded text-gray-600">{{ $dok->instansi->nama ?? 'N/A' }}</span>
-                                                <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Validator: {{ $dok->validator->name ?? '-' }}</span>
-                                                @if($dok->processor)
-                                                    <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Diproses: {{ $dok->processor->name }}</span>
-                                                @endif
-                                            </div>
-                                            @if($dok->catatan_validasi)
-                                                <div class="mt-3 p-3 bg-gray-50 rounded-lg">
-                                                    <p class="text-xs text-gray-500">Catatan Validasi:</p>
-                                                    <p class="text-sm text-gray-700 italic">"{{ $dok->catatan_validasi }}"</p>
+                                            </td>
+                                            <td class="px-4 py-3 text-xs text-gray-600">
+                                                <div class="flex flex-col gap-1">
+                                                    @if($dok->validator)
+                                                        <span class="text-blue-600">Val: {{ $dok->validator->name }}</span>
+                                                    @endif
+                                                    @if($dok->processor)
+                                                        <span class="text-purple-600">Pros: {{ $dok->processor->name }}</span>
+                                                    @endif
+                                                    @if($dok->catatan_validasi)
+                                                        <span class="text-gray-500 italic">"{{ Str::limit($dok->catatan_validasi, 30) }}"</span>
+                                                    @endif
                                                 </div>
-                                            @endif
-                                        </div>
-                                        
-                                        @if($dok->file_path)
-                                            <button onclick="showPreviewModal('{{ asset('storage/' . $dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')"
-                                               class="px-4 py-2 text-sm bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition flex items-center gap-2 shrink-0">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                Lihat
-                                            </button>
-                                            <a href="{{ route('dokumen.download', $dok->id) }}"
-                                               class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2 shrink-0">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                                Download
-                                            </a>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-600 text-center">
+                                                <div class="flex items-center justify-center gap-2">
+                                                    @if($dok->file_path)
+                                                        <button onclick="showPreviewModal('{{ asset('storage/' . $dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')"
+                                                           class="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition"
+                                                           title="Lihat File">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                        </button>
+                                                        
+                                                        <a href="{{ route('dokumen.download', $dok->id) }}"
+                                                           class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition"
+                                                           title="Download File">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                        </a>
+                                                    @endif
+
+                                                    @if(((auth()->user()->id === $dok->user_id) || auth()->user()->isDirektur()) && in_array($dok->status, ['selesai', 'ditolak']))
+                                                        <button onclick="deleteDokumen({{ $dok->id }})" 
+                                                                class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
+                                                                title="Hapus Dokumen">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @else
                         <div class="p-8 text-center">
@@ -262,6 +292,76 @@
         document.getElementById('previewModal').addEventListener('click', function(e) {
             if (e.target === this) closePreviewModal();
         });
+
+        // Delete Function
+        function deleteDokumen(id) {
+            Swal.fire({
+                title: 'Hapus Dokumen?',
+                text: "Apakah anda yakin ingin menghapus dokumen ini secara permanen? Data tidak dapat dikembalikan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'rounded-xl shadow-xl',
+                    confirmButton: 'px-4 py-2 rounded-lg font-medium',
+                    cancelButton: 'px-4 py-2 rounded-lg font-medium'
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Show loading state
+                        Swal.fire({
+                            title: 'Menghapus...',
+                            html: 'Mohon tunggu sebentar',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        const response = await fetch(`/api/dokumen/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Terhapus!',
+                                text: 'Dokumen berhasil dihapus.',
+                                confirmButtonColor: '#10b981',
+                                timer: 1500
+                            });
+                            location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: data.error || 'Terjadi kesalahan saat menghapus.',
+                                confirmButtonColor: '#ef4444'
+                            });
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan koneksi.',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

@@ -82,50 +82,79 @@
 
         {{-- Folder Kategori --}}
         <div id="folderGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-          <div onclick="openFolder('UMUM')" class="folder-card bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all group">
-            <div class="flex flex-col items-center text-center">
-              <div class="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          <div class="relative group">
+            <div onclick="openFolder('UMUM')" class="folder-card bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                </div>
+                <span class="font-bold text-blue-800">UMUM</span>
+                <span class="text-xs text-blue-600 mt-1" id="countUMUM">0 dokumen</span>
               </div>
-              <span class="font-bold text-blue-800">UMUM</span>
-              <span class="text-xs text-blue-600 mt-1" id="countUMUM">0 dokumen</span>
             </div>
+            <a href="/api/arsip-download-kategori/UMUM" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-blue-50 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
           </div>
-          <div onclick="openFolder('SDM')" class="folder-card bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-purple-400 transition-all group">
-            <div class="flex flex-col items-center text-center">
-              <div class="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+
+          <div class="relative group">
+            <div onclick="openFolder('SDM')" class="folder-card bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-purple-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <span class="font-bold text-purple-800">SDM</span>
+                <span class="text-xs text-purple-600 mt-1" id="countSDM">0 dokumen</span>
               </div>
-              <span class="font-bold text-purple-800">SDM</span>
-              <span class="text-xs text-purple-600 mt-1" id="countSDM">0 dokumen</span>
             </div>
+            <a href="/api/arsip-download-kategori/SDM" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-purple-50 text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
           </div>
-          <div onclick="openFolder('ASSET')" class="folder-card bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-amber-400 transition-all group">
-            <div class="flex flex-col items-center text-center">
-              <div class="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+
+          <div class="relative group">
+            <div onclick="openFolder('ASSET')" class="folder-card bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-amber-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+                <span class="font-bold text-amber-800">ASSET</span>
+                <span class="text-xs text-amber-600 mt-1" id="countASSET">0 dokumen</span>
               </div>
-              <span class="font-bold text-amber-800">ASSET</span>
-              <span class="text-xs text-amber-600 mt-1" id="countASSET">0 dokumen</span>
             </div>
+            <a href="/api/arsip-download-kategori/ASSET" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-amber-50 text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
           </div>
-          <div onclick="openFolder('HUKUM')" class="folder-card bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-red-400 transition-all group">
-            <div class="flex flex-col items-center text-center">
-              <div class="w-16 h-16 bg-red-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+
+          <div class="relative group">
+            <div onclick="openFolder('HUKUM')" class="folder-card bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-red-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-red-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+                </div>
+                <span class="font-bold text-red-800">HUKUM</span>
+                <span class="text-xs text-red-600 mt-1" id="countHUKUM">0 dokumen</span>
               </div>
-              <span class="font-bold text-red-800">HUKUM</span>
-              <span class="text-xs text-red-600 mt-1" id="countHUKUM">0 dokumen</span>
             </div>
+            <a href="/api/arsip-download-kategori/HUKUM" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-red-50 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
           </div>
-          <div onclick="openFolder('KEUANGAN')" class="folder-card bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-green-400 transition-all group">
-            <div class="flex flex-col items-center text-center">
-              <div class="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+
+          <div class="relative group">
+            <div onclick="openFolder('KEUANGAN')" class="folder-card bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-green-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="font-bold text-green-800">KEUANGAN</span>
+                <span class="text-xs text-green-600 mt-1" id="countKEUANGAN">0 dokumen</span>
               </div>
-              <span class="font-bold text-green-800">KEUANGAN</span>
-              <span class="text-xs text-green-600 mt-1" id="countKEUANGAN">0 dokumen</span>
             </div>
+            <a href="/api/arsip-download-kategori/KEUANGAN" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-green-50 text-green-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
           </div>
         </div>
 
@@ -133,8 +162,14 @@
         <div id="documentList" class="hidden">
           <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 id="folderTitle" class="text-lg font-semibold text-gray-900">Dokumen</h2>
-              <span id="docCount" class="text-sm text-gray-500"></span>
+              <div>
+                  <h2 id="folderTitle" class="text-lg font-semibold text-gray-900">Dokumen</h2>
+                  <span id="docCount" class="text-sm text-gray-500"></span>
+              </div>
+              <a id="btnDownloadFolder" href="#" target="_blank" class="hidden btn btn-sm btn-primary flex items-center gap-2" title="Download Semua (ZIP)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span class="hidden sm:inline">Download ZIP</span>
+              </a>
             </div>
             <div id="docTableContainer" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
@@ -449,6 +484,7 @@
       const docCount = document.getElementById('docCount');
       const docTableBody = document.getElementById('docTableBody');
       const emptyDocState = document.getElementById('emptyDocState');
+      const btnDownloadFolder = document.getElementById('btnDownloadFolder'); // New button
       
       // Update UI
       folderGrid.classList.add('hidden');
@@ -457,6 +493,13 @@
       btnBack.classList.add('flex');
       breadcrumbPath.innerHTML = '<span class="mx-2">/</span><span class="text-emerald-600 font-medium">' + kategori + '</span>';
       folderTitle.textContent = 'Folder ' + kategori;
+      
+      // Update Download Folder Button
+      if (btnDownloadFolder) {
+          btnDownloadFolder.href = '/api/arsip-download-kategori/' + kategori;
+          btnDownloadFolder.classList.remove('hidden');
+          btnDownloadFolder.classList.add('flex'); // Ensure flex is added
+      }
       
       // Load documents
       try {
@@ -475,6 +518,7 @@
           docTableBody.innerHTML = '';
           emptyDocState.classList.remove('hidden');
           document.getElementById('docTableContainer').classList.add('hidden');
+          if(btnDownloadFolder) btnDownloadFolder.classList.add('hidden'); // Hide if empty
         } else {
           emptyDocState.classList.add('hidden');
           document.getElementById('docTableContainer').classList.remove('hidden');
@@ -500,6 +544,7 @@
         const filePath = dok.file_path || '';
         const fileExt = filePath.split('.').pop();
         const fileUrl = filePath ? '/storage/' + filePath : '#';
+        const downloadUrl = '/api/arsip-digital/' + dok.id + '/download';
         
         console.log('Rendering doc:', {id: dok.id, nama_dokumen: dok.nama_dokumen, namaDoc: namaDoc});
         
@@ -527,19 +572,31 @@
             ${processorNama}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <button onclick="showPreviewModal('${fileUrl}', '${judulEscaped}', '${fileExt}')" class="btn btn-sm btn-secondary mr-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-              Lihat
-            </button>
-            <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" class="btn btn-sm btn-danger">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-              Hapus
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="showPreviewModal('${fileUrl}', '${judulEscaped}', '${fileExt}')" 
+                      class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition border border-blue-200" 
+                      title="Lihat Dokumen">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+              
+              <a href="${downloadUrl}" 
+                 class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition border border-emerald-200" 
+                 title="Download File">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </a>
+
+              <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" 
+                      class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition border border-red-200" 
+                      title="Hapus Dokumen">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
           </td>
         </tr>`;
       }).join('');

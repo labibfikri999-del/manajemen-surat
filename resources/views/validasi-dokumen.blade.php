@@ -210,7 +210,7 @@
                                     <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-blue-500/30">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                                     </div>
-                                    <span class="text-sm font-bold text-gray-600 peer-checked:text-blue-700 transition-colors">NORMAL</span>
+                                    <span class="text-sm font-bold text-gray-600 peer-checked:text-blue-700 transition-colors">BIASA</span>
                                     <span class="text-xs text-gray-400 mt-1">Standar</span>
                                 </label>
 
@@ -230,7 +230,7 @@
                                     <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-red-500/30">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                                     </div>
-                                    <span class="text-sm font-bold text-gray-600 peer-checked:text-red-700 transition-colors">CRITICAL</span>
+                                    <span class="text-sm font-bold text-gray-600 peer-checked:text-red-700 transition-colors">AMAT SEGERA</span>
                                     <span class="text-xs text-gray-400 mt-1">High Priority</span>
                                 </label>
                             </div>

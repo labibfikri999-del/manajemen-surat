@@ -261,19 +261,25 @@ class DokumenController extends Controller
         $dokumen = Dokumen::findOrFail($id);
         $user = Auth::user();
 
-        // Hanya user yang upload bisa hapus, dan hanya jika status masih pending
-        if ($dokumen->user_id !== $user->id || $dokumen->status !== 'pending') {
-            return response()->json(['error' => 'Tidak dapat menghapus dokumen ini'], 403);
+        // Check permission: Owner or Direktur can delete
+        if ($dokumen->user_id !== $user->id && !$user->isDirektur()) {
+            return response()->json(['error' => 'Tidak dapat menghapus dokumen ini. Hanya pembuat atau Direktur yang diizinkan.'], 403);
+        }
+
+        // Restrict deletion: Only allow deleting Pending (cancelled), Selesai (finished), or Ditolak (rejected)
+        // Prevent deleting active workflows (Review, Disetujui, Diproses)
+        if (!in_array($dokumen->status, ['pending', 'selesai', 'ditolak'])) {
+            return response()->json(['error' => 'Dokumen sedang diproses (status: ' . ucfirst($dokumen->status) . ') dan tidak dapat dihapus.'], 403);
         }
 
         // Hapus file
-        if (Storage::disk('public')->exists($dokumen->file_path)) {
+        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
             Storage::disk('public')->delete($dokumen->file_path);
         }
-        if ($dokumen->signature_path && Storage::disk('public')->exists($dokumen->signature_path)) {
-            Storage::disk('public')->delete($dokumen->signature_path);
+        if ($dokumen->balasan_file && Storage::disk('public')->exists($dokumen->balasan_file)) {
+            Storage::disk('public')->delete($dokumen->balasan_file);
         }
-
+        
         $dokumen->delete();
 
         return response()->json(['message' => 'Dokumen berhasil dihapus']);
@@ -525,5 +531,37 @@ class DokumenController extends Controller
         }
 
         return redirect()->route('arsip-digital')->with('success', 'Surat berhasil dibuat dan disimpan ke Arsip!');
+    }
+    /**
+     * Download Generated Word (HTML method)
+     */
+    public function downloadWord(Request $request)
+    {
+        $request->validate([
+            'nomor_surat' => 'required|string',
+            'perihal' => 'required|string',
+            'tempat' => 'required|string',
+            'tanggal' => 'required|date',
+            'isi' => 'required|string',
+            'nama_ttd' => 'required|string',
+            'jabatan_ttd' => 'required|string'
+        ]);
+
+        $data = $request->all();
+
+        // Convert logo to base64
+        $logoPath = public_path('images/Logo Yayasan Bersih.png');
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $data['logo_base64'] = 'data:image/png;base64,' . $logoData;
+        }
+
+        $content = view('word.surat', compact('data'))->render();
+        
+        $filename = 'Surat_' . str_replace(['/', '\\'], '-', $request->nomor_surat) . '.doc';
+
+        return response($content)
+            ->header('Content-Type', 'application/msword')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }
