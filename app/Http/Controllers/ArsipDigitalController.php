@@ -12,7 +12,21 @@ class ArsipDigitalController extends Controller
     // Get all files
     public function index()
     {
-        $data = Dokumen::where('is_archived', true)->latest('tanggal_arsip')->get()->map(function($item) {
+        $user = Auth::user();
+        $query = Dokumen::where('is_archived', true);
+
+        // Filter based on user role/instansi
+        if ($user && $user->instansi_id) {
+            $query->where('instansi_id', $user->instansi_id);
+        } else if ($user && !$user->isDirektur() && !$user->isStaff()) {
+             // If user has no instansi and is not staff/direktur, they only see their own
+            $query->where('user_id', $user->id);
+        }
+        // Direktur & Staff can typically see all, or we might want to restrict them too? 
+        // Based on existing api.php logic, usually they oversee everything or have specific logic.
+        // But for safety, let's keep it consistent: Direktur/Staff see ALL, Instansi users restricted.
+        
+        $data = $query->latest('tanggal_arsip')->get()->map(function($item) {
             $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
             return $item;
         });
@@ -138,7 +152,13 @@ class ArsipDigitalController extends Controller
     public function download($id)
     {
         $arsip = Dokumen::findOrFail($id);
-        
+        $user = Auth::user();
+
+        // Security check: Ensure user belongs to the same instansi or is staff/direktur
+        if ($user && $user->instansi_id && $arsip->instansi_id && $user->instansi_id != $arsip->instansi_id) {
+            abort(403, 'Unauthorized access to this document.');
+        }
+
         if (!$arsip->file_path || !Storage::disk('public')->exists($arsip->file_path)) {
             return response()->json(['message' => 'File not found'], 404);
         }

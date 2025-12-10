@@ -123,10 +123,6 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
 });
 
-Route::get('/debug-db', function() {
-    return App\Models\Dokumen::latest()->take(5)->get(['id', 'judul', 'file_name', 'file_path', 'status']);
-});
 
-Route::get('/concept-qr', function () {
-    return view('concept-qr');
-})->name('concept-qr');
+
+
