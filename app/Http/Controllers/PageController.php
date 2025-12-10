@@ -112,17 +112,11 @@ class PageController extends Controller
 
     public function arsipDigital()
     {
-        // Hitung metrik arsip digital
-        $arsipQuery = ArsipDigital::query();
-        $totalArsip = $arsipQuery->count();
-
-        // Hitung total ukuran real dari file di storage (fallback ke nilai 0 jika file tidak ada)
-        $totalBytes = 0;
-        foreach ($arsipQuery->get(['file_path']) as $file) {
-            if ($file->file_path && Storage::disk('public')->exists($file->file_path)) {
-                $totalBytes += Storage::disk('public')->size($file->file_path);
-            }
-        }
+        // Hitung metrik arsip digital dari tabel Dokumen (Unified)
+        $query = Dokumen::where('is_archived', true);
+        
+        $totalArsip = $query->count();
+        $totalBytes = $query->sum('file_size') ?? 0;
 
         // Format ukuran ke string human readable
         $formatSize = function ($bytes) {
@@ -134,9 +128,8 @@ class PageController extends Controller
 
         $totalSize = $formatSize($totalBytes);
 
-        // Akses terakhir berdasar updated_at atau tanggal_upload terbaru
-        $lastAccess = ArsipDigital::orderByDesc('updated_at')->orderByDesc('tanggal_upload')->value('updated_at')
-            ?? ArsipDigital::orderByDesc('tanggal_upload')->value('tanggal_upload');
+        // Akses terakhir (gunakan created_at atau updated_at dari Dokumen)
+        $lastAccess = $query->latest('created_at')->value('created_at');
 
         return view('arsip-digital', [
             'totalArsip' => $totalArsip,

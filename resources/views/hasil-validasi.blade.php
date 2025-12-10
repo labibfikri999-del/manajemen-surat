@@ -132,8 +132,8 @@
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td class="px-4 py-3 text-sm text-gray-600 text-center">
-                                                <div class="flex items-center justify-center gap-2">
+                                            <td class="px-4 py-3 text-sm text-gray-600 text-left">
+                                                <div class="flex items-center justify-start gap-2">
                                                     @if($dok->file_path)
                                                         <button onclick="showPreviewModal('{{ asset('storage/' . $dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')"
                                                            class="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition"

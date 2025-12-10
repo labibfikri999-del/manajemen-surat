@@ -24,49 +24,37 @@ class DataMasterController extends Controller
 
     public function getLaporanStats()
     {
-        // 1. Counts
-        // "Masuk" = Dokumen dengan jenis 'surat_masuk' atau (legacy: dari Admin/Tanpa Instansi)
-        $suratMasuk = \App\Models\Dokumen::where(function($q) {
+        // Definitions for scope
+        $scopeMasuk = function($q) {
             $q->where('jenis_dokumen', 'surat_masuk')
               ->orWhere(function($q2) {
                   $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
               });
-        })->count();
+        };
 
-        // "Keluar" = Dokumen dengan jenis 'surat_keluar' atau (legacy: dari Instansi)
-        // Sesuai request: Setiap upload dari user biasa (instansi) dianggap surat keluar
-        $suratKeluar = \App\Models\Dokumen::where(function($q) {
+        $scopeKeluar = function($q) {
             $q->where('jenis_dokumen', 'surat_keluar')
               ->orWhere(function($q2) {
                   $q2->whereNull('jenis_dokumen')->whereNotNull('instansi_id');
               });
-        })->count();
+        };
 
-        $arsip = \App\Models\ArsipDigital::count();
+        // 1. Counts
+        $suratMasuk = \App\Models\Dokumen::where($scopeMasuk)->count();
+        $suratKeluar = \App\Models\Dokumen::where($scopeKeluar)->count();
+        
+        // Unified Arsip Logic (Match with api.php)
+        $arsip = \App\Models\Dokumen::where('is_archived', true)->count();
 
-        // Get Query Log
-        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
-
-        // 2a. Monthly Data (Current Year) - Masuk
-        $monthlyMasuk = \App\Models\Dokumen::where(function($q) {
-                $q->where('jenis_dokumen', 'surat_masuk')
-                  ->orWhere(function($q2) {
-                      $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
-                  });
-            })
+        // 2. Monthly Data (Current Year)
+        $monthlyMasuk = \App\Models\Dokumen::where($scopeMasuk)
             ->whereYear('created_at', date('Y'))
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
             ->pluck('count', 'month')
             ->toArray();
             
-        // 2b. Monthly Data (Current Year) - Keluar
-        $monthlyKeluar = \App\Models\Dokumen::where(function($q) {
-                $q->where('jenis_dokumen', 'surat_keluar')
-                  ->orWhere(function($q2) {
-                      $q2->whereNull('jenis_dokumen')->whereNotNull('instansi_id');
-                  });
-            })
+        $monthlyKeluar = \App\Models\Dokumen::where($scopeKeluar)
             ->whereYear('created_at', date('Y'))
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
@@ -82,8 +70,9 @@ class DataMasterController extends Controller
         }
 
         // 3. Arsip Distribution
-        $arsipDist = \App\Models\ArsipDigital::selectRaw('kategori, COUNT(*) as count')
-             ->groupBy('kategori')
+        $arsipDist = \App\Models\Dokumen::where('is_archived', true)
+             ->selectRaw('kategori_arsip as kategori, COUNT(*) as count')
+             ->groupBy('kategori_arsip')
              ->get()
              ->map(function($item) {
                  return [

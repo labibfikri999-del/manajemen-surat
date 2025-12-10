@@ -103,7 +103,7 @@
                     <tr>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">No.</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
-                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyKlasifikasi" class="divide-y divide-gray-100"></tbody>
@@ -128,7 +128,7 @@
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Instansi</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Alamat</th>
-                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyDepartemen" class="divide-y divide-gray-100"></tbody>
@@ -154,7 +154,7 @@
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Instansi</th>
-                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyPengguna" class="divide-y divide-gray-100"></tbody>
@@ -179,7 +179,7 @@
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">No.</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
-                      <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyLampiran" class="divide-y divide-gray-100"></tbody>
@@ -506,7 +506,7 @@
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 text-sm text-gray-900">${i+1}</td>
                 <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-left">
                   ${btnActions(item.id, item.nama, 'klasifikasi')}
                 </td>
               </tr>`;
@@ -534,7 +534,7 @@
                 <td class="px-6 py-4 text-sm text-gray-900">${item.kode || '-'}</td>
                 <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
                  <td class="px-6 py-4 text-sm text-gray-600">${item.alamat || '-'}</td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-left">
                   ${btnActions(item.id, item.nama, 'departemen')}
                 </td>
               </tr>`;
@@ -571,7 +571,7 @@
                 <td class="px-6 py-4 text-sm text-gray-600">${item.email}</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span></td>
                 <td class="px-6 py-4 text-sm text-gray-600">${instansiName}</td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-left">
                   ${btnActions(item.id, item.name, 'pengguna')}
                 </td>
               </tr>`;
@@ -606,7 +606,7 @@
                 <td class="px-6 py-4 text-sm text-gray-900">${i+1}</td>
                 <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
                 <td class="px-6 py-4 text-sm text-gray-600">${item.kode || '-'}</td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-left">
                   ${btnActions(item.id, item.nama, 'lampiran')}
                 </td>
               </tr>`;

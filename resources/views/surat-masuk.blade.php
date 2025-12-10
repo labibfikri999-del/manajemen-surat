@@ -76,7 +76,7 @@
                   <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Perihal</th>
                   <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">File</th>
                   <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Status</th>
-                  <th class="px-6 py-3 text-right text-sm font-semibold text-emerald-900">Aksi</th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Aksi</th>
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-emerald-100">
@@ -420,7 +420,7 @@
           <td class="px-6 py-4"><span class="text-emerald-600">${item.perihal}</span></td>
           <td class="px-6 py-4">${fileHtml}</td>
           <td class="px-6 py-4"><span class="inline-block px-3 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">Aktif</span></td>
-          <td class="px-6 py-4 text-right">
+          <td class="px-6 py-4 text-left">
             <button class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition btn-edit" aria-label="Edit surat">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Edit
