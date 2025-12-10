@@ -94,7 +94,7 @@
                                 <tbody class="divide-y divide-gray-200">
                                     @foreach($dokumens as $dok)
                                         <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-3 text-sm text-gray-600">{{ $dok->created_at->format('d/m/Y H:i') }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-600">{{ $dok->created_at->timezone('Asia/Makassar')->format('d/m/Y H:i') }}</td>
                                             <td class="px-4 py-3">
                                                 <div class="font-medium text-gray-900">{{ $dok->judul }}</div>
                                                 <div class="text-xs text-gray-500">{{ Str::limit($dok->deskripsi, 50) }}</div>

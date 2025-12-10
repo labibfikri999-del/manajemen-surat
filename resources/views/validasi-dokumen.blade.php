@@ -77,7 +77,7 @@
                                                 <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$dok->status] ?? 'bg-gray-100 text-gray-800' }}">
                                                     {{ ucfirst($dok->status) }}
                                                 </span>
-                                                <span class="text-xs text-gray-500">{{ $dok->created_at->format('d M Y, H:i') }}</span>
+                                                <span class="text-xs text-gray-500">{{ $dok->created_at->timezone('Asia/Makassar')->format('d M Y, H:i') }}</span>
                                             </div>
                                             <h3 class="mt-2 font-semibold text-gray-900">{{ $dok->judul }}</h3>
                                             <p class="text-sm text-gray-600">{{ $dok->deskripsi }}</p>
