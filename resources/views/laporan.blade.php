@@ -178,24 +178,48 @@
        const ctxMonthly = document.getElementById('chartSuratMonthly')?.getContext('2d');
        if (ctxMonthly) {
          const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-         const values = data.monthly_masuk || new Array(12).fill(0);
+         const valuesMasuk = data.monthly_masuk || new Array(12).fill(0);
+         const valuesKeluar = data.monthly_keluar || new Array(12).fill(0);
 
          if (chartSuratMonthly) {
-             chartSuratMonthly.data.datasets[0].data = values;
+             chartSuratMonthly.data.datasets[0].data = valuesMasuk;
+             // Check if dataset exists, if not add it (handling hot reload/re-init)
+             if (chartSuratMonthly.data.datasets.length < 2) {
+                 chartSuratMonthly.data.datasets.push({
+                     label: 'Surat Keluar',
+                     data: valuesKeluar,
+                     backgroundColor: '#10b981',
+                     borderColor: '#059669',
+                     borderWidth: 1,
+                     borderRadius: 4
+                 });
+             } else {
+                 chartSuratMonthly.data.datasets[1].data = valuesKeluar;
+             }
              chartSuratMonthly.update();
          } else {
              chartSuratMonthly = new Chart(ctxMonthly, {
                type: 'bar',
                data: {
                  labels: labels,
-                 datasets: [{
-                   label: 'Surat Masuk',
-                   data: values,
-                   backgroundColor: '#0ea5e9',
-                   borderColor: '#0284c7',
-                   borderWidth: 1,
-                   borderRadius: 4
-                 }]
+                 datasets: [
+                   {
+                     label: 'Surat Masuk',
+                     data: valuesMasuk,
+                     backgroundColor: '#0ea5e9',
+                     borderColor: '#0284c7',
+                     borderWidth: 1,
+                     borderRadius: 4
+                   },
+                   {
+                     label: 'Surat Keluar',
+                     data: valuesKeluar,
+                     backgroundColor: '#10b981', // Green
+                     borderColor: '#059669',
+                     borderWidth: 1,
+                     borderRadius: 4
+                   }
+                 ]
                },
                options: {
                  responsive: true,

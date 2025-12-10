@@ -47,8 +47,8 @@ class DataMasterController extends Controller
         // Get Query Log
         $queries = \Illuminate\Support\Facades\DB::getQueryLog();
 
-        // 2. Monthly Data (Current Year) - Masuk
-        $monthlyData = \App\Models\Dokumen::where(function($q) {
+        // 2a. Monthly Data (Current Year) - Masuk
+        $monthlyMasuk = \App\Models\Dokumen::where(function($q) {
                 $q->where('jenis_dokumen', 'surat_masuk')
                   ->orWhere(function($q2) {
                       $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
@@ -60,10 +60,25 @@ class DataMasterController extends Controller
             ->pluck('count', 'month')
             ->toArray();
             
+        // 2b. Monthly Data (Current Year) - Keluar
+        $monthlyKeluar = \App\Models\Dokumen::where(function($q) {
+                $q->where('jenis_dokumen', 'surat_keluar')
+                  ->orWhere(function($q2) {
+                      $q2->whereNull('jenis_dokumen')->whereNotNull('instansi_id');
+                  });
+            })
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
+
         // Fill 0 for missing months
-        $months = [];
+        $monthsMasuk = [];
+        $monthsKeluar = [];
         for($i=1; $i<=12; $i++) {
-            $months[] = $monthlyData[$i] ?? 0;
+            $monthsMasuk[] = $monthlyMasuk[$i] ?? 0;
+            $monthsKeluar[] = $monthlyKeluar[$i] ?? 0;
         }
 
         // 3. Arsip Distribution
@@ -86,7 +101,8 @@ class DataMasterController extends Controller
             'surat_masuk' => $suratMasuk,
             'surat_keluar' => $suratKeluar,
             'arsip_digital' => $arsip,
-            'monthly_masuk' => $months,
+            'monthly_masuk' => $monthsMasuk,
+            'monthly_keluar' => $monthsKeluar,
             'arsip_distribution' => $arsipDist
         ]);
     }
