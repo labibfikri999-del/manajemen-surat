@@ -100,7 +100,7 @@
                     <li>
                         @if($hasAccess)
                             {{-- Menu bisa diakses --}}
-                            <a href="{{ route($menu['route']) }}" 
+                            <a href="{{ str_replace('/public', '', route($menu['route'])) }}" 
                                class="flex items-center gap-3 p-2 rounded-md nav-item tooltip relative {{ $isActive ? 'active' : '' }}" 
                                data-label="{{ $menu['name'] }}" 
                                title="{{ $menu['name'] }}">
