@@ -19,10 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if($this->app->environment('production')) {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
-            \Illuminate\Support\Facades\URL::forceRootUrl('https://e-yarsi.id');
-        }
+        // Force URL for ALL environments to debug shared hosting issue
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+        \Illuminate\Support\Facades\URL::forceRootUrl('https://e-yarsi.id');
 
         // Share badge counts with sidebar
         \Illuminate\Support\Facades\View::composer('partials.sidebar-menu', function ($view) {
