@@ -19,8 +19,7 @@ jobs:
         with:
           host: ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
-          password: ${{ secrets.CPANEL_PASSWORD }}
-          # port: 21098 # Ganti port jika hosting Anda tidak menggunakan port 22 default
+          port: ${{ secrets.CPANEL_PORT }}
           script: |
             # Masuk ke folder project
             cd /home/fmvgserl/manajemen_surat
