@@ -98,9 +98,19 @@ class BackupController extends Controller
                 }
             }
 
-            // If we reached here, both methods failed
+            // Method 3: Fallback to Shell (Linux/Unix)
+            if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+                $cmd = "cd " . escapeshellarg($sourcePath) . " && zip -r " . escapeshellarg($tempFile) . " .";
+                shell_exec($cmd);
+
+                if (File::exists($tempFile) && filesize($tempFile) > 0) {
+                     return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
+                }
+            }
+
+            // If we reached here, all methods failed
             return response()->json([
-                'error' => 'Gagal membuat backup ZIP. Ekstensi ZipArchive tidak aktif dan fallback PowerShell gagal.'
+                'error' => 'Gagal membuat backup ZIP. ZipArchive dan command zip tidak tersedia.'
             ], 500);
 
         } catch (\Throwable $e) {
