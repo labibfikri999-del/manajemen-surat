@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if($this->app->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
-            \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+            \Illuminate\Support\Facades\URL::forceRootUrl('https://e-yarsi.id');
         }
 
         // Share badge counts with sidebar
