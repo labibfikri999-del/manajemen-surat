@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
     
     // ===== DIREKTUR & STAFF =====
     Route::middleware('role:direktur,staff')->group(function () {
-        Route::get('/arsip-digital', [PageController::class, 'arsipDigital'])->name('arsip-digital');
+        Route::get('/arsip-dokumen', [PageController::class, 'arsipDigital'])->name('arsip-digital');
     });
     
     // ===== ALL ROLES (hasil validasi bisa dilihat semua) =====
