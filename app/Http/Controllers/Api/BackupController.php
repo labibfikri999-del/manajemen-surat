@@ -75,6 +75,8 @@ class BackupController extends Controller
                         }
                     }
                     $zip->close();
+                    
+                    if (ob_get_length()) ob_end_clean(); // Prevent output buffering corruption
                     return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
                 }
             }
@@ -104,6 +106,7 @@ class BackupController extends Controller
                 shell_exec($cmd);
 
                 if (File::exists($tempFile) && filesize($tempFile) > 0) {
+                     if (ob_get_length()) ob_end_clean();
                      return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
                 }
             }
