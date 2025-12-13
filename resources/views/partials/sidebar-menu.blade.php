@@ -102,7 +102,7 @@
                     <li>
                         @if($hasAccess)
                             {{-- Menu bisa diakses --}}
-                            <a href="{{ route($menu['route']) }}" 
+                            <a href="{{ str_replace('/public', '', route($menu['route'])) }}" 
                                class="nav-item tooltip {{ $isActive ? 'active' : '' }}" 
                                title="{{ $menu['name'] }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
