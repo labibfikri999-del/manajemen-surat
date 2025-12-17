@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Klasifikasi;
 use App\Models\Instansi;
+use App\Models\Dokumen;
 use App\Models\User;
 use App\Models\TipeLampiran;
 use Illuminate\Http\Request;
@@ -40,21 +41,21 @@ class DataMasterController extends Controller
         };
 
         // 1. Counts
-        $suratMasuk = \App\Models\Dokumen::where($scopeMasuk)->count();
-        $suratKeluar = \App\Models\Dokumen::where($scopeKeluar)->count();
+        $suratMasuk = Dokumen::where($scopeMasuk)->count();
+        $suratKeluar = Dokumen::where($scopeKeluar)->count();
         
         // Unified Arsip Logic (Match with api.php)
-        $arsip = \App\Models\Dokumen::where('is_archived', true)->count();
+        $arsip = Dokumen::where('is_archived', true)->count();
 
         // 2. Monthly Data (Current Year)
-        $monthlyMasuk = \App\Models\Dokumen::where($scopeMasuk)
+        $monthlyMasuk = Dokumen::where($scopeMasuk)
             ->whereYear('created_at', date('Y'))
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
             ->pluck('count', 'month')
             ->toArray();
             
-        $monthlyKeluar = \App\Models\Dokumen::where($scopeKeluar)
+        $monthlyKeluar = Dokumen::where($scopeKeluar)
             ->whereYear('created_at', date('Y'))
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
@@ -70,7 +71,7 @@ class DataMasterController extends Controller
         }
 
         // 3. Arsip Distribution
-        $arsipDist = \App\Models\Dokumen::where('is_archived', true)
+        $arsipDist = Dokumen::where('is_archived', true)
              ->selectRaw('kategori_arsip as kategori, COUNT(*) as count')
              ->groupBy('kategori_arsip')
              ->get()

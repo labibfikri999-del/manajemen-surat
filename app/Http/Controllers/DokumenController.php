@@ -4,20 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
 use App\Models\Instansi;
+use App\Models\SuratKeluar;
+use App\Models\SuratMasuk;
+use App\Models\User;
+use App\Services\TelegramService;
+use App\Mail\DokumenMasukMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\DokumenMasukMail;
-use App\Services\TelegramService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DokumenController extends Controller
 {
     protected $telegram;
 
-    public function __construct(\App\Services\TelegramService $telegram)
+    public function __construct(TelegramService $telegram)
     {
         $this->telegram = $telegram;
     }
@@ -112,7 +116,7 @@ class DokumenController extends Controller
         } 
         // Jika Staff memilih tujuan instansi
         elseif ($request->filled('tujuan_instansi_id') && $user->isStaff()) {
-            $targetInstansi = \App\Models\Instansi::find($request->tujuan_instansi_id);
+            $targetInstansi = Instansi::find($request->tujuan_instansi_id);
             if ($targetInstansi) {
                 $instansiKode = $targetInstansi->kode;
                 $targetInstansiId = $targetInstansi->id;
@@ -151,9 +155,9 @@ class DokumenController extends Controller
 
         // Jika Staff mengirim ke Instansi, buat notifikasi balasan
         if ($user->isStaff() && $targetInstansiId) {
-             $targetUsers = \App\Models\User::where('instansi_id', $targetInstansiId)->get();
+             $targetUsers = User::where('instansi_id', $targetInstansiId)->get();
              foreach ($targetUsers as $targetUser) {
-                 \DB::table('balasan_read_status')->insert([
+                 DB::table('balasan_read_status')->insert([
                     'dokumen_id' => $dokumen->id,
                     'user_id' => $targetUser->id,
                     'terbaca' => false,
@@ -167,7 +171,7 @@ class DokumenController extends Controller
                  try {
                      Mail::to($targetInstansi->email)->send(new DokumenMasukMail($dokumen));
                  } catch (\Exception $e) {
-                     \Log::error('Gagal kirim email dokumen masuk: ' . $e->getMessage());
+                     Log::error('Gagal kirim email dokumen masuk: ' . $e->getMessage());
                  }
              }
         }
@@ -177,13 +181,13 @@ class DokumenController extends Controller
              try {
                  Mail::to($request->email_eksternal)->send(new DokumenMasukMail($dokumen));
              } catch (\Exception $e) {
-                 \Log::error('Gagal kirim email eksternal: ' . $e->getMessage());
+                 Log::error('Gagal kirim email eksternal: ' . $e->getMessage());
              }
         }
 
         // Auto-create Surat Keluar ONLY for instansi users
         if ($user->isInstansi()) {
-             \App\Models\SuratKeluar::create([
+             SuratKeluar::create([
                 'instansi_id' => $user->instansi_id,
                 'nomor_surat' => $nomorDokumen,
                 'tanggal_keluar' => now(),
@@ -196,10 +200,10 @@ class DokumenController extends Controller
 
         // === NOTIFIKASI TELEGRAM KE DIREKTUR ===
         // Cari user direktur yang punya chat_id
-        $direkturs = \App\Models\User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
+        $direkturs = User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
         foreach ($direkturs as $dir) {
             $instansiName = $user->instansi->nama ?? 'User Internal';
-            $loginUrl = 'https://e-yarsi.id/login';
+            $loginUrl = url('/login');
             $msg = "*DOKUMEN MASUK BARU* 📄\n" .
                    "Judul: _{$request->judul}_\n" .
                    "Instansi: _{$instansiName}_\n\n" .
@@ -328,9 +332,9 @@ class DokumenController extends Controller
 
         // === NOTIFIKASI TELEGRAM KE STAFF (JIKA DISETUJUI) ===
         if ($request->status === 'disetujui') {
-            $staffs = \App\Models\User::where('role', 'staff')->whereNotNull('telegram_chat_id')->get();
+            $staffs = User::where('role', 'staff')->whereNotNull('telegram_chat_id')->get();
             foreach ($staffs as $staff) {
-                $loginUrl = 'https://e-yarsi.id/login';
+                $loginUrl = url('/login');
                 $msg = "*DOKUMEN TELAH DIVALIDASI* ✅\n" .
                        "Judul: _{$dokumen->judul}_\n" .
                        "Oleh: _Direktur_\n" .
@@ -401,7 +405,7 @@ class DokumenController extends Controller
             }
 
             // Set status terbaca balasan ke false untuk user pengirim
-            \DB::table('balasan_read_status')->updateOrInsert([
+            DB::table('balasan_read_status')->updateOrInsert([
                 'dokumen_id' => $dokumen->id,
                 'user_id' => $dokumen->user_id,
             ], [
@@ -411,7 +415,7 @@ class DokumenController extends Controller
             ]);
 
             // Auto-create Surat Masuk for instansi user (balasan dari staff)
-            \App\Models\SuratMasuk::create([
+            SuratMasuk::create([
                 'instansi_id' => $dokumen->instansi_id,
                 'nomor_surat' => 'BAL/' . $dokumen->nomor_dokumen,
                 'tanggal_diterima' => now(),
@@ -492,9 +496,9 @@ class DokumenController extends Controller
         ]);
 
         $data = $request->all();
-
+        
         // 1. Generate PDF
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.kop-surat', compact('data'));
+        $pdf = Pdf::loadView('pdf.kop-surat', compact('data'));
         $pdf->setPaper('A4', 'portrait');
 
         // 2. Store PDF
@@ -519,9 +523,9 @@ class DokumenController extends Controller
         ]);
 
         // 4. Notify Direktur
-        $direkturs = \App\Models\User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
+        $direkturs = User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
         foreach ($direkturs as $dir) {
-            $loginUrl = 'https://e-yarsi.id/login'; // Fixed URL
+            $loginUrl = url('/login'); // Fixed URL
             $msg = "*SURAT KELUAR BARU* 📤\n" .
                    "Judul: _{$request->perihal}_\n" .
                    "Oleh: _{$user->name}_\n\n" .

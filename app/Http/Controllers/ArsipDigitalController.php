@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
+use App\Models\ArsipDigital;
 use Illuminate\Http\Request;
+use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -239,8 +241,8 @@ class ArsipDigitalController extends Controller
         }
         $zipPath = $tempDir . '/' . $zipFileName;
 
-        $zip = new \ZipArchive;
-        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+        $zip = new ZipArchive;
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
             foreach ($dokumens as $dok) {
                 if ($dok->file_path && Storage::disk('public')->exists($dok->file_path)) {
                     $absolutePath = Storage::disk('public')->path($dok->file_path);

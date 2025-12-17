@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use App\Models\Dokumen;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,21 +23,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Force URL for ALL environments to debug shared hosting issue
-        \Illuminate\Support\Facades\URL::forceScheme('https');
-        \Illuminate\Support\Facades\URL::forceRootUrl('https://e-yarsi.id');
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+            URL::forceRootUrl('https://e-yarsi.id');
+        }
 
         // Share badge counts with sidebar
-        \Illuminate\Support\Facades\View::composer('partials.sidebar-menu', function ($view) {
+        View::composer('partials.sidebar-menu', function ($view) {
             $user = auth()->user();
             $countValidasi = 0;
             $countProses = 0;
 
             if ($user) {
                 if ($user->role === 'direktur') {
-                    $countValidasi = \App\Models\Dokumen::where('status', 'pending')->count();
+                    $countValidasi = Dokumen::where('status', 'pending')->count();
                 }
                 if ($user->role === 'staff') {
-                    $countProses = \App\Models\Dokumen::where('status', 'disetujui')->count();
+                    $countProses = Dokumen::where('status', 'disetujui')->count();
                 }
             }
 
