@@ -184,12 +184,11 @@ class DataMasterController extends Controller
             'role' => 'required|in:direktur,staff,instansi',
             'instansi_id' => 'required_if:role,instansi|nullable|exists:instansis,id',
             'jabatan' => 'nullable|string',
-            'instansi_id' => 'required_if:role,instansi|nullable|exists:instansis,id',
-            'jabatan' => 'nullable|string',
             'telepon' => 'nullable|string',
             'telegram_chat_id' => 'nullable|string',
         ]);
 
+        $validated['plain_password'] = $validated['password'];
         $validated['password'] = Hash::make($validated['password']);
         $validated['is_active'] = true;
 
@@ -218,6 +217,7 @@ class DataMasterController extends Controller
         $validated = $request->validate($rules);
 
         if ($request->filled('password')) {
+            $validated['plain_password'] = $validated['password'];
             $validated['password'] = Hash::make($validated['password']);
         }
 

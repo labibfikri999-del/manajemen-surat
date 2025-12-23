@@ -1,7 +1,6 @@
 
 <?php
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SinglePageController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\SuratKeluarController;
@@ -85,7 +84,9 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::get('/arsip-download-kategori/{kategori}', [ArsipDigitalController::class, 'downloadKategori']);
     // Note: POST /api/arsip-digital already handled by apiResource above (line 75)
     
-    // Route::apiResource('klasifikasi', DataMasterController::class); // Removed to avoid conflict with manual routes
+    // Modifikasi: Hapus rute duplikat dan komentar yang tidak perlu
+    // Route::apiResource('klasifikasi', DataMasterController::class); // Hapus baris ini jika benar-benar tidak digunakan
+
     Route::get('/klasifikasi-list', [DataMasterController::class,'indexKlasifikasi']);
     Route::post('/klasifikasi-store', [DataMasterController::class,'storeKlasifikasi']);
     Route::put('/klasifikasi/{id}', [DataMasterController::class,'updateKlasifikasi']);
@@ -122,25 +123,4 @@ Route::prefix('api')->middleware('auth')->group(function(){
     Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
     Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
     Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
-    Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
-});
-
-
-
-
-
-// Debug Route for Zip
-Route::get('/debug-zip', function () {
-    $disabled_functions = explode(',', ini_get('disable_functions'));
-    return [
-        'PHP_OS' => PHP_OS,
-        'ZipArchive_Class_Exists' => class_exists('ZipArchive'),
-        'shell_exec_Exists' => function_exists('shell_exec'),
-        'shell_exec_Disabled_INI' => in_array('shell_exec', $disabled_functions),
-        'exec_Exists' => function_exists('exec'),
-        'Storage_Path' => storage_path('app/public'),
-        'Path_Exists' => File::exists(storage_path('app/public')),
-        'File_Count' => File::exists(storage_path('app/public')) ? count(File::allFiles(storage_path('app/public'))) : 'Path not found',
-        'Zip_Command_Check' => function_exists('shell_exec') ? shell_exec('zip -v') : 'shell_exec disabled',
-    ];
 });

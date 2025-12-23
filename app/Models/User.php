@@ -33,6 +33,7 @@ class User extends Authenticatable
         'avatar',
         'is_active',
         'telegram_chat_id',
+        'plain_password',
     ];
 
     /**
