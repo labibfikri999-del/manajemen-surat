@@ -80,7 +80,7 @@
         <div class="bg-white rounded-lg shadow">
           <div class="flex overflow-x-auto border-b border-emerald-100 scrollbar-hide">
             <button id="tabKlasifikasi" class="tab-btn px-4 md:px-6 py-4 text-emerald-900 font-medium border-b-2 border-emerald-500 hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="klasifikasi">Klasifikasi</button>
-            <button id="tabDepartemen" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="departemen">Departemen</button>
+            <button id="tabDepartemen" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="departemen">Unit Usaha</button>
             <button id="tabPengguna" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="pengguna">Pengguna</button>
             <button id="tabLampiran" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="lampiran">Tipe Lampiran</button>
             <button id="tabBackup" class="tab-btn px-4 md:px-6 py-4 text-emerald-600 font-medium hover:bg-emerald-50 whitespace-nowrap flex-shrink-0" data-tab="backup">Backup / Restore</button>
@@ -117,16 +117,16 @@
               <div class="flex flex-col sm:flex-row gap-3 mb-6">
                 <button id="btnTambahDepartemen" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                  Tambah Departemen
+                  Tambah Unit Usaha
                 </button>
-                <input id="searchDepartemen" type="text" placeholder="Cari departemen..." class="flex-1 px-4 py-2 border border-gray-300 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+                <input id="searchDepartemen" type="text" placeholder="Cari unit usaha..." class="flex-1 px-4 py-2 border border-gray-300 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500" />
               </div>
               <div class="hidden md:block overflow-x-auto">
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Instansi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Unit Usaha</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Alamat</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
                     </tr>
@@ -151,9 +151,10 @@
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Username</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Instansi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Unit Usaha</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
                     </tr>
                   </thead>
@@ -248,6 +249,11 @@
             <input type="text" id="formNama" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
 
+          <div id="fieldUsernameContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
+            <input type="text" id="formUsername" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
           <div id="fieldKodeContainer" class="hidden">
             <label class="block text-sm font-medium text-gray-700 mb-2">Kode</label>
             <input type="text" id="formKode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
@@ -288,15 +294,15 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">Role <span class="text-red-500">*</span></label>
             <select id="formRole" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
               <option value="staff">Staff</option>
-              <option value="direktur">Direktur</option>
-              <option value="instansi">Instansi</option>
+              <option value="direktur">Sekjen</option>
+              <option value="instansi">Unit Usaha</option>
             </select>
           </div>
 
           <div id="fieldInstansiContainer" class="hidden">
-             <label class="block text-sm font-medium text-gray-700 mb-2">Instansi Asal <span class="text-red-500">*</span></label>
+             <label class="block text-sm font-medium text-gray-700 mb-2">Unit Usaha Asal <span class="text-red-500">*</span></label>
              <select id="formInstansi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-               <option value="">-- Pilih Instansi --</option>
+               <option value="">-- Pilih Unit Usaha --</option>
                @foreach($instansis as $ins)
                  <option value="{{ $ins->id }}">{{ $ins->nama }}</option>
                @endforeach
@@ -317,7 +323,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">ID Telegram</label>
             <input type="text" id="formTelegram" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Contoh: 123456789">
             <p class="text-xs text-gray-500 mt-1">
-              Wajib untuk Direktur & Staff agar menerima notifikasi. 
+              Wajib untuk Sekjen & Staff agar menerima notifikasi. 
               <br>Cara dapat ID: Chat ke Bot <b>@YarsiSuratBot</b> (nama samaran), ketik <code>/start</code>.
             </p>
           </div>
@@ -581,6 +587,7 @@
             const row = `
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 font-medium text-gray-900">${item.name}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${item.username || '-'}</td>
                 <td class="px-6 py-4 text-sm text-gray-600">${item.email}</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span></td>
                 <td class="px-6 py-4 text-sm text-gray-600">${instansiName}</td>
@@ -593,11 +600,12 @@
             const card = `
               <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
                  <div class="mb-3">
-                   <div class="flex justify-between items-start">
-                     <div class="text-base font-semibold text-gray-900">${item.name}</div>
-                     <span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span>
-                   </div>
-                   <div class="text-sm text-gray-600 mt-1">${item.email}</div>
+                     <div class="flex justify-between items-start">
+                       <div class="text-base font-semibold text-gray-900">${item.name}</div>
+                       <span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span>
+                     </div>
+                     <div class="text-sm text-gray-600 mt-1 font-mono">@${item.username || '-'}</div>
+                     <div class="text-sm text-gray-600 mt-1">${item.email}</div>
                    <div class="text-sm text-gray-500 mt-1">${instansiName}</div>
                  </div>
                  <div class="flex gap-2">${btnActionsMobile(item.id, 'pengguna')}</div>
@@ -641,8 +649,10 @@
 
         function btnActions(id, name, type) {
           return `
-            <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition mr-2 btn-edit" data-id="${id}" data-type="${type}">Edit</button>
-            <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete" data-id="${id}" data-type="${type}" data-name="${name}">Hapus</button>
+            <div class="flex items-center gap-2">
+              <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition btn-edit" data-id="${id}" data-type="${type}">Edit</button>
+              <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete" data-id="${id}" data-type="${type}" data-name="${name}">Hapus</button>
+            </div>
           `;
         }
         function btnActionsMobile(id, type) {
@@ -685,6 +695,7 @@
           nama: document.getElementById('fieldNamaContainer'),
           kode: document.getElementById('fieldKodeContainer'),
           alamat: document.getElementById('fieldAlamatContainer'),
+          username: document.getElementById('fieldUsernameContainer'),
           email: document.getElementById('fieldEmailContainer'),
           password: document.getElementById('fieldPasswordContainer'),
           role: document.getElementById('fieldRoleContainer'),
@@ -722,6 +733,7 @@
           }
           else if (type === 'pengguna') {
             if(fields.nama) fields.nama.classList.remove('hidden');
+            if(fields.username) fields.username.classList.remove('hidden');
             if(fields.email) fields.email.classList.remove('hidden');
             if(fields.password) fields.password.classList.remove('hidden'); // Optional if edit
             
@@ -749,6 +761,7 @@
             const item = dataCache[type].find(d => d.id == id);
             if (item) {
               if (document.getElementById('formNama')) document.getElementById('formNama').value = item.nama || item.name || '';
+              if (document.getElementById('formUsername')) document.getElementById('formUsername').value = item.username || '';
               if (document.getElementById('formKode')) document.getElementById('formKode').value = item.kode || '';
               if (document.getElementById('formAlamat')) document.getElementById('formAlamat').value = item.alamat || '';
               if (document.getElementById('formEmail')) document.getElementById('formEmail').value = item.email || '';
@@ -831,6 +844,7 @@
                 payload.alamat = document.getElementById('formAlamat').value;
               }
               else if (type === 'pengguna') {
+                payload.username = document.getElementById('formUsername').value;
                 payload.email = document.getElementById('formEmail').value;
                 if(document.getElementById('formPassword').value) payload.password = document.getElementById('formPassword').value;
                 payload.role = document.getElementById('formRole').value;

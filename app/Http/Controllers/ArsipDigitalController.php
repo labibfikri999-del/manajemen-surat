@@ -221,6 +221,11 @@ class ArsipDigitalController extends Controller
             ->latest('tanggal_arsip')
             ->get();
         
+        $dokumens->map(function($item) {
+            $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
+            return $item;
+        });
+        
         return response()->json($dokumens);
     }
     // Download all files in a category as ZIP

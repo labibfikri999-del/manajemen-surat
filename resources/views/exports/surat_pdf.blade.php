@@ -66,7 +66,7 @@
         <thead>
             <tr>
                 <th style="width: 15%">Tanggal</th>
-                <th style="width: 20%">Instansi</th>
+                <th style="width: 20%">Unit Usaha</th>
                 <th style="width: 25%">Judul / Deskripsi</th>
                 <th style="width: 15%">Status</th>
                 <th style="width: 25%">Keterangan</th>

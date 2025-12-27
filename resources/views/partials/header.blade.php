@@ -18,7 +18,7 @@
     </div>
     <div class="flex items-center gap-3">
         <span class="hidden sm:inline-block px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
-            {{ ucfirst($role) }}
+            {{ $user->role_label ?? ucfirst($role) }}
         </span>
         <div class="relative">
             <button id="btnBalasanNotif" class="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-sm focus:outline-none" title="Notifikasi Balasan">

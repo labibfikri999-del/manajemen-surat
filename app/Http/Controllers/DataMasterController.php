@@ -179,6 +179,7 @@ class DataMasterController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string',
+            'username' => 'required|string|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:direktur,staff,instansi',
@@ -202,6 +203,7 @@ class DataMasterController extends Controller
         
         $rules = [
             'name' => 'required|string',
+            'username' => 'required|string|unique:users,username,' . $id,
             'email' => 'required|email|unique:users,email,' . $id,
             'role' => 'required|in:direktur,staff,instansi',
             'instansi_id' => 'required_if:role,instansi|nullable|exists:instansis,id',

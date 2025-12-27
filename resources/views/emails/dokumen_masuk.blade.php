@@ -16,7 +16,7 @@
             <h2>Dokumen Masuk Baru</h2>
         </div>
         <div class="content">
-            <p>Yth. Admin Instansi,</p>
+            <p>Yth. Admin Unit Usaha,</p>
             <p>Anda telah menerima dokumen baru dari Staff Yayasan Bersih dengan rincian sebagai berikut:</p>
             
             <table style="width: 100%; margin-bottom: 15px;">

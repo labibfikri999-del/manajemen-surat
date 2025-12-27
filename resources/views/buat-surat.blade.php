@@ -84,11 +84,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Nama Penanda Tangan</label>
-                            <input type="text" name="nama_ttd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" placeholder="Nama Direktur / Pejabat" required>
+                            <input type="text" name="nama_ttd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" placeholder="Nama Sekjen / Pejabat" required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Jabatan</label>
-                            <input type="text" name="jabatan_ttd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" placeholder="Contoh: Direktur" required>
+                            <input type="text" name="jabatan_ttd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" placeholder="Contoh: Sekjen" required>
                         </div>
                     </div>
 

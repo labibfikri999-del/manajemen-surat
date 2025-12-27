@@ -176,7 +176,7 @@
                 <thead class="bg-gray-50">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokumen</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instansi</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Usaha</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Arsip</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diproses Oleh</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -537,13 +537,13 @@
         // Use correct field names from arsip_digital table
         const namaDoc = dok.nama_dokumen || dok.judul || dok.nama_file || 'Dokumen Tanpa Nama';
         const tanggalArsip = dok.tanggal_upload || dok.tanggal_arsip || dok.created_at;
-        const instansiNama = dok.instansi ? dok.instansi.nama : (dok.instansi_id ? 'Instansi #' + dok.instansi_id : 'N/A');
+        const instansiNama = dok.instansi ? dok.instansi.nama : (dok.instansi_id ? 'Unit Usaha #' + dok.instansi_id : 'N/A');
         const processorNama = dok.processor ? dok.processor.name : '-';
         const judulEscaped = namaDoc.replace(/'/g, "\\'").replace(/"/g, '\\"');
         
         const filePath = dok.file_path || '';
         const fileExt = filePath.split('.').pop();
-        const fileUrl = filePath ? '/storage/' + filePath : '#';
+        const fileUrl = dok.file_url || (filePath ? '/storage/' + filePath : '#');
         const downloadUrl = '/api/arsip-digital/' + dok.id + '/download';
         
         console.log('Rendering doc:', {id: dok.id, nama_dokumen: dok.nama_dokumen, namaDoc: namaDoc});

@@ -3,9 +3,9 @@
     $user = auth()->user();
     $role = $user->role ?? 'guest';
     $roleLabels = [
-        'direktur' => 'Direktur',
-        'staff' => 'Staff Direktur', 
-        'instansi' => $user->instansi->nama ?? 'Instansi',
+        'direktur' => 'Sekjen',
+        'staff' => 'Staff Sekjen', 
+        'instansi' => $user->instansi->nama ?? 'Unit Usaha',
     ];
     
     $statusColors = [
@@ -57,7 +57,7 @@
                 <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                     <div>
                         <h1 class="text-3xl font-bold text-emerald-900">Proses Dokumen</h1>
-                        <p class="text-emerald-600 mt-2">Kelola dokumen yang sudah divalidasi Direktur</p>
+                        <p class="text-emerald-600 mt-2">Kelola dokumen yang sudah divalidasi Sekjen</p>
                     </div>
                     <div class="bg-white px-6 py-3 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-4 animate-fade-in">
                         <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">

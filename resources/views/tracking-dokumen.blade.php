@@ -3,9 +3,9 @@
     $user = auth()->user();
     $role = $user->role ?? 'guest';
     $roleLabels = [
-        'direktur' => 'Direktur',
-        'staff' => 'Staff Direktur', 
-        'instansi' => $user->instansi->nama ?? 'Instansi',
+        'direktur' => 'Sekjen',
+        'staff' => 'Staff Sekjen', 
+        'instansi' => $user->instansi->nama ?? 'Unit Usaha',
     ];
     
     $statusColors = [
@@ -115,7 +115,7 @@
                                             <td class="px-4 py-3 text-sm text-gray-600">
                                                 <div class="flex flex-wrap gap-2 items-center">
                                                     @if($dok->file_path)
-                                                        <button onclick="showPreviewModal('/storage/{{ $dok->file_path }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')" class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold shadow hover:bg-emerald-700 transition">
+                                                        <button onclick="showPreviewModal('{{ \Illuminate\Support\Facades\Storage::url($dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')" class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold shadow hover:bg-emerald-700 transition">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                             Lihat File
                                                         </button>

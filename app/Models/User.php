@@ -25,6 +25,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
         'role',
         'instansi_id',
@@ -85,6 +86,17 @@ class User extends Authenticatable
     }
 
     // Check role
+    // Alias modifiers for readability after rename
+    public function isSekjen()
+    {
+        return $this->role === self::ROLE_DIREKTUR;
+    }
+
+    public function isUnitUsaha()
+    {
+        return $this->role === self::ROLE_INSTANSI;
+    }
+
     public function isDirektur()
     {
         return $this->role === self::ROLE_DIREKTUR;
@@ -104,9 +116,9 @@ class User extends Authenticatable
     public function getRoleLabelAttribute()
     {
         return match($this->role) {
-            'direktur' => 'Direktur Yayasan',
-            'staff' => 'Staff Direktur',
-            'instansi' => 'User Instansi',
+            'direktur' => 'Sekjen Yayasan',
+            'staff' => 'Staff Sekjen',
+            'instansi' => 'Unit Usaha',
             default => 'Unknown',
         };
     }

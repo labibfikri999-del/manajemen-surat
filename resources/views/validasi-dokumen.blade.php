@@ -3,9 +3,9 @@
     $user = auth()->user();
     $role = $user->role ?? 'guest';
     $roleLabels = [
-        'direktur' => 'Direktur',
-        'staff' => 'Staff Direktur', 
-        'instansi' => $user->instansi->nama ?? 'Instansi',
+        'direktur' => 'Sekjen',
+        'staff' => 'Staff Sekjen', 
+        'instansi' => $user->instansi->nama ?? 'Unit Usaha',
     ];
     
     $statusColors = [
@@ -90,7 +90,7 @@
                                         
                                         <div class="flex gap-2">
                                             @if($dok->file_path)
-                                                <button onclick="showPreviewModal('{{ asset('storage/' . $dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')"
+                                                <button onclick="showPreviewModal('{{ \Illuminate\Support\Facades\Storage::url($dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')"
                                                    class="btn btn-sm btn-secondary flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                     Lihat

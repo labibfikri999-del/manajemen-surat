@@ -3,9 +3,9 @@
     $user = auth()->user();
     $role = $user->role ?? 'guest';
     $roleLabels = [
-        'direktur' => 'Direktur',
-        'staff' => 'Staff Direktur', 
-        'instansi' => $user->instansi->nama ?? 'Instansi',
+        'direktur' => 'Sekjen',
+        'staff' => 'Staff Sekjen', 
+        'instansi' => $user->instansi->nama ?? 'Unit Usaha',
     ];
     // Fetch all instansi for staff
     $instansis = [];
@@ -39,7 +39,7 @@
                 {{-- Page header --}}
                 <div class="mb-8">
                     <h1 class="text-3xl font-bold text-emerald-900">{{ $user->isStaff() ? 'Kirim Dokumen' : 'Upload Dokumen' }}</h1>
-                    <p class="text-emerald-600 mt-2">{{ $user->isStaff() ? 'Kirim dokumen ke internal atau eksternal' : 'Upload dokumen untuk validasi oleh Direktur' }}</p>
+                    <p class="text-emerald-600 mt-2">{{ $user->isStaff() ? 'Kirim dokumen ke internal atau eksternal' : 'Upload dokumen untuk validasi oleh Sekjen' }}</p>
                 </div>
 
                 {{-- Upload Form --}}
@@ -59,9 +59,9 @@
                             {{-- Tujuan Instansi (Khusus Staff) --}}
                             @if($user->isStaff())
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan Instansi (Opsional)</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan Unit Usaha (Opsional)</label>
                                     <select name="tujuan_instansi_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                                        <option value="">-- Pilih Tujuan Instansi (Kosongkan jika hanya kirim email) --</option>
+                                        <option value="">-- Pilih Tujuan Unit Usaha (Kosongkan jika hanya kirim email) --</option>
                                         @foreach($instansis as $instansi)
                                             <option value="{{ $instansi->id }}">{{ $instansi->nama }}</option>
                                         @endforeach

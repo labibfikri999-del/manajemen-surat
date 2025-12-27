@@ -4,9 +4,9 @@
     $role = $user->role ?? 'guest';
     
     $roleLabels = [
-        'direktur' => 'Direktur',
-        'staff' => 'Staff Direktur', 
-        'instansi' => $user->instansi->nama ?? 'Instansi',
+        'direktur' => 'Sekjen',
+        'staff' => 'Staff Sekjen', 
+        'instansi' => $user->instansi->nama ?? 'Unit Usaha',
     ];
 @endphp
 <!doctype html>
@@ -156,6 +156,7 @@
 
   <script>
     // Load Statistics
+    // Load Statistics
     async function loadStatistics() {
       try {
         const [suratMasuk, suratKeluar, arsipDigital, penggunaAktif] = await Promise.all([
@@ -166,10 +167,17 @@
         ]);
 
         // Count array length since APIs return arrays
-        document.getElementById('statSuratMasuk').textContent = Array.isArray(suratMasuk) ? suratMasuk.length : (suratMasuk.count || 0);
-        document.getElementById('statSuratKeluar').textContent = Array.isArray(suratKeluar) ? suratKeluar.length : (suratKeluar.count || 0);
-        document.getElementById('statArsipDigital').textContent = Array.isArray(arsipDigital) ? arsipDigital.length : (arsipDigital.count || 0);
-        document.getElementById('statPenggunaAktif').textContent = penggunaAktif.count || 9;
+        const elSuratMasuk = document.getElementById('statSuratMasuk');
+        if (elSuratMasuk) elSuratMasuk.textContent = Array.isArray(suratMasuk) ? suratMasuk.length : (suratMasuk.count || 0);
+        
+        const elSuratKeluar = document.getElementById('statSuratKeluar');
+        if (elSuratKeluar) elSuratKeluar.textContent = Array.isArray(suratKeluar) ? suratKeluar.length : (suratKeluar.count || 0);
+        
+        const elArsip = document.getElementById('statArsipDigital');
+        if (elArsip) elArsip.textContent = Array.isArray(arsipDigital) ? arsipDigital.length : (arsipDigital.count || 0);
+        
+        const elPengguna = document.getElementById('statPenggunaAktif');
+        if (elPengguna) elPengguna.textContent = penggunaAktif.count || 9;
       } catch (error) {
         console.error('Error loading statistics:', error);
       }

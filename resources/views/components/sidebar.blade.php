@@ -67,9 +67,9 @@
     
     // Role label
     $roleLabels = [
-        'direktur' => 'Direktur',
-        'staff' => 'Staff Direktur',
-        'instansi' => $user->instansi->nama ?? 'Instansi',
+        'direktur' => 'Sekjen',
+        'staff' => 'Staff Sekjen',
+        'instansi' => $user->instansi->nama ?? 'Unit Usaha',
     ];
 @endphp
 
