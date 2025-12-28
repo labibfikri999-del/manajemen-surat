@@ -25,19 +25,43 @@ class DataMasterController extends Controller
 
     public function getLaporanStats()
     {
+        $user = auth()->user();
+        $isInstansi = $user->role === 'instansi';
+        $instansiId = $user->instansi_id;
+
         // Definitions for scope
-        $scopeMasuk = function($q) {
-            $q->where('jenis_dokumen', 'surat_masuk')
-              ->orWhere(function($q2) {
-                  $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
-              });
+        $scopeMasuk = function($q) use ($isInstansi, $instansiId) {
+            $q->where('jenis_dokumen', 'surat_masuk');
+            
+            if ($isInstansi) {
+                // Instansi only sees their own incoming letters
+                $q->where('instansi_id', $instansiId);
+            } else {
+                 // Global scope for staff/direktur (or maybe they want unrelated ones too?)
+                 // Original logic had OR whereNull logic, but let's keep it safe.
+                 // Actually, original logic was:
+                 // $q->where('jenis_dokumen', 'surat_masuk')
+                 //   ->orWhere(function($q2) { ... });
+                 
+                 // If Instansi: STRICTLY their instansi_id. 
+                 // If Staff: GLOBAL.
+                 
+                 $q->orWhere(function($q2) {
+                      $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
+                 });
+            }
         };
 
-        $scopeKeluar = function($q) {
-            $q->where('jenis_dokumen', 'surat_keluar')
-              ->orWhere(function($q2) {
+        $scopeKeluar = function($q) use ($isInstansi, $instansiId) {
+            $q->where('jenis_dokumen', 'surat_keluar');
+            
+            if ($isInstansi) {
+                $q->where('instansi_id', $instansiId);
+            } else {
+                $q->orWhere(function($q2) {
                   $q2->whereNull('jenis_dokumen')->whereNotNull('instansi_id');
-              });
+                });
+            }
         };
 
         // 1. Counts
@@ -45,7 +69,11 @@ class DataMasterController extends Controller
         $suratKeluar = Dokumen::where($scopeKeluar)->count();
         
         // Unified Arsip Logic (Match with api.php)
-        $arsip = Dokumen::where('is_archived', true)->count();
+        $arsipQuery = Dokumen::where('is_archived', true);
+        if ($isInstansi) {
+             $arsipQuery->where('instansi_id', $instansiId);
+        }
+        $arsip = $arsipQuery->count();
 
         // 2. Monthly Data (Current Year)
         $monthlyMasuk = Dokumen::where($scopeMasuk)
@@ -71,8 +99,11 @@ class DataMasterController extends Controller
         }
 
         // 3. Arsip Distribution
-        $arsipDist = Dokumen::where('is_archived', true)
-             ->selectRaw('kategori_arsip as kategori, COUNT(*) as count')
+        $arsipDistQuery = Dokumen::where('is_archived', true);
+        if ($isInstansi) {
+             $arsipDistQuery->where('instansi_id', $instansiId);
+        }
+        $arsipDist = $arsipDistQuery->selectRaw('kategori_arsip as kategori, COUNT(*) as count')
              ->groupBy('kategori_arsip')
              ->get()
              ->map(function($item) {

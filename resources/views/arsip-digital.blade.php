@@ -10,7 +10,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Arsip Digital — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -77,7 +77,21 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Upload File
           </button>
-          <input id="searchInput" type="text" placeholder="Cari dokumen..." class="flex-1 sm:flex-initial px-4 py-2 border border-emerald-300 rounded focus:outline-none focus:border-emerald-500" aria-label="Cari dokumen" />
+          
+          {{-- Search Input (Visible only in folder) --}}
+          <div id="searchContainer" class="hidden relative flex-1 sm:flex-initial min-w-[200px]">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input 
+              id="searchInput" 
+              type="text" 
+              placeholder="Cari file dalam folder..." 
+              class="w-full pl-10 pr-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+            >
+          </div>
         </div>
 
         {{-- Folder Kategori --}}
@@ -156,6 +170,38 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             </a>
           </div>
+
+          {{-- SURAT KELUAR Folder --}}
+          <div class="relative group">
+            <div onclick="openFolder('SURAT_KELUAR')" class="folder-card bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-indigo-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-indigo-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                  <span class="text-3xl">📤</span>
+                </div>
+                <span class="font-bold text-indigo-800">SURAT KELUAR</span>
+                <span class="text-xs text-indigo-600 mt-1" id="countSURAT_KELUAR">0 dokumen</span>
+              </div>
+            </div>
+            <a href="/api/arsip-download-kategori/SURAT_KELUAR" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-indigo-50 text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
+          </div>
+
+          {{-- SK Folder --}}
+          <div class="relative group">
+            <div onclick="openFolder('SK')" class="folder-card bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-purple-400 transition-all group-hover:scale-[1.02]">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                   <span class="text-3xl">📜</span>
+                </div>
+                <span class="font-bold text-purple-800">SURAT KEPUTUSAN</span>
+                <span class="text-xs text-purple-600 mt-1" id="countSK">0 dokumen</span>
+              </div>
+            </div>
+            <a href="/api/arsip-download-kategori/SK" class="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-purple-50 text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity z-10" title="Download Folder (ZIP)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
+          </div>
         </div>
 
         {{-- Document List (hidden by default, shown when folder is opened) --}}
@@ -176,10 +222,10 @@
                 <thead class="bg-gray-50">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokumen</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Usaha</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Arsip</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diproses Oleh</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Unit Usaha</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Tanggal Arsip</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Diproses Oleh</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="docTableBody" class="bg-white divide-y divide-gray-200">
@@ -571,8 +617,8 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             ${processorNama}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <div class="flex items-center gap-2">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+            <div class="flex items-center justify-center gap-2">
               <button onclick="showPreviewModal('${fileUrl}', '${judulEscaped}', '${fileExt}')" 
                       class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition border border-blue-200" 
                       title="Lihat Dokumen">
@@ -664,6 +710,9 @@
           // Optimistic UI update: Remove row immediately
           const row = document.getElementById('row-' + id);
           if (row) row.remove();
+          
+          // Update local data for filtering
+          currentFolderDocuments = currentFolderDocuments.filter(d => d.id != id);
           
           // Reload current folder (background refresh)
           if (currentFolder) {
@@ -969,6 +1018,7 @@
 
     // Folder Navigation untuk Arsip Digital
     let currentFolder = null;
+    let currentFolderDocuments = []; // Store docs for local search
     const folderGrid = document.getElementById('folderGrid');
     const documentList = document.getElementById('documentList');
     const btnBack = document.getElementById('btnBack');
@@ -977,7 +1027,9 @@
     const docCount = document.getElementById('docCount');
     const docTableBody = document.getElementById('docTableBody');
     const emptyDocState = document.getElementById('emptyDocState');
+    const searchContainer = document.getElementById('searchContainer');
     const searchInput = document.getElementById('searchInput');
+
 
     // Load folder counts
     async function loadFolderCounts() {
@@ -993,6 +1045,12 @@
         document.getElementById('countASSET').textContent = counts.ASSET + ' dokumen';
         document.getElementById('countHUKUM').textContent = counts.HUKUM + ' dokumen';
         document.getElementById('countKEUANGAN').textContent = counts.KEUANGAN + ' dokumen';
+        
+        // Add new categories
+        if(document.getElementById('countSURAT_KELUAR')) 
+            document.getElementById('countSURAT_KELUAR').textContent = (counts.SURAT_KELUAR || 0) + ' dokumen';
+        if(document.getElementById('countSK')) 
+            document.getElementById('countSK').textContent = (counts.SK || 0) + ' dokumen';
       } catch (error) {
         console.error('[' + new Date().toLocaleTimeString() + '] Error loading folder counts:', error);
       }
@@ -1015,6 +1073,14 @@
         const response = await fetch(`/api/arsip-by-kategori/${kategori}`);
         const dokumens = await response.json();
         
+        currentFolderDocuments = dokumens; // Save to global variable
+        
+        // Show search
+        if (searchContainer) {
+          searchContainer.classList.remove('hidden');
+          if (searchInput) searchInput.value = ''; // Reset search
+        }
+
         docCount.textContent = dokumens.length + ' dokumen';
         
         if (dokumens.length === 0) {
@@ -1038,38 +1104,49 @@
     // Go back to root
     window.goToRoot = function() {
       currentFolder = null;
+      currentFolderDocuments = [];
       folderGrid.classList.remove('hidden');
       documentList.classList.add('hidden');
       btnBack.classList.add('hidden');
       btnBack.classList.remove('flex');
       breadcrumbPath.innerHTML = '';
+      
+      // Hide search
+      if (searchContainer) searchContainer.classList.add('hidden');
+      
       loadFolderCounts();
     }
 
     // Event listeners
     btnBack.addEventListener('click', goToRoot);
 
-    // Search functionality
+    // Filter Logic
     if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        if (currentFolder) {
-          // Search within folder
-          fetch(`/api/arsip-by-kategori/${currentFolder}`)
-            .then(response => response.json())
-            .then(dokumens => {
-              const filtered = dokumens.filter(d => 
-                d.judul.toLowerCase().includes(query) || 
-                (d.nomor_dokumen && d.nomor_dokumen.toLowerCase().includes(query))
-              );
-              renderDocuments(filtered);
-            })
-            .catch(error => {
-              console.error('Error searching documents:', error);
-            });
+      searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        
+        if (!currentFolder || !currentFolderDocuments.length) return;
+
+        const filtered = currentFolderDocuments.filter(doc => {
+          const docName = (doc.nama_dokumen || doc.judul || doc.nama_file || '').toLowerCase();
+          const docNumber = (doc.nomor_dokumen || '').toLowerCase();
+          const docDesc = (doc.deskripsi || '').toLowerCase();
+          
+          return docName.includes(query) || docNumber.includes(query) || docDesc.includes(query);
+        });
+
+        if (filtered.length === 0) {
+           docTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Tidak ditemukan dokumen yang cocok dengan "${query}"</td></tr>`;
+           docCount.textContent = '0 dokumen (dari ' + currentFolderDocuments.length + ')';
+        } else {
+           renderDocuments(filtered);
+           docCount.textContent = filtered.length + ' dokumen';
         }
       });
     }
+
+    // Search functionality
+
 
     // Initialize
     loadFolderCounts();
@@ -1464,15 +1541,7 @@
       }
     }
 
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        const q = e.target.value.toLowerCase();
-        document.querySelectorAll('#fileGrid > div').forEach(card => {
-          const text = card.textContent.toLowerCase();
-          card.style.display = text.includes(q) ? '' : 'none';
-        });
-      });
-    }
+
 
     // Button Buat Folder
     const btnFolder = document.getElementById('btnFolder');

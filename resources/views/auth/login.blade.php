@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="overscroll-y-none">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Login - YARSI NTB | Sistem Manajemen Dokumen</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 flex items-center justify-center p-4">
+<body class="min-h-screen bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 flex items-center justify-center p-4 overscroll-y-none">
 
   {{-- Login Card --}}
   <div class="bg-white rounded-2xl w-full max-w-md p-6 sm:p-8 shadow-2xl">
@@ -16,26 +16,12 @@
     {{-- Logo & Header --}}
     <div class="text-center mb-6">
       <div class="inline-block mb-3">
-        <img src="/images/Logo Yayasan Bersih.png" alt="Yayasan Bersih" class="w-16 h-16 mx-auto object-contain">
+        <img src="{{ asset('images/logo_rsi_ntb.png') }}" alt="Yayasan Rumah Sakit Islam" class="w-40 h-40 mx-auto rounded-full shadow-xl object-cover ring-4 ring-emerald-50 hover:scale-105 transition-transform duration-300">
       </div>
       <h1 class="text-2xl font-bold text-gray-900 mb-1">YARSI NTB</h1>
       <p class="text-emerald-600 font-medium text-sm">Sistem Manajemen Dokumen Yayasan</p>
     </div>
 
-    {{-- Welcome Message --}}
-    <div class="bg-emerald-50 rounded-xl p-3.5 mb-6 border border-emerald-200">
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="font-semibold text-gray-900 text-sm">Selamat Datang!</h3>
-          <p class="text-gray-600 text-xs mt-0.5">Silakan login untuk mengakses sistem</p>
-        </div>
-      </div>
-    </div>
 
     {{-- Error Message --}}
     @if(session('error'))
@@ -137,14 +123,13 @@
 
       {{-- Submit Button --}}
       <button type="submit" class="w-full py-3.5 rounded-xl text-white font-semibold text-base bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-        <span>Masuk ke Sistem</span>
+        <span>Login</span>
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
         </svg>
       </button>
     </form>
 
-    {{-- Footer Info (di-nonaktifkan sesuai permintaan) --}}
 
     {{-- Copyright --}}
     <p class="text-center text-xs text-gray-400 mt-6">

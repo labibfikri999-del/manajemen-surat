@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Data Master — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -101,9 +101,9 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">No.</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-16">No.</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 w-32">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyKlasifikasi" class="divide-y divide-gray-100"></tbody>
@@ -125,10 +125,10 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Unit Usaha</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-32">Kode</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-64">Nama Unit Usaha</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Alamat</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 w-32">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyDepartemen" class="divide-y divide-gray-100"></tbody>
@@ -153,9 +153,9 @@
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Username</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-32">Role</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Unit Usaha</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 w-32">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyPengguna" class="divide-y divide-gray-100"></tbody>
@@ -177,10 +177,10 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">No.</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-16">No.</th>
                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode</th>
-                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
+                      <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 w-32">Kode</th>
+                      <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 w-32">Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tableBodyLampiran" class="divide-y divide-gray-100"></tbody>
@@ -525,7 +525,7 @@
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 text-sm text-gray-900">${i+1}</td>
                 <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
-                <td class="px-6 py-4 text-left">
+                <td class="px-6 py-4 text-center">
                   ${btnActions(item.id, item.nama, 'klasifikasi')}
                 </td>
               </tr>`;
@@ -553,7 +553,7 @@
                 <td class="px-6 py-4 text-sm text-gray-900">${item.kode || '-'}</td>
                 <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
                  <td class="px-6 py-4 text-sm text-gray-600">${item.alamat || '-'}</td>
-                <td class="px-6 py-4 text-left">
+                <td class="px-6 py-4 text-center">
                   ${btnActions(item.id, item.nama, 'departemen')}
                 </td>
               </tr>`;
@@ -591,7 +591,7 @@
                 <td class="px-6 py-4 text-sm text-gray-600">${item.email}</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-semibold ${roleBadge}">${item.role.toUpperCase()}</span></td>
                 <td class="px-6 py-4 text-sm text-gray-600">${instansiName}</td>
-                <td class="px-6 py-4 text-left">
+                <td class="px-6 py-4 text-center">
                   ${btnActions(item.id, item.name, 'pengguna')}
                 </td>
               </tr>`;
@@ -627,7 +627,7 @@
                 <td class="px-6 py-4 text-sm text-gray-900">${i+1}</td>
                 <td class="px-6 py-4 font-medium text-gray-900">${item.nama}</td>
                 <td class="px-6 py-4 text-sm text-gray-600">${item.kode || '-'}</td>
-                <td class="px-6 py-4 text-left">
+                <td class="px-6 py-4 text-center">
                   ${btnActions(item.id, item.nama, 'lampiran')}
                 </td>
               </tr>`;
@@ -649,7 +649,7 @@
 
         function btnActions(id, name, type) {
           return `
-            <div class="flex items-center gap-2">
+            <div class="flex items-center justify-center gap-2">
               <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition btn-edit" data-id="${id}" data-type="${type}">Edit</button>
               <button class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition btn-delete" data-id="${id}" data-type="${type}" data-name="${name}">Hapus</button>
             </div>

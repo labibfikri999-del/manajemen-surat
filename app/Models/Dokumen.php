@@ -52,7 +52,8 @@ class Dokumen extends Model
     const KATEGORI_SDM = 'SDM';
     const KATEGORI_ASSET = 'ASSET';
     const KATEGORI_HUKUM = 'HUKUM';
-    const KATEGORI_KEUANGAN = 'KEUANGAN';
+    const KATEGORI_SURAT_KELUAR = 'SURAT_KELUAR';
+    const KATEGORI_SK = 'SK';
 
     public static function getKategoriArsip()
     {
@@ -62,6 +63,8 @@ class Dokumen extends Model
             self::KATEGORI_ASSET => 'Asset',
             self::KATEGORI_HUKUM => 'Hukum',
             self::KATEGORI_KEUANGAN => 'Keuangan',
+            self::KATEGORI_SURAT_KELUAR => 'Surat Keluar',
+            self::KATEGORI_SK => 'Surat Keputusan (SK)',
         ];
     }
 

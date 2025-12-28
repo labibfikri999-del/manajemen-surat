@@ -47,6 +47,11 @@ class SuratMasukController extends Controller
             $validated['file'] = $path;
         }
 
+        // Add instansi_id from authenticated user
+        if ($request->user()->instansi_id) {
+            $validated['instansi_id'] = $request->user()->instansi_id;
+        }
+
         $surat = SuratMasuk::create($validated);
         $surat->file_url = $surat->file ? Storage::url($surat->file) : null;
         

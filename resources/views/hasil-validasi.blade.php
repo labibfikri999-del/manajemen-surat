@@ -22,7 +22,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Hasil Validasi — YARSI NTB</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -93,12 +93,12 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Tanggal</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Usaha</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keterangan</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-48">Unit Usaha</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-64">Keterangan</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase w-32">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200" id="dokumenList">
@@ -132,8 +132,8 @@
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td class="px-4 py-3 text-sm text-gray-600 text-left">
-                                                <div class="flex items-center justify-start gap-2">
+                                            <td class="px-4 py-3 text-sm text-gray-600 text-center">
+                                                <div class="flex items-center justify-center gap-2">
                                                     @if($dok->file_path)
                                                         <button onclick="showPreviewModal('{{ \Illuminate\Support\Facades\Storage::url($dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')"
                                                            class="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition"
@@ -236,7 +236,7 @@
             // Filter items
             document.querySelectorAll('.dokumen-item').forEach(item => {
                 if (status === 'all' || item.dataset.status === status) {
-                    item.style.display = 'block';
+                    item.style.display = ''; // Reset to default table-row
                 } else {
                     item.style.display = 'none';
                 }

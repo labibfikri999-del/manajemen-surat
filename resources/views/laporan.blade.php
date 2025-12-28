@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Laporan — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,10 +73,12 @@
               </div>
             </div>
 
+            @if($role !== 'instansi')
             <div class="bg-white rounded-lg shadow p-4 md:p-6">
               <h2 class="text-base md:text-lg font-semibold text-emerald-900 mb-4">Distribusi Arsip Digital</h2>
               <canvas id="chartArsipType" height="100"></canvas>
             </div>
+            @endif
           </div>
 
           <div class="bg-white rounded-lg shadow p-4 md:p-6">
@@ -90,10 +92,12 @@
                 <p class="text-xs text-green-600">Surat Keluar</p>
                 <p class="text-2xl font-bold text-green-900" id="totalKeluar">0</p>
               </div>
+              @if($role !== 'instansi')
               <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
                 <p class="text-xs text-purple-600">Arsip Digital</p>
                 <p class="text-2xl font-bold text-purple-900" id="totalArsip">0</p>
               </div>
+              @endif
             </div>
 
             <div class="mt-6 pt-6 border-t border-emerald-100">
@@ -148,7 +152,8 @@
 
         document.getElementById('totalMasuk').textContent = totalMasuk;
         document.getElementById('totalKeluar').textContent = totalKeluar;
-        document.getElementById('totalArsip').textContent = totalArsip;
+        const elArsip = document.getElementById('totalArsip');
+        if (elArsip) elArsip.textContent = totalArsip;
 
         // Update comparison bars
         const total = totalMasuk + totalKeluar;

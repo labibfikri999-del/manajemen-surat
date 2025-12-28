@@ -24,7 +24,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Tracking Dokumen — YARSI NTB</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -83,12 +83,12 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Tanggal</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jenis</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keterangan</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">Jenis</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-64">Keterangan</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase w-32">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -113,18 +113,20 @@
                                                 @endif
                                             </td>
                                             <td class="px-4 py-3 text-sm text-gray-600">
-                                                <div class="flex flex-wrap gap-2 items-center">
+                                                <div class="flex items-center justify-center gap-2">
                                                     @if($dok->file_path)
-                                                        <button onclick="showPreviewModal('{{ \Illuminate\Support\Facades\Storage::url($dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')" class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold shadow hover:bg-emerald-700 transition">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        <button onclick="showPreviewModal('{{ \Illuminate\Support\Facades\Storage::url($dok->file_path) }}', '{{ $dok->judul }}', '{{ strtolower(pathinfo($dok->file_path, PATHINFO_EXTENSION)) }}')" class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold shadow hover:bg-emerald-700 transition whitespace-nowrap">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                             Lihat File
                                                         </button>
                                                     @endif
                                                     @if($dok->balasan_file)
-                                                        <a href="/api/dokumen/{{ $dok->id }}/download-balasan" class="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-100 text-emerald-700 rounded-lg text-sm font-semibold shadow hover:bg-gray-200 transition" download>
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                                            Download Balasan
+                                                        <!-- Button Balasan hidden 
+                                                        <a href="/api/dokumen/{{ $dok->id }}/download-balasan" class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold shadow hover:bg-blue-700 transition whitespace-nowrap" download>
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                            Balasan
                                                         </a>
+                                                        -->
                                                     @endif
                                                 </div>
                                             </td>

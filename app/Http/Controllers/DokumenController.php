@@ -96,6 +96,7 @@ class DokumenController extends Controller
             'deskripsi' => 'nullable|string',
             'tujuan_instansi_id' => 'nullable|exists:instansis,id',
             'email_eksternal' => 'nullable|email', // Validasi email eksternal
+            'kategori_arsip' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK', // Opsi arsip langsung
             'file' => 'required|file|mimes:doc,docx,pdf|max:10240', // Word/PDF, Max 10MB
         ]);
 
@@ -142,9 +143,19 @@ class DokumenController extends Controller
             'status' => 'pending',
         ];
 
-        // Jika Staff mengirim ke Instansi atau Email Eksternal
-        if ($user->isStaff() && ($targetInstansiId || $request->filled('email_eksternal'))) {
-            $createData['status'] = 'disetujui'; // Bypass validation logic
+        // Jika Staff mengirim ke Instansi atau Email Eksternal ATAU memilih kategori arsip
+        if ($user->isStaff()) {
+            // Validasi tambahan untuk kategori arsip
+            if ($request->filled('kategori_arsip')) {
+                $createData['status'] = 'selesai';
+                $createData['is_archived'] = true;
+                $createData['tanggal_arsip'] = now();
+                $createData['tanggal_selesai'] = now(); // Mark as finished too
+                $createData['kategori_arsip'] = $request->kategori_arsip;
+            } elseif ($targetInstansiId || $request->filled('email_eksternal')) {
+                $createData['status'] = 'disetujui'; // Bypass validation logic if sending but not archiving
+            }
+            
             // Set balasan_file ONLY if targetInstansiId is set (internal flow), otherwise it's just an external send
             if ($targetInstansiId) {
                 $createData['balasan_file'] = $filePath;
@@ -198,18 +209,41 @@ class DokumenController extends Controller
             ]);
         }
 
-        // === NOTIFIKASI TELEGRAM KE DIREKTUR ===
-        // Cari user direktur yang punya chat_id
-        $direkturs = User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
-        foreach ($direkturs as $dir) {
-            $instansiName = $user->instansi->nama ?? 'User Internal';
-            $loginUrl = url('/login');
-            $msg = "*DOKUMEN MASUK BARU* 📄\n" .
-                   "Judul: _{$request->judul}_\n" .
-                   "Instansi: _{$instansiName}_\n\n" .
-                   "Mohon segera divalidasi.\n" .
-                   "[Login Aplikasi]($loginUrl)";
-            $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
+        // === NOTIFIKASI TELEGRAM ===
+        
+        // Skenario 1: STAFF Mengirim Dokumen ke Unit Usaha (Status: Disetujui/Selesai) -> Notif ke UNIT USAHA
+        if (($createData['status'] === 'disetujui' || $createData['status'] === 'selesai') && $targetInstansiId && $user->isStaff()) {
+             $targetUsers = User::where('instansi_id', $targetInstansiId)->whereNotNull('telegram_chat_id')->get();
+             foreach ($targetUsers as $tUser) {
+                 $msg = "*SURAT MASUK DARI PUSAT* 📩\n" .
+                        "Judul: _{$request->judul}_\n" .
+                        "Pengirim: _Staff Pusat_\n\n" .
+                        "Silakan cek menu Surat Masuk.\n" .
+                        "[Login Aplikasi](" . url('/login') . ")";
+                 try {
+                    $this->telegram->sendMessage($tUser->telegram_chat_id, $msg);
+                 } catch(\Exception $e) {
+                    Log::error("Telegram error to Unit: " . $e->getMessage());
+                 }
+             }
+        } 
+        // Skenario 2: INSTANSI Upload Dokumen (Status: Pending) -> Notif ke DIREKTUR (Minta Validasi)
+        elseif ($createData['status'] === 'pending') {
+            $direkturs = User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
+            foreach ($direkturs as $dir) {
+                // If uploader is Staff (internal pending?), use 'Staff'. Else 'Instansi Name'.
+                $senderName = $user->instansi ? $user->instansi->nama : 'Staff Internal';
+                $msg = "*PERMOHONAN VALIDASI DOKUMEN* ⏳\n" .
+                       "Judul: _{$request->judul}_\n" .
+                       "Pengirim: _{$senderName}_\n\n" .
+                       "Mohon segera divalidasi.\n" .
+                       "[Login Aplikasi](" . url('/login') . ")";
+                try {
+                   $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
+                } catch(\Exception $e) {
+                   Log::error("Telegram error to Direktur: " . $e->getMessage());
+                }
+            }
         }
 
         return response()->json([
@@ -400,7 +434,8 @@ class DokumenController extends Controller
             if ($request->hasFile('file_balasan')) {
                 $file = $request->file('file_balasan');
                 $fileName = $file->getClientOriginalName();
-                $filePath = $file->store('dokumen/' . $dokumen->instansi->kode . '/balasan', 'public');
+                $folderCode = $dokumen->instansi ? $dokumen->instansi->kode : 'INTERNAL';
+                $filePath = $file->store('dokumen/' . $folderCode . '/balasan', 'public');
                 $updateData['balasan_file'] = $filePath;
             }
 
@@ -415,14 +450,20 @@ class DokumenController extends Controller
             ]);
 
             // Auto-create Surat Masuk for instansi user (balasan dari staff)
-            SuratMasuk::create([
-                'instansi_id' => $dokumen->instansi_id,
-                'nomor_surat' => 'BAL/' . $dokumen->nomor_dokumen,
-                'tanggal_diterima' => now(),
-                'pengirim' => 'Staff YARSI NTB',
-                'perihal' => 'Balasan: ' . $dokumen->judul,
-                'file' => $updateData['balasan_file'] ?? null,
-            ]);
+            if ($dokumen->instansi_id) {
+                // Determine file to attach: newly uploaded balasan OR null
+                $fileToAttach = $updateData['balasan_file'] ?? null;
+
+                SuratMasuk::create([
+                    'instansi_id' => $dokumen->instansi_id,
+                    'nomor_surat' => 'BALASAN/' . $dokumen->nomor_dokumen, // Distinct numbering
+                    'tanggal_diterima' => now(),
+                    'pengirim' => 'Pusat (Administrator)',
+                    'perihal' => 'SURAT BALASAN DARI PUSAT: ' . $dokumen->judul,
+                    'file' => $fileToAttach,
+                    // 'klasifikasi_id' => null // Optional
+                ]);
+            }
         }
 
         $dokumen->update($updateData);

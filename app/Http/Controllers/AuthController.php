@@ -66,7 +66,7 @@ class AuthController extends Controller
             // Redirect based on role
             $user = Auth::user();
             
-            return redirect()->intended('/dashboard');
+            return redirect()->route('dashboard');
         }
 
         return back()->withErrors([

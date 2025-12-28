@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Surat Masuk — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   @include('partials.styles')
 </head>
@@ -31,18 +31,18 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
           <div class="bg-white rounded-lg shadow p-3 md:p-4">
             <div class="text-emerald-600 text-xs md:text-sm font-medium">Total Surat Masuk</div>
-            <p class="text-2xl md:text-3xl font-bold text-emerald-900 mt-2">124</p>
+            <p id="countTotal" class="text-2xl md:text-3xl font-bold text-emerald-900 mt-2">0</p>
             <p class="text-xs text-emerald-500 mt-1">Tahun ini</p>
           </div>
           <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-emerald-600 text-xs md:text-sm font-medium">Belum Ditindaklanjuti</div>
-            <p class="text-2xl md:text-3xl font-bold text-orange-600 mt-2">12</p>
-            <p class="text-xs text-emerald-500 mt-1">Perlu perhatian</p>
+            <div class="text-emerald-600 text-xs md:text-sm font-medium">Manual (Perlu Perhatian)</div>
+            <p id="countPending" class="text-2xl md:text-3xl font-bold text-orange-600 mt-2">0</p>
+            <p class="text-xs text-emerald-500 mt-1">Entry Manual</p>
           </div>
           <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-emerald-600 text-xs md:text-sm font-medium">Sudah Ditindaklanjuti</div>
-            <p class="text-2xl md:text-3xl font-bold text-green-600 mt-2">112</p>
-            <p class="text-xs text-emerald-500 mt-1">Selesai</p>
+            <div class="text-emerald-600 text-xs md:text-sm font-medium">Digital (Pusat)</div>
+            <p id="countSelesai" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">0</p>
+            <p class="text-xs text-emerald-500 mt-1">Dari Staff/Director</p>
           </div>
         </div>
 
@@ -67,16 +67,17 @@
         <div class="bg-white rounded-lg shadow overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-emerald-50 border-b border-emerald-100">
+              <thead class="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">No.</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Nomor Surat</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Tanggal Diterima</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Pengirim</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Perihal</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">File</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Status</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-emerald-900">Aksi</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-16">No</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No Agenda</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Tanggal</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No Surat</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Asal Surat</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Perihal</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Jenis</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-24">Sifat</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Aksi</th>
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-emerald-100">
@@ -118,7 +119,7 @@
 
         {{-- Pagination --}}
         <div class="flex items-center justify-between mt-6">
-          <p class="text-sm text-emerald-600">Menampilkan 1 dari 124 surat masuk</p>
+          <p id="paginationInfo" class="text-sm text-emerald-600">Menampilkan 0 dari 0 surat masuk</p>
           <div class="flex gap-2">
             <button class="px-3 py-1 border border-emerald-300 rounded text-emerald-600 hover:bg-emerald-50">← Sebelumnya</button>
             <button class="px-3 py-1 border border-emerald-300 rounded text-emerald-600 hover:bg-emerald-50">Selanjutnya →</button>
@@ -128,8 +129,8 @@
     </main>
 
     {{-- Toast Notification --}}
-    <div id="toast" class="hidden fixed top-4 right-4 z-50 transform transition-all duration-300 ease-out">
-      <div class="bg-white rounded-lg shadow-2xl p-4 flex items-center gap-3 min-w-[320px] max-w-md border-l-4" id="toastContent">
+    <div id="toast" class="hidden fixed top-4 right-4 z-[9999] transform transition-all duration-300 ease-out pointer-events-none">
+      <div class="bg-white rounded-lg shadow-2xl p-4 flex items-center gap-3 min-w-[320px] max-w-md border-l-4 pointer-events-auto" id="toastContent">
         <div id="toastIcon" class="shrink-0"></div>
         <div class="flex-1">
           <p id="toastTitle" class="font-semibold text-sm"></p>
@@ -175,6 +176,7 @@
         </div>
         
         <form id="suratForm" class="space-y-4" enctype="multipart/form-data">
+          <!-- Form fields unchanged -->
           <div>
             <label class="block text-sm font-medium text-emerald-700 mb-2">Nomor Surat <span class="text-red-500">*</span></label>
             <input type="text" id="formNomorSurat" placeholder="SM-2025/001" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
@@ -219,7 +221,102 @@
     </div>
   </div>
 
+    {{-- Modal Preview Dokumen (COPIED FROM TRACKING) --}}
+    <div id="previewModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[130] p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col mx-auto transform transition-all scale-100">
+            <div class="p-4 border-b flex items-center justify-between bg-gray-50 rounded-t-2xl">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span id="previewTitle">Preview Dokumen</span>
+                    </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="downloadBtn" href="#" target="_blank" class="p-2 text-gray-500 hover:text-emerald-600 hover:bg-white rounded-lg transition" title="Download / Buka di Tab Baru">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    <button onclick="closePreviewModal()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-white rounded-lg transition" title="Tutup">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 bg-gray-100 relative p-0 overflow-hidden rounded-b-2xl">
+                <div id="previewLoading" class="absolute inset-0 flex items-center justify-center bg-white z-10">
+                    <div class="flex flex-col items-center gap-3">
+                        <svg class="animate-spin w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="text-sm text-gray-500 font-medium">Memuat dokumen...</p>
+                    </div>
+                </div>
+                <iframe id="previewFrame" class="w-full h-full border-0" onload="document.getElementById('previewLoading').classList.add('hidden')"></iframe>
+                <div id="previewError" class="absolute inset-0 flex items-center justify-center bg-white hidden z-20">
+                    <div class="text-center p-8 max-w-md">
+                        <div class="bg-amber-100 text-amber-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Tidak dapat menampilkan preview</h4>
+                        <p class="text-gray-600 mb-6">Format file ini mungkin tidak didukung untuk preview langsung oleh browser anda.</p>
+                        <a id="downloadFallback" href="#" target="_blank" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download File
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
   <script>
+    // Preview Modal Functions
+    function showPreviewModal(url, title, extension) {
+        const modal = document.getElementById('previewModal');
+        const frame = document.getElementById('previewFrame');
+        const titleEl = document.getElementById('previewTitle');
+        const loading = document.getElementById('previewLoading');
+        const error = document.getElementById('previewError');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadFallback = document.getElementById('downloadFallback');
+
+        // Hide Navbar
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = 'none';
+
+        titleEl.textContent = title;
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+        frame.src = url;
+        
+        downloadBtn.href = url;
+        downloadFallback.href = url;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Handle non-previewable files roughly
+        const previewable = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'txt'];
+        if (extension && !previewable.includes(extension.toLowerCase())) {
+            loading.classList.add('hidden');
+            error.classList.remove('hidden');
+        }
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('previewModal');
+        const frame = document.getElementById('previewFrame');
+        
+        // Show Navbar
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = '';
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        frame.src = ''; // Stop loading
+    }
+
+    // Close modal on click outside
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+        if (e.target === this) closePreviewModal();
+    });
+
     // Toast Notification Functions
     function showToast(title, message, type = 'success') {
       const toast = document.getElementById('toast');
@@ -380,12 +477,52 @@
     async function loadData() {
       try {
         const response = await fetch('/api/surat-masuk');
-        const data = await response.json();
-        allRowsData = data;
+        const manualData = await response.json();
+        
+        // Merge with digital docs from controller
+        const digitalData = @json($dokumenDigital ?? []).map(doc => ({
+          id: 'digital_' + doc.id,
+          nomor_surat: doc.nomor_dokumen,
+          tanggal_diterima: doc.created_at.split('T')[0],
+          pengirim: doc.user ? doc.user.name : 'Pusat/Staff', // Fallback name
+          perihal: doc.judul + (doc.deskripsi ? ' - ' + doc.deskripsi : ''),
+          file_url: '/storage/' + doc.file_path,
+          is_digital: true, // Flag to identify
+          status: 'Digital'
+        }));
+
+        allRowsData = [...digitalData, ...manualData];
         renderTable();
+        updateCounters(); // New function call
       } catch (error) {
         console.error('Error loading data:', error);
       }
+    }
+
+    function updateCounters() {
+        // Calculate counts
+        const total = allRowsData.length;
+        // Logic: 'Digital' or 'Selesai' considered 'processed'
+        // 'Manual' (which is default if not specified) considered 'pending'? 
+        // Or based on your specific logic. Assuming 'Digital' is automatically 'processed' or 'inbox'
+        
+        // For now, let's assume:
+        // Digital = "Sudah Ditindaklanjuti" (Archived/Sent by staff)
+        // Manual = "Belum Ditindaklanjuti" (Uploaded manually by unit, needs processing?)
+        // OR better: Check if a 'status' field exists.
+        
+        const digitalCount = allRowsData.filter(d => d.is_digital).length;
+        const manualCount = allRowsData.filter(d => !d.is_digital).length;
+
+        document.getElementById('countTotal').textContent = total;
+        document.getElementById('countPending').textContent = manualCount; // Assumption: Manual needs attention
+        document.getElementById('countSelesai').textContent = digitalCount; // Assumption: Digital is likely 'done' validation
+        
+        // Update pagination text
+        const paginationInfo = document.getElementById('paginationInfo');
+        if(paginationInfo) {
+            paginationInfo.textContent = `Menampilkan ${total} dari ${total} surat masuk`;
+        }
     }
 
     // Render tabel dari data
@@ -398,41 +535,92 @@
       const dataRows = tableBody.querySelectorAll('tr:not(.skeleton-row)');
       dataRows.forEach(row => row.remove());
       
+      if (allRowsData.length === 0) {
+          const emptyRow = document.createElement('tr');
+          emptyRow.innerHTML = `
+            <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+               <div class="flex flex-col items-center justify-center">
+                   <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                   <p>Belum ada data surat masuk</p>
+               </div>
+            </td>
+          `;
+          tableBody.appendChild(emptyRow);
+          return;
+      }
+
       allRowsData.forEach((item, index) => {
         const row = document.createElement('tr');
-        row.classList.add('hover:bg-emerald-50');
+        row.className = 'hover:bg-gray-50 transition-colors group border-b border-gray-50';
         row.dataset.id = item.id;
         
-        // Create file link HTML
-        let fileHtml = '<span class="text-gray-400">-</span>';
-        if (item.file_url) {
-          fileHtml = `<a href="${item.file_url}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span class="text-sm">Lihat</span>
-          </a>`;
-        }
-        
+        // Mock / Derived Data
+        const noAgenda = `SM/${new Date().getFullYear()}/12/${String(index + 1).padStart(4, '0')}`;
+        const jenis = item.klasifikasi ? item.klasifikasi.nama : (item.is_digital ? 'Surat Digital' : 'Surat Masuk');
+        const sifat = 'Biasa'; // Default mock
+        const sifatColor = 'bg-gray-100 text-gray-600';
+
+        // Action Buttons
+        const viewBtn = item.file_url || item.file ? `
+            <button onclick="${item.file_url ? `showPreviewModal('${item.file_url}', '${item.perihal || item.nomor_surat}', '${item.file_url.split('.').pop()}')` : `window.open('/storage/${item.file}', '_blank')`}" 
+                    class="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" 
+                    title="Lihat File">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+        ` : `
+            <button disabled class="p-1.5 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            </button>
+        `;
+
+        const editBtn = item.is_digital ? `
+            <button disabled class="p-1.5 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed" title="Dokumen Pusat (Tidak dapat diedit)">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            </button>
+        ` : `
+            <button class="p-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition btn-edit" title="Edit">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            </button>
+        `;
+
+        const deleteBtn = item.is_digital ? `
+            <button disabled class="p-1.5 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed" title="Dokumen Pusat (Tidak dapat dihapus)">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+        ` : `
+            <button class="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition btn-delete" title="Hapus">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+        `;
+
+        const actionButtons = `
+            <div class="flex items-center justify-center gap-2">
+               ${editBtn}
+               ${viewBtn}
+               ${deleteBtn}
+            </div>
+        `;
+
         row.innerHTML = `
-          <td class="px-6 py-4 text-sm text-emerald-900">${index + 1}</td>
-          <td class="px-6 py-4"><span class="font-medium text-emerald-900">${item.nomor_surat}</span></td>
-          <td class="px-6 py-4"><span class="text-emerald-600">${item.tanggal_diterima}</span></td>
-          <td class="px-6 py-4"><span class="text-emerald-600">${item.pengirim}</span></td>
-          <td class="px-6 py-4"><span class="text-emerald-600">${item.perihal}</span></td>
-          <td class="px-6 py-4">${fileHtml}</td>
-          <td class="px-6 py-4"><span class="inline-block px-3 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">Aktif</span></td>
-          <td class="px-6 py-4 text-left">
-            <button class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition btn-edit" aria-label="Edit surat">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              Edit
-            </button>
-            <button class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition btn-delete" aria-label="Hapus surat">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              Hapus
-            </button>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${index + 1}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${noAgenda}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.tanggal_diterima}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.nomor_surat || '-'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.pengirim}</td>
+          <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="${item.perihal}">${item.perihal}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${jenis}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+             <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${sifatColor}">
+               ${sifat}
+             </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+             ${actionButtons}
           </td>
         `;
+        
         tableBody.appendChild(row);
-        setupRowActions(row);
+        if (!item.is_digital) setupRowActions(row);
       });
     }
 
@@ -495,7 +683,13 @@
       filePreview.classList.add('hidden');
 
       if (isEdit && rowId) {
-        const item = allRowsData.find(d => d.id === rowId);
+        // Use loose equality (==) to match string "5" with number 5
+        const item = allRowsData.find(d => d.id == rowId); 
+        if (!item) {
+            console.error('Data not found for ID:', rowId, allRowsData);
+            alert('Error: Data tidak ditemukan. Silakan refresh halaman.');
+            return;
+        }
         modalTitle.textContent = 'Edit Surat Masuk';
         formNomorSurat.value = item.nomor_surat;
         formTanggal.value = item.tanggal_diterima;
@@ -563,7 +757,8 @@
           const response = await fetch(`/api/surat-masuk/${editingRowId}`, {
             method: 'POST',
             headers: {
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+              'Accept': 'application/json'
             },
             body: formData
           });
@@ -595,7 +790,8 @@
           const response = await fetch('/api/surat-masuk', {
             method: 'POST',
             headers: {
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+              'Accept': 'application/json'
             },
             body: formData
           });
@@ -626,52 +822,7 @@
       }
     });
 
-    // Simpan row baru (deprecated, kept for reference)
-    async function saveNewRow(row) {
-      const inputs = row.querySelectorAll('input');
-      if (!inputs[0].value || !inputs[1].value || !inputs[2].value) {
-        showToast('Data Tidak Lengkap', 'Semua field harus diisi', 'warning');
-        return;
-      }
-      
-      try {
-        const response = await fetch('/api/surat-masuk', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-          },
-          body: JSON.stringify({
-            nomor_surat: inputs[0].value,
-            tanggal_diterima: inputs[1].value,
-            pengirim: inputs[2].value,
-            perihal: inputs[3].value
-          })
-        });
-        
-        const responseText = await response.text();
-        let newData;
-        try {
-          newData = JSON.parse(responseText);
-        } catch (e) {
-          console.error('Response text:', responseText);
-          alert('Error: Respons server tidak valid. Cek console untuk detail.');
-          return;
-        }
-        
-        if (response.ok) {
-          allRowsData.unshift(newData);
-          renderTable();
-          showToast('Berhasil!', 'Data berhasil disimpan', 'success');
-        } else {
-          const errorMsg = newData.message || newData.errors || 'Gagal menyimpan data';
-          showToast('Gagal Menyimpan', typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg, 'error');
-        }
-      } catch (error) {
-        console.error('Error saving:', error);
-        showToast('Error', error.message, 'error');
-      }
-    }
+
 
     // Edit row - open modal
     function editRow(row) {
@@ -720,49 +871,7 @@
       }
     }
 
-    // Simpan row
-    function saveRow(row) {
-      const inputs = row.querySelectorAll('input');
-      if (!inputs[1].value || !inputs[2].value) {
-        showToast('Data Tidak Lengkap', 'Nomor surat dan tanggal harus diisi', 'warning');
-        return;
-      }
-      
-      row.classList.remove('editing-row');
-      const cells = row.querySelectorAll('td');
-      cells[1].innerHTML = `<span class="font-medium text-emerald-900">${inputs[0].value}</span>`;
-      cells[2].innerHTML = `<span class="text-emerald-600">${inputs[1].value}</span>`;
-      cells[3].innerHTML = `<span class="text-emerald-600">${inputs[2].value}</span>`;
-      cells[4].innerHTML = `<span class="text-emerald-600">${inputs[3].value}</span>`;
-      cells[6].innerHTML = `
-        <button class="text-emerald-600 hover:text-emerald-900 text-sm mr-3 btn-edit">Edit</button>
-        <button class="text-red-600 hover:text-red-900 text-sm btn-delete">Hapus</button>
-      `;
-      
-      setupRowButtons(row);
-    }
 
-    // Edit row
-    function editRow(row) {
-      const cells = row.querySelectorAll('td');
-      const nomorSurat = cells[1].textContent;
-      const tanggal = cells[2].textContent;
-      const pengirim = cells[3].textContent;
-      const perihal = cells[4].textContent;
-      
-      row.classList.add('editing-row');
-      cells[1].innerHTML = `<input type="text" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${nomorSurat}">`;
-      cells[2].innerHTML = `<input type="date" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${tanggal}">`;
-      cells[3].innerHTML = `<input type="text" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${pengirim}">`;
-      cells[4].innerHTML = `<input type="text" class="border border-emerald-300 rounded px-2 py-1 w-full" value="${perihal}">`;
-      cells[6].innerHTML = `
-        <button class="text-green-600 hover:text-green-900 text-sm mr-3 btn-save">Simpan</button>
-        <button class="text-red-600 hover:text-red-900 text-sm btn-cancel">Batal</button>
-      `;
-      
-      row.querySelector('.btn-save').addEventListener('click', () => saveRow(row));
-      row.querySelector('.btn-cancel').addEventListener('click', () => location.reload());
-    }
 
     // Search
     searchInput.addEventListener('input', (e) => {

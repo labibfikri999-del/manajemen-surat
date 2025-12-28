@@ -207,6 +207,8 @@ class ArsipDigitalController extends Controller
             'ASSET' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'ASSET')->count(),
             'HUKUM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'HUKUM')->count(),
             'KEUANGAN' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'KEUANGAN')->count(),
+            'SURAT_KELUAR' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SURAT_KELUAR')->count(),
+            'SK' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SK')->count(),
         ];
         
         return response()->json($counts);

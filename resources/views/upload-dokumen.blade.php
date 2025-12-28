@@ -20,7 +20,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ $user->isStaff() ? 'Kirim Dokumen' : 'Upload Dokumen' }} — YARSI NTB</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -66,6 +66,22 @@
                                             <option value="{{ $instansi->id }}">{{ $instansi->nama }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                
+                                {{-- Kategori Arsip (Opsional - Auto Archive) --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Simpan ke Arsip (Opsional)</label>
+                                    <select name="kategori_arsip" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                        <option value="">-- Tidak Diarsipkan (Proses Biasa) --</option>
+                                        <option value="UMUM">Umum</option>
+                                        <option value="SDM">SDM</option>
+                                        <option value="ASSET">Asset</option>
+                                        <option value="HUKUM">Hukum</option>
+                                        <option value="KEUANGAN">Keuangan</option>
+                                        <option value="SURAT_KELUAR">Surat Keluar</option>
+                                        <option value="SK">Surat Keputusan (SK)</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">Jika dipilih, dokumen akan otomatis berstatus "Selesai" dan masuk ke Arsip Digital.</p>
                                 </div>
                             @endif
 

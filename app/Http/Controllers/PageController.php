@@ -82,6 +82,11 @@ class PageController extends Controller
         $user = auth()->user();
         $dokumens = Dokumen::with(['validator', 'processor'])
             ->where('instansi_id', $user->instansi_id)
+            ->whereHas('user', function($q) {
+                // Hanya tampilkan dokumen yang diupload oleh Instansi sendiri
+                // (Mencegah dokumen dari Staff/Direktur muncul disini)
+                $q->where('role', 'instansi');
+            })
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -94,10 +99,14 @@ class PageController extends Controller
         $user = auth()->user();
         
         $query = Dokumen::with(['instansi', 'user', 'validator', 'processor'])
-            ->whereIn('status', ['disetujui', 'ditolak', 'diproses', 'selesai']);
+            ->whereIn('status', ['disetujui', 'ditolak', 'diproses', 'selesai'])
+            ->whereNotNull('validated_by'); // Hanya tampilkan dokumen yang SUDAH DIVALIDASI
         
         if ($user->isInstansi()) {
-            $query->where('instansi_id', $user->instansi_id);
+            $query->where('instansi_id', $user->instansi_id)
+                  ->whereHas('user', function($q) {
+                        $q->where('role', 'instansi'); // Only show own uploads
+                  });
         }
         
         $dokumens = $query->orderBy('tanggal_validasi', 'desc')->get();
@@ -141,7 +150,33 @@ class PageController extends Controller
     // Legacy routes
     public function suratMasuk()
     {
-        return view('surat-masuk');
+        $user = auth()->user();
+        $dokumenDigital = collect([]);
+        $surat_masuks = collect([]);
+
+        if ($user->isInstansi()) {
+            // Get documents sent by Staff/Direktur TO this instansi
+            $dokumenDigital = Dokumen::with(['user'])
+                ->where('instansi_id', $user->instansi_id)
+                ->whereHas('user', function($q) {
+                    $q->whereIn('role', ['staff', 'direktur', 'sekjen']);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Get Manual Surat Masuk
+            $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi'])
+                ->where('instansi_id', $user->instansi_id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+             // Staff/Admin sees all?
+             $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi', 'instansi'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('surat-masuk', compact('dokumenDigital', 'surat_masuks'));
     }
 
     public function suratKeluar()

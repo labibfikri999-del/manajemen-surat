@@ -27,7 +27,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Proses Dokumen — YARSI NTB</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/Logo Yayasan Bersih.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -408,9 +408,12 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    showToast('✓ Dokumen berhasil diproses', 'success');
+                    showToast('✓ Dokumen berhasil diproses. Silakan selesaikan.', 'success');
                     closeProsesModal();
-                    setTimeout(() => location.reload(), 1000);
+                    
+                    // Automatically open Selesai Modal
+                    const docTitle = document.getElementById('prosesDocTitle').textContent;
+                    showSelesaiModal(documenId, docTitle);
                 } else {
                     showToast('❌ Error: ' + (data.message || 'Gagal memproses dokumen'), 'error');
                     button.disabled = false;
