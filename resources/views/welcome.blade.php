@@ -59,6 +59,9 @@
         }
     </script>
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             /* Background handled by fixed layer */
             min-height: 100vh;
@@ -66,9 +69,9 @@
             position: relative;
         }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
         }
@@ -89,7 +92,7 @@
         }
     </style>
 </head>
-<body class="antialiased text-slate-800 min-h-screen relative flex flex-col items-center justify-center py-12 px-4">
+<body class="antialiased text-slate-800 min-h-screen relative flex flex-col items-center py-12 px-4">
 
     <!-- Fixed Background Layer (The "Unified" Canvas) -->
     <div class="fixed inset-0 w-full h-full -z-50">
@@ -99,10 +102,11 @@
 
     <!-- Animated Background Blobs (Fixed to viewport for consistent parallax) -->
     <!-- Animated Background Blobs (Optimization: will-change-transform) -->
+    <!-- Animated Background Blobs (Optimization: will-change-transform, removed blend modes) -->
     <div class="fixed inset-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
-        <div class="absolute top-0 -left-10 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob will-change-transform"></div>
-        <div class="absolute top-0 -right-10 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-2000 will-change-transform"></div>
-        <div class="absolute -bottom-32 left-20 w-96 h-96 bg-lime-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-4000 will-change-transform"></div>
+        <div class="absolute top-0 -left-10 w-96 h-96 bg-cyan-300/40 rounded-full filter blur-[60px] animate-blob will-change-transform"></div>
+        <div class="absolute top-0 -right-10 w-96 h-96 bg-emerald-300/40 rounded-full filter blur-[60px] animate-blob animation-delay-2000 will-change-transform"></div>
+        <div class="absolute -bottom-32 left-20 w-96 h-96 bg-lime-300/40 rounded-full filter blur-[60px] animate-blob animation-delay-4000 will-change-transform"></div>
     </div>
 
     <!-- Main Container -->
