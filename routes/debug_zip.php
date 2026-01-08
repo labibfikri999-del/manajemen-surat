@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/debug-zip', function () {
     $disabled_functions = explode(',', ini_get('disable_functions'));
-    
+
     return [
         'PHP_OS' => PHP_OS,
         'ZipArchive_Class_Exists' => class_exists('ZipArchive'),

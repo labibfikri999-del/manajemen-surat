@@ -49,10 +49,15 @@ class Dokumen extends Model
 
     // Kategori Arsip constants
     const KATEGORI_UMUM = 'UMUM';
+
     const KATEGORI_SDM = 'SDM';
+
     const KATEGORI_ASSET = 'ASSET';
+
     const KATEGORI_HUKUM = 'HUKUM';
+
     const KATEGORI_SURAT_KELUAR = 'SURAT_KELUAR';
+
     const KATEGORI_SK = 'SK';
 
     public static function getKategoriArsip()
@@ -70,10 +75,15 @@ class Dokumen extends Model
 
     // Status constants
     const STATUS_PENDING = 'pending';
+
     const STATUS_REVIEW = 'review';
+
     const STATUS_DISETUJUI = 'disetujui';
+
     const STATUS_DITOLAK = 'ditolak';
+
     const STATUS_DIPROSES = 'diproses';
+
     const STATUS_SELESAI = 'selesai';
 
     // Relasi ke instansi
@@ -103,7 +113,7 @@ class Dokumen extends Model
     // Status label dengan warna
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => ['text' => 'Menunggu', 'color' => 'yellow'],
             'review' => ['text' => 'Sedang Direview', 'color' => 'blue'],
             'disetujui' => ['text' => 'Disetujui', 'color' => 'green'],
@@ -120,15 +130,15 @@ class Dokumen extends Model
         $year = date('Y');
         $month = date('m');
         $prefix = sprintf('DOC/%s/%s%s/', $instansiKode, $year, $month);
-        
+
         // Cari dokumen dengan nomor tertinggi yang sesuai prefix
         // Menggunakan orderBy nomor_dokumen untuk mendapatkan urutan terakhir yang benar
         // terlepas dari ID atau created_at
-        $lastDoc = self::where('nomor_dokumen', 'like', $prefix . '%')
-                    ->orderByRaw('LENGTH(nomor_dokumen) DESC') // Antisipasi jika digit bertambah
-                    ->orderBy('nomor_dokumen', 'desc')
-                    ->first();
-        
+        $lastDoc = self::where('nomor_dokumen', 'like', $prefix.'%')
+            ->orderByRaw('LENGTH(nomor_dokumen) DESC') // Antisipasi jika digit bertambah
+            ->orderBy('nomor_dokumen', 'desc')
+            ->first();
+
         if ($lastDoc) {
             $parts = explode('/', $lastDoc->nomor_dokumen);
             $lastNumber = intval(end($parts));
@@ -136,7 +146,7 @@ class Dokumen extends Model
         } else {
             $count = 1;
         }
-        
+
         return sprintf('%s%04d', $prefix, $count);
     }
 }

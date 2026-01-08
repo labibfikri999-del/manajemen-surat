@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class SuratMasukSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class SuratMasukSeeder extends Seeder
         for ($i = 1; $i <= 15; $i++) {
             $no = 100 + $i; // contoh nomor surat
             $rows[] = [
-                'nomor_surat' => "SM-2025/" . str_pad($no, 3, '0', STR_PAD_LEFT),
+                'nomor_surat' => 'SM-2025/'.str_pad($no, 3, '0', STR_PAD_LEFT),
                 'tanggal_diterima' => $today->copy()->subDays(15 - $i)->toDateString(),
                 'pengirim' => "Pengirim {$i}",
                 'perihal' => "Perihal contoh {$i}",

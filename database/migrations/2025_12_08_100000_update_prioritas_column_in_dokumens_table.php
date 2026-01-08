@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
@@ -14,7 +12,7 @@ return new class extends Migration
     {
         // Change enum to string to support "SEGERA", "AMAT SEGERA" and potential future values
         // This is safer than constantly updating the enum definition
-        DB::statement("ALTER TABLE dokumens MODIFY COLUMN prioritas VARCHAR(50) NULL");
+        DB::statement('ALTER TABLE dokumens MODIFY COLUMN prioritas VARCHAR(50) NULL');
     }
 
     /**

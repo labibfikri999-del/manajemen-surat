@@ -20,13 +20,13 @@ return new class extends Migration
             $table->string('file_name'); // Nama file asli
             $table->string('file_type')->nullable(); // PDF, DOCX, dll
             $table->bigInteger('file_size')->nullable(); // Ukuran dalam bytes
-            
+
             // Relasi
             $table->foreignId('instansi_id')->nullable()->constrained('instansis')->onDelete('set null');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Yang upload
             $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('set null'); // Direktur yang validasi
             $table->foreignId('processed_by')->nullable()->constrained('users')->onDelete('set null'); // Staff yang proses
-            
+
             // Status tracking
             $table->enum('status', ['pending', 'review', 'disetujui', 'ditolak', 'diproses', 'selesai'])->default('pending');
             $table->text('catatan_validasi')->nullable(); // Catatan dari direktur
@@ -34,7 +34,7 @@ return new class extends Migration
             $table->timestamp('tanggal_validasi')->nullable();
             $table->timestamp('tanggal_proses')->nullable();
             $table->timestamp('tanggal_selesai')->nullable();
-            
+
             $table->timestamps();
         });
     }

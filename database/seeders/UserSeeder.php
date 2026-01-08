@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Instansi;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -50,7 +50,7 @@ class UserSeeder extends Seeder
 
         foreach ($instansiUsers as $index => $userData) {
             $instansi = Instansi::where('kode', $userData['instansi_kode'])->first();
-            
+
             if ($instansi) {
                 User::updateOrCreate(
                     ['email' => $userData['email']],
@@ -60,7 +60,7 @@ class UserSeeder extends Seeder
                         'role' => 'instansi',
                         'instansi_id' => $instansi->id,
                         'jabatan' => $userData['name'],
-                        'telepon' => '081234567' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
+                        'telepon' => '081234567'.str_pad($index + 1, 2, '0', STR_PAD_LEFT),
                         'is_active' => true,
                     ]
                 );

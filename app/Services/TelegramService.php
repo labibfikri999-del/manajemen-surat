@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class TelegramService
 {
     protected $botToken;
+
     protected $apiUrl;
 
     public function __construct()
@@ -19,15 +20,14 @@ class TelegramService
     /**
      * Send a text message to a specific chat ID.
      *
-     * @param string $chatId
-     * @param string $message
-     * @param string|null $parseMode 'Markdown' or 'HTML'
+     * @param  string|null  $parseMode  'Markdown' or 'HTML'
      * @return bool
      */
     public function sendMessage(string $chatId, string $message, string $parseMode = 'Markdown')
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             Log::warning('Telegram Bot Token not configured.');
+
             return false;
         }
 
@@ -40,13 +40,16 @@ class TelegramService
 
             if ($response->successful()) {
                 Log::info("Telegram message sent to {$chatId}");
+
                 return true;
             } else {
-                Log::error("Failed to send Telegram message: " . $response->body());
+                Log::error('Failed to send Telegram message: '.$response->body());
+
                 return false;
             }
         } catch (\Exception $e) {
-            Log::error("Telegram Service Error: " . $e->getMessage());
+            Log::error('Telegram Service Error: '.$e->getMessage());
+
             return false;
         }
     }

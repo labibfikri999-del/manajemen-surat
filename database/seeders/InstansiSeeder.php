@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Instansi;
+use Illuminate\Database\Seeder;
 
 class InstansiSeeder extends Seeder
 {

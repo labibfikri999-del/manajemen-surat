@@ -9,20 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
-{
-    Schema::create('surat_masuk', function (Blueprint $table) {
-        $table->id();
-        $table->string('nomor_surat')->nullable();
-        $table->date('tanggal_diterima')->nullable();
-        $table->string('pengirim')->nullable();
-        $table->string('perihal')->nullable();
-        $table->string('file')->nullable();
-        $table->foreignId('klasifikasi_id')->nullable()->constrained('klasifikasi')->nullOnDelete();
-        $table->timestamps();
-    });
-}
-
+    public function up()
+    {
+        Schema::create('surat_masuk', function (Blueprint $table) {
+            $table->id();
+            $table->string('nomor_surat')->nullable();
+            $table->date('tanggal_diterima')->nullable();
+            $table->string('pengirim')->nullable();
+            $table->string('perihal')->nullable();
+            $table->string('file')->nullable();
+            $table->foreignId('klasifikasi_id')->nullable()->constrained('klasifikasi')->nullOnDelete();
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

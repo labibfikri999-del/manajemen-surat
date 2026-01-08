@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Dokumen;
 use App\Models\Instansi;
 use App\Models\User;
-use App\Models\ArsipDigital;
-use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
@@ -48,7 +45,7 @@ class PageController extends Controller
             ->whereIn('status', ['pending', 'review'])
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return view('validasi-dokumen', compact('dokumens'));
     }
 
@@ -56,7 +53,7 @@ class PageController extends Controller
     {
         $instansis = Instansi::all();
         $users = User::with('instansi')->get();
-        
+
         return view('data-master', compact('instansis', 'users'));
     }
 
@@ -67,7 +64,7 @@ class PageController extends Controller
             ->whereIn('status', ['disetujui', 'diproses'])
             ->orderBy('tanggal_validasi', 'desc')
             ->get();
-        
+
         return view('proses-dokumen', compact('dokumens'));
     }
 
@@ -82,14 +79,14 @@ class PageController extends Controller
         $user = auth()->user();
         $dokumens = Dokumen::with(['validator', 'processor'])
             ->where('instansi_id', $user->instansi_id)
-            ->whereHas('user', function($q) {
+            ->whereHas('user', function ($q) {
                 // Hanya tampilkan dokumen yang diupload oleh Instansi sendiri
                 // (Mencegah dokumen dari Staff/Direktur muncul disini)
                 $q->where('role', 'instansi');
             })
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return view('tracking-dokumen', compact('dokumens'));
     }
 
@@ -97,20 +94,20 @@ class PageController extends Controller
     public function hasilValidasi()
     {
         $user = auth()->user();
-        
+
         $query = Dokumen::with(['instansi', 'user', 'validator', 'processor'])
             ->whereIn('status', ['disetujui', 'ditolak', 'diproses', 'selesai'])
             ->whereNotNull('validated_by'); // Hanya tampilkan dokumen yang SUDAH DIVALIDASI
-        
+
         if ($user->isInstansi()) {
             $query->where('instansi_id', $user->instansi_id)
-                  ->whereHas('user', function($q) {
-                        $q->where('role', 'instansi'); // Only show own uploads
-                  });
+                ->whereHas('user', function ($q) {
+                    $q->where('role', 'instansi'); // Only show own uploads
+                });
         }
-        
+
         $dokumens = $query->orderBy('tanggal_validasi', 'desc')->get();
-        
+
         return view('hasil-validasi', compact('dokumens'));
     }
 
@@ -123,16 +120,23 @@ class PageController extends Controller
     {
         // Hitung metrik arsip digital dari tabel Dokumen (Unified)
         $query = Dokumen::where('is_archived', true);
-        
+
         $totalArsip = $query->count();
         $totalBytes = $query->sum('file_size') ?? 0;
 
         // Format ukuran ke string human readable
         $formatSize = function ($bytes) {
-            if ($bytes >= 1073741824) return number_format($bytes / 1073741824, 2) . ' GB';
-            if ($bytes >= 1048576) return number_format($bytes / 1048576, 2) . ' MB';
-            if ($bytes >= 1024) return number_format($bytes / 1024, 2) . ' KB';
-            return $bytes . ' B';
+            if ($bytes >= 1073741824) {
+                return number_format($bytes / 1073741824, 2).' GB';
+            }
+            if ($bytes >= 1048576) {
+                return number_format($bytes / 1048576, 2).' MB';
+            }
+            if ($bytes >= 1024) {
+                return number_format($bytes / 1024, 2).' KB';
+            }
+
+            return $bytes.' B';
         };
 
         $totalSize = $formatSize($totalBytes);
@@ -158,20 +162,20 @@ class PageController extends Controller
             // Get documents sent by Staff/Direktur TO this instansi
             $dokumenDigital = Dokumen::with(['user'])
                 ->where('instansi_id', $user->instansi_id)
-                ->whereHas('user', function($q) {
+                ->whereHas('user', function ($q) {
                     $q->whereIn('role', ['staff', 'direktur', 'sekjen']);
                 })
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
+
             // Get Manual Surat Masuk
             $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi'])
                 ->where('instansi_id', $user->instansi_id)
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
-             // Staff/Admin sees all?
-             $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi', 'instansi'])
+            // Staff/Admin sees all?
+            $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi', 'instansi'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         }

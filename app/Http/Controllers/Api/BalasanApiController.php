@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Dokumen;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BalasanApiController extends Controller
 {
@@ -17,6 +18,7 @@ class BalasanApiController extends Controller
             ->where('user_id', $user->id)
             ->where('terbaca', false)
             ->count();
+
         return response()->json(['count' => $count]);
     }
 
@@ -32,6 +34,7 @@ class BalasanApiController extends Controller
             ->whereNotNull('balasan_file')
             ->where('balasan_file', '!=', '')
             ->get();
+
         return response()->json(['dokumens' => $dokumens]);
     }
 
@@ -43,6 +46,7 @@ class BalasanApiController extends Controller
             ->where('dokumen_id', $dokumenId)
             ->where('user_id', $user->id)
             ->update(['terbaca' => true, 'updated_at' => now()]);
+
         return response()->json(['success' => true]);
     }
 }

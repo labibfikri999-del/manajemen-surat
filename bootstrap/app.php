@@ -14,7 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'module.access' => \App\Http\Middleware\CheckModuleAccess::class,
         ]);
+        
+        $middleware->redirectGuestsTo(function ($request) {
+            if ($request->is('aset*')) {
+                return route('aset.login');
+            }
+            return route('login');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, $request) {

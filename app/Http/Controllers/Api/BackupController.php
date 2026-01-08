@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
+use File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use ZipArchive;
-use File;
 
 class BackupController extends Controller
 {
@@ -17,17 +16,17 @@ class BackupController extends Controller
             // Manual list of tables to avoid Doctrine dependency
             // Ensure table names match Migration definitions exactly
             $tables = [
-                'users', 
-                'instansis', 
-                'dokumens', 
+                'users',
+                'instansis',
+                'dokumens',
                 'arsip_digital',  // confirmed singular
                 'surat_masuks',   // assuming plural based on filename, checked via schema check below
                 'surat_keluar',   // confirmed singular
-                'klasifikasis', 
+                'klasifikasis',
                 'tipe_lampirans',
-                'migrations'
+                'migrations',
             ];
-            
+
             $data = [];
 
             foreach ($tables as $table) {
@@ -39,14 +38,15 @@ class BackupController extends Controller
                 }
             }
 
-            $filename = 'backup-database-' . date('Y-m-d_H-i-s') . '.json';
-            
+            $filename = 'backup-database-'.date('Y-m-d_H-i-s').'.json';
+
             return response()->streamDownload(function () use ($data) {
                 echo json_encode($data, JSON_PRETTY_PRINT);
             }, $filename, ['Content-Type' => 'application/json']);
 
         } catch (\Throwable $e) {
-            \Log::error('Backup DB Error: ' . $e->getMessage());
+            \Log::error('Backup DB Error: '.$e->getMessage());
+
             return response()->json(['error' => 'Gagal membuat backup database. Silakan cek log.'], 500);
         }
     }
@@ -54,29 +54,32 @@ class BackupController extends Controller
     public function backupFiles()
     {
         try {
-            $filename = 'backup-files-' . date('Y-m-d_H-i-s') . '.zip';
-            $tempFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'backup_' . time() . '.zip';
+            $filename = 'backup-files-'.date('Y-m-d_H-i-s').'.zip';
+            $tempFile = sys_get_temp_dir().DIRECTORY_SEPARATOR.'backup_'.time().'.zip';
             $sourcePath = storage_path('app/public');
 
-            if (!File::exists($sourcePath)) {
-                 return response()->json(['error' => 'Folder penyimpanan tidak ditemukan.'], 404);
+            if (! File::exists($sourcePath)) {
+                return response()->json(['error' => 'Folder penyimpanan tidak ditemukan.'], 404);
             }
 
             // Method 1: Try PHP ZipArchive
             if (class_exists('ZipArchive')) {
                 $zip = new ZipArchive;
-                if ($zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                if ($zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                     $files = File::allFiles($sourcePath);
                     if (count($files) === 0) {
-                         $zip->addFromString('info.txt', 'Tidak ada file dokumen. Backup kosong.');
+                        $zip->addFromString('info.txt', 'Tidak ada file dokumen. Backup kosong.');
                     } else {
                         foreach ($files as $file) {
-                             $zip->addFile($file->getRealPath(), $file->getRelativePathname());
+                            $zip->addFile($file->getRealPath(), $file->getRelativePathname());
                         }
                     }
                     $zip->close();
-                    
-                    if (ob_get_length()) ob_end_clean(); // Prevent output buffering corruption
+
+                    if (ob_get_length()) {
+                        ob_end_clean();
+                    } // Prevent output buffering corruption
+
                     return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
                 }
             }
@@ -87,38 +90,42 @@ class BackupController extends Controller
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 // Escape paths for PowerShell
                 // Note: PowerShell might have issues with trailing backslashes in some cases, verify path.
-                $source = $sourcePath . DIRECTORY_SEPARATOR . '*'; 
+                $source = $sourcePath.DIRECTORY_SEPARATOR.'*';
                 $dest = $tempFile;
-                
-                $cmd = 'powershell -Command "Compress-Archive -Path \'' . $source . '\' -DestinationPath \'' . $dest . '\' -Force"';
-                
+
+                $cmd = 'powershell -Command "Compress-Archive -Path \''.$source.'\' -DestinationPath \''.$dest.'\' -Force"';
+
                 // execute
                 shell_exec($cmd);
 
                 if (File::exists($tempFile)) {
-                     return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
+                    return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
                 }
             }
 
             // Method 3: Fallback to Shell (Linux/Unix)
             if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
-                $cmd = "cd " . escapeshellarg($sourcePath) . " && zip -r " . escapeshellarg($tempFile) . " .";
+                $cmd = 'cd '.escapeshellarg($sourcePath).' && zip -r '.escapeshellarg($tempFile).' .';
                 shell_exec($cmd);
 
                 if (File::exists($tempFile) && filesize($tempFile) > 0) {
-                     if (ob_get_length()) ob_end_clean();
-                     return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
+                    if (ob_get_length()) {
+                        ob_end_clean();
+                    }
+
+                    return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
                 }
             }
 
             // If we reached here, all methods failed
             return response()->json([
-                'error' => 'Gagal membuat backup ZIP. ZipArchive dan command zip tidak tersedia.'
+                'error' => 'Gagal membuat backup ZIP. ZipArchive dan command zip tidak tersedia.',
             ], 500);
 
         } catch (\Throwable $e) {
-            \Log::error('Backup Files Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal membuat backup file: ' . $e->getMessage()], 500);
+            \Log::error('Backup Files Error: '.$e->getMessage());
+
+            return response()->json(['error' => 'Gagal membuat backup file: '.$e->getMessage()], 500);
         }
     }
 }

@@ -82,7 +82,7 @@
             <div class="text-center mb-8">
                 <img src="{{ asset('images/logo_rsi_ntb_new.png') }}" alt="Logo" class="h-32 w-auto mx-auto mb-4 animate-float drop-shadow-2xl">
                 <h1 class="text-3xl font-bold tracking-tight text-slate-800">YARSI NTB</h1>
-                <p class="text-slate-500 font-medium">Sistem Manajemen Dokumen</p>
+                <p class="text-slate-500 font-medium">Login Sistem Surat</p>
             </div>
 
             @if(session('error'))
@@ -140,13 +140,15 @@
 
                 <div class="flex items-center justify-between pt-2">
                     <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 bg-white/80">
+                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }} class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 bg-white/80">
                         <span class="text-sm text-slate-600 group-hover:text-emerald-700 transition-colors">Ingat saya</span>
                     </label>
                 </div>
 
+                <input type="hidden" name="login_source" value="portal">
+
                 <button type="submit" class="w-full py-3.5 rounded-xl text-white font-bold text-base energy-gradient hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 mt-4">
-                    <span>Masuk Portal</span>
+                    <span>Login</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </button>
             </form>
@@ -157,6 +159,12 @@
         </p>
 
     </main>
+
+    <!-- Back to Portal Button (Bottom Left) -->
+    <a href="{{ url('/') }}" class="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg text-slate-600 font-medium text-sm hover:bg-white hover:text-emerald-600 hover:scale-105 transition-all duration-300 group">
+        <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Kembali ke Portal</span>
+    </a>
 
     <script>
         function togglePassword() {

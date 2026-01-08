@@ -22,9 +22,9 @@ return new class extends Migration
             // Ensure uniqueness simply for existing data (naive approach)
             $count = \App\Models\User::where('username', $username)->count();
             if ($count > 0) {
-                $username .=rand(100, 999);
+                $username .= rand(100, 999);
             }
-            
+
             // Use DB query to avoid model strictness if model is not yet updated
             \Illuminate\Support\Facades\DB::table('users')
                 ->where('id', $user->id)

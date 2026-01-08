@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DokumenMasukMail;
 use App\Models\Dokumen;
 use App\Models\Instansi;
 use App\Models\SuratKeluar;
 use App\Models\SuratMasuk;
 use App\Models\User;
 use App\Services\TelegramService;
-use App\Mail\DokumenMasukMail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class DokumenController extends Controller
 {
@@ -25,22 +25,25 @@ class DokumenController extends Controller
     {
         $this->telegram = $telegram;
     }
+
     /**
      * Download file balasan dokumen
      */
     public function downloadBalasan($id)
     {
         $dokumen = Dokumen::findOrFail($id);
-        if (!$dokumen->balasan_file || !Storage::disk('public')->exists($dokumen->balasan_file)) {
+        if (! $dokumen->balasan_file || ! Storage::disk('public')->exists($dokumen->balasan_file)) {
             return response()->json(['error' => 'File balasan tidak ditemukan'], 404);
         }
-        $downloadName = 'balasan_' . ($dokumen->file_name ?? 'dokumen') . '.' . pathinfo($dokumen->balasan_file, PATHINFO_EXTENSION);
+        $downloadName = 'balasan_'.($dokumen->file_name ?? 'dokumen').'.'.pathinfo($dokumen->balasan_file, PATHINFO_EXTENSION);
+
         return response()->download(
             Storage::disk('public')->path($dokumen->balasan_file),
             $downloadName,
             ['Content-Type' => Storage::disk('public')->mimeType($dokumen->balasan_file)]
         );
     }
+
     /**
      * Display a listing of dokumen.
      */
@@ -86,7 +89,7 @@ class DokumenController extends Controller
         $user = Auth::user();
 
         // Hanya user instansi dan staff yang bisa upload (Direktur tidak boleh)
-        if (!$user->isInstansi() && !$user->isStaff()) {
+        if (! $user->isInstansi() && ! $user->isStaff()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -109,12 +112,12 @@ class DokumenController extends Controller
 
         // Jika user adalah instansi, gunakan kodenya
         if ($user->isInstansi()) {
-            if (!$user->instansi) {
+            if (! $user->instansi) {
                 return response()->json(['error' => 'User Instansi tidak memiliki data instansi yang valid.'], 400);
             }
             $instansiKode = $user->instansi->kode;
             $targetInstansiId = $user->instansi_id;
-        } 
+        }
         // Jika Staff memilih tujuan instansi
         elseif ($request->filled('tujuan_instansi_id') && $user->isStaff()) {
             $targetInstansi = Instansi::find($request->tujuan_instansi_id);
@@ -123,8 +126,8 @@ class DokumenController extends Controller
                 $targetInstansiId = $targetInstansi->id;
             }
         }
-        
-        $filePath = $file->store('dokumen/' . $instansiKode, 'public');
+
+        $filePath = $file->store('dokumen/'.$instansiKode, 'public');
 
         // Generate nomor dokumen
         $nomorDokumen = Dokumen::generateNomorDokumen($instansiKode);
@@ -155,7 +158,7 @@ class DokumenController extends Controller
             } elseif ($targetInstansiId || $request->filled('email_eksternal')) {
                 $createData['status'] = 'disetujui'; // Bypass validation logic if sending but not archiving
             }
-            
+
             // Set balasan_file ONLY if targetInstansiId is set (internal flow), otherwise it's just an external send
             if ($targetInstansiId) {
                 $createData['balasan_file'] = $filePath;
@@ -166,39 +169,39 @@ class DokumenController extends Controller
 
         // Jika Staff mengirim ke Instansi, buat notifikasi balasan
         if ($user->isStaff() && $targetInstansiId) {
-             $targetUsers = User::where('instansi_id', $targetInstansiId)->get();
-             foreach ($targetUsers as $targetUser) {
-                 DB::table('balasan_read_status')->insert([
+            $targetUsers = User::where('instansi_id', $targetInstansiId)->get();
+            foreach ($targetUsers as $targetUser) {
+                DB::table('balasan_read_status')->insert([
                     'dokumen_id' => $dokumen->id,
                     'user_id' => $targetUser->id,
                     'terbaca' => false,
                     'created_at' => now(),
                     'updated_at' => now(),
-                 ]);
-             }
-             
-             // KIRIM EMAIL KE INSTANSI
-             if (isset($targetInstansi) && $targetInstansi->email) {
-                 try {
-                     Mail::to($targetInstansi->email)->send(new DokumenMasukMail($dokumen));
-                 } catch (\Exception $e) {
-                     Log::error('Gagal kirim email dokumen masuk: ' . $e->getMessage());
-                 }
-             }
+                ]);
+            }
+
+            // KIRIM EMAIL KE INSTANSI
+            if (isset($targetInstansi) && $targetInstansi->email) {
+                try {
+                    Mail::to($targetInstansi->email)->send(new DokumenMasukMail($dokumen));
+                } catch (\Exception $e) {
+                    Log::error('Gagal kirim email dokumen masuk: '.$e->getMessage());
+                }
+            }
         }
-        
+
         // KIRIM EMAIL EKSTERNAL (Jika Staff input email manual)
         if ($user->isStaff() && $request->filled('email_eksternal')) {
-             try {
-                 Mail::to($request->email_eksternal)->send(new DokumenMasukMail($dokumen));
-             } catch (\Exception $e) {
-                 Log::error('Gagal kirim email eksternal: ' . $e->getMessage());
-             }
+            try {
+                Mail::to($request->email_eksternal)->send(new DokumenMasukMail($dokumen));
+            } catch (\Exception $e) {
+                Log::error('Gagal kirim email eksternal: '.$e->getMessage());
+            }
         }
 
         // Auto-create Surat Keluar ONLY for instansi users
         if ($user->isInstansi()) {
-             SuratKeluar::create([
+            SuratKeluar::create([
                 'instansi_id' => $user->instansi_id,
                 'nomor_surat' => $nomorDokumen,
                 'tanggal_keluar' => now(),
@@ -210,45 +213,45 @@ class DokumenController extends Controller
         }
 
         // === NOTIFIKASI TELEGRAM ===
-        
+
         // Skenario 1: STAFF Mengirim Dokumen ke Unit Usaha (Status: Disetujui/Selesai) -> Notif ke UNIT USAHA
         if (($createData['status'] === 'disetujui' || $createData['status'] === 'selesai') && $targetInstansiId && $user->isStaff()) {
-             $targetUsers = User::where('instansi_id', $targetInstansiId)->whereNotNull('telegram_chat_id')->get();
-             foreach ($targetUsers as $tUser) {
-                 $msg = "*SURAT MASUK DARI PUSAT* 📩\n" .
-                        "Judul: _{$request->judul}_\n" .
-                        "Pengirim: _Staff Pusat_\n\n" .
-                        "Silakan cek menu Surat Masuk.\n" .
-                        "[Login Aplikasi](" . url('/login') . ")";
-                 try {
+            $targetUsers = User::where('instansi_id', $targetInstansiId)->whereNotNull('telegram_chat_id')->get();
+            foreach ($targetUsers as $tUser) {
+                $msg = "*SURAT MASUK DARI PUSAT* 📩\n".
+                       "Judul: _{$request->judul}_\n".
+                       "Pengirim: _Staff Pusat_\n\n".
+                       "Silakan cek menu Surat Masuk.\n".
+                       '[Login Aplikasi]('.url('/login').')';
+                try {
                     $this->telegram->sendMessage($tUser->telegram_chat_id, $msg);
-                 } catch(\Exception $e) {
-                    Log::error("Telegram error to Unit: " . $e->getMessage());
-                 }
-             }
-        } 
+                } catch (\Exception $e) {
+                    Log::error('Telegram error to Unit: '.$e->getMessage());
+                }
+            }
+        }
         // Skenario 2: INSTANSI Upload Dokumen (Status: Pending) -> Notif ke DIREKTUR (Minta Validasi)
         elseif ($createData['status'] === 'pending') {
             $direkturs = User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
             foreach ($direkturs as $dir) {
                 // If uploader is Staff (internal pending?), use 'Staff'. Else 'Instansi Name'.
                 $senderName = $user->instansi ? $user->instansi->nama : 'Staff Internal';
-                $msg = "*PERMOHONAN VALIDASI DOKUMEN* ⏳\n" .
-                       "Judul: _{$request->judul}_\n" .
-                       "Pengirim: _{$senderName}_\n\n" .
-                       "Mohon segera divalidasi.\n" .
-                       "[Login Aplikasi](" . url('/login') . ")";
+                $msg = "*PERMOHONAN VALIDASI DOKUMEN* ⏳\n".
+                       "Judul: _{$request->judul}_\n".
+                       "Pengirim: _{$senderName}_\n\n".
+                       "Mohon segera divalidasi.\n".
+                       '[Login Aplikasi]('.url('/login').')';
                 try {
-                   $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
-                } catch(\Exception $e) {
-                   Log::error("Telegram error to Direktur: " . $e->getMessage());
+                    $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
+                } catch (\Exception $e) {
+                    Log::error('Telegram error to Direktur: '.$e->getMessage());
                 }
             }
         }
 
         return response()->json([
             'message' => 'Dokumen berhasil diupload dan surat keluar telah dibuat',
-            'dokumen' => $dokumen->load(['instansi', 'user'])
+            'dokumen' => $dokumen->load(['instansi', 'user']),
         ], 201);
     }
 
@@ -287,7 +290,7 @@ class DokumenController extends Controller
 
         return response()->json([
             'message' => 'Dokumen berhasil diupdate',
-            'dokumen' => $dokumen->load(['instansi', 'user'])
+            'dokumen' => $dokumen->load(['instansi', 'user']),
         ]);
     }
 
@@ -300,14 +303,14 @@ class DokumenController extends Controller
         $user = Auth::user();
 
         // Check permission: Owner or Direktur can delete
-        if ($dokumen->user_id !== $user->id && !$user->isDirektur()) {
+        if ($dokumen->user_id !== $user->id && ! $user->isDirektur()) {
             return response()->json(['error' => 'Tidak dapat menghapus dokumen ini. Hanya pembuat atau Direktur yang diizinkan.'], 403);
         }
 
         // Restrict deletion: Only allow deleting Pending (cancelled), Selesai (finished), or Ditolak (rejected)
         // Prevent deleting active workflows (Review, Disetujui, Diproses)
-        if (!in_array($dokumen->status, ['pending', 'selesai', 'ditolak'])) {
-            return response()->json(['error' => 'Dokumen sedang diproses (status: ' . ucfirst($dokumen->status) . ') dan tidak dapat dihapus.'], 403);
+        if (! in_array($dokumen->status, ['pending', 'selesai', 'ditolak'])) {
+            return response()->json(['error' => 'Dokumen sedang diproses (status: '.ucfirst($dokumen->status).') dan tidak dapat dihapus.'], 403);
         }
 
         // Hapus file
@@ -317,7 +320,7 @@ class DokumenController extends Controller
         if ($dokumen->balasan_file && Storage::disk('public')->exists($dokumen->balasan_file)) {
             Storage::disk('public')->delete($dokumen->balasan_file);
         }
-        
+
         $dokumen->delete();
 
         return response()->json(['message' => 'Dokumen berhasil dihapus']);
@@ -333,7 +336,7 @@ class DokumenController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isDirektur()) {
+        if (! $user->isDirektur()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -349,7 +352,7 @@ class DokumenController extends Controller
         // Append disposisi instruction to catatan if exists
         $catatanVallidasi = $request->catatan;
         if ($request->filled('disposisi_tujuan')) {
-            $catatanVallidasi = "[DISPOSISI: " . $request->disposisi_tujuan . "] " . $catatanVallidasi;
+            $catatanVallidasi = '[DISPOSISI: '.$request->disposisi_tujuan.'] '.$catatanVallidasi;
         }
 
         $updateData = [
@@ -360,8 +363,6 @@ class DokumenController extends Controller
             'tanggal_validasi' => now(),
         ];
 
-
-
         $dokumen->update($updateData);
 
         // === NOTIFIKASI TELEGRAM KE STAFF (JIKA DISETUJUI) ===
@@ -369,11 +370,11 @@ class DokumenController extends Controller
             $staffs = User::where('role', 'staff')->whereNotNull('telegram_chat_id')->get();
             foreach ($staffs as $staff) {
                 $loginUrl = url('/login');
-                $msg = "*DOKUMEN TELAH DIVALIDASI* ✅\n" .
-                       "Judul: _{$dokumen->judul}_\n" .
-                       "Oleh: _Direktur_\n" .
-                       "Status: *DISETUJUI*\n\n" .
-                       "Mohon segera diproses/tindak lanjuti.\n" .
+                $msg = "*DOKUMEN TELAH DIVALIDASI* ✅\n".
+                       "Judul: _{$dokumen->judul}_\n".
+                       "Oleh: _Direktur_\n".
+                       "Status: *DISETUJUI*\n\n".
+                       "Mohon segera diproses/tindak lanjuti.\n".
                        "[Login Aplikasi]($loginUrl)";
                 $this->telegram->sendMessage($staff->telegram_chat_id, $msg);
             }
@@ -381,7 +382,7 @@ class DokumenController extends Controller
 
         return response()->json([
             'message' => 'Dokumen berhasil divalidasi',
-            'dokumen' => $dokumen->load(['instansi', 'user', 'validator'])
+            'dokumen' => $dokumen->load(['instansi', 'user', 'validator']),
         ]);
     }
 
@@ -392,7 +393,7 @@ class DokumenController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isStaff()) {
+        if (! $user->isStaff()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -412,7 +413,7 @@ class DokumenController extends Controller
         $dokumen = Dokumen::findOrFail($id);
 
         // Hanya dokumen yang sudah disetujui yang bisa diproses
-        if (!in_array($dokumen->status, ['disetujui', 'diproses'])) {
+        if (! in_array($dokumen->status, ['disetujui', 'diproses'])) {
             return response()->json(['error' => 'Dokumen belum divalidasi direktur'], 400);
         }
 
@@ -435,7 +436,7 @@ class DokumenController extends Controller
                 $file = $request->file('file_balasan');
                 $fileName = $file->getClientOriginalName();
                 $folderCode = $dokumen->instansi ? $dokumen->instansi->kode : 'INTERNAL';
-                $filePath = $file->store('dokumen/' . $folderCode . '/balasan', 'public');
+                $filePath = $file->store('dokumen/'.$folderCode.'/balasan', 'public');
                 $updateData['balasan_file'] = $filePath;
             }
 
@@ -456,10 +457,10 @@ class DokumenController extends Controller
 
                 SuratMasuk::create([
                     'instansi_id' => $dokumen->instansi_id,
-                    'nomor_surat' => 'BALASAN/' . $dokumen->nomor_dokumen, // Distinct numbering
+                    'nomor_surat' => 'BALASAN/'.$dokumen->nomor_dokumen, // Distinct numbering
                     'tanggal_diterima' => now(),
                     'pengirim' => 'Pusat (Administrator)',
-                    'perihal' => 'SURAT BALASAN DARI PUSAT: ' . $dokumen->judul,
+                    'perihal' => 'SURAT BALASAN DARI PUSAT: '.$dokumen->judul,
                     'file' => $fileToAttach,
                     // 'klasifikasi_id' => null // Optional
                 ]);
@@ -469,10 +470,10 @@ class DokumenController extends Controller
         $dokumen->update($updateData);
 
         return response()->json([
-            'message' => $request->status === 'selesai' 
-                ? 'Dokumen berhasil diselesaikan, diarsipkan ke folder ' . $request->kategori_arsip . ', dan surat masuk telah dibuat untuk instansi'
+            'message' => $request->status === 'selesai'
+                ? 'Dokumen berhasil diselesaikan, diarsipkan ke folder '.$request->kategori_arsip.', dan surat masuk telah dibuat untuk instansi'
                 : 'Status dokumen berhasil diupdate',
-            'dokumen' => $dokumen->load(['instansi', 'user', 'validator', 'processor'])
+            'dokumen' => $dokumen->load(['instansi', 'user', 'validator', 'processor']),
         ]);
     }
 
@@ -483,29 +484,31 @@ class DokumenController extends Controller
     {
         $dokumen = Dokumen::findOrFail($id);
 
-        if (!Storage::disk('public')->exists($dokumen->file_path)) {
+        if (! Storage::disk('public')->exists($dokumen->file_path)) {
             return response()->json(['error' => 'File tidak ditemukan'], 404);
         }
 
         // Ensure filename has extension
         $downloadName = $dokumen->file_name;
-        
+
         // Sanitize filename
         $downloadName = str_replace(['/', '\\'], '_', $downloadName);
-        
+
         $extension = pathinfo($downloadName, PATHINFO_EXTENSION);
-        
+
         // If no extension, try to guess or default to pdf
         if (empty($extension)) {
             $type = $dokumen->file_type ?? 'pdf';
             // Default to pdf if type is unknown or just 'file'
-            if (empty($type) || $type === 'file') $type = 'pdf';
-            $downloadName .= '.' . $type;
+            if (empty($type) || $type === 'file') {
+                $type = 'pdf';
+            }
+            $downloadName .= '.'.$type;
         }
 
         // Explicitly return download response with headers
         return response()->download(
-            Storage::disk('public')->path($dokumen->file_path), 
+            Storage::disk('public')->path($dokumen->file_path),
             $downloadName,
             ['Content-Type' => Storage::disk('public')->mimeType($dokumen->file_path)]
         );
@@ -533,18 +536,18 @@ class DokumenController extends Controller
             'tanggal' => 'required|date',
             'isi' => 'required|string',
             'nama_ttd' => 'required|string',
-            'jabatan_ttd' => 'required|string'
+            'jabatan_ttd' => 'required|string',
         ]);
 
         $data = $request->all();
-        
+
         // 1. Generate PDF
         $pdf = Pdf::loadView('pdf.kop-surat', compact('data'));
         $pdf->setPaper('A4', 'portrait');
 
         // 2. Store PDF
-        $fileName = 'surat_' . time() . '.pdf';
-        $filePath = 'dokumen/generated/' . $fileName;
+        $fileName = 'surat_'.time().'.pdf';
+        $filePath = 'dokumen/generated/'.$fileName;
         Storage::disk('public')->put($filePath, $pdf->output());
 
         // 3. Create Database Record
@@ -559,24 +562,25 @@ class DokumenController extends Controller
             'file_type' => 'pdf',
             'file_size' => Storage::disk('public')->size($filePath),
             'user_id' => $user->id,
-            'instansi_id' => $user->instansi_id, 
-            'status' => 'pending', 
+            'instansi_id' => $user->instansi_id,
+            'status' => 'pending',
         ]);
 
         // 4. Notify Direktur
         $direkturs = User::where('role', 'direktur')->whereNotNull('telegram_chat_id')->get();
         foreach ($direkturs as $dir) {
             $loginUrl = url('/login'); // Fixed URL
-            $msg = "*SURAT KELUAR BARU* 📤\n" .
-                   "Judul: _{$request->perihal}_\n" .
-                   "Oleh: _{$user->name}_\n\n" .
-                   "Mohon diperiksa/ditandatangani.\n" .
+            $msg = "*SURAT KELUAR BARU* 📤\n".
+                   "Judul: _{$request->perihal}_\n".
+                   "Oleh: _{$user->name}_\n\n".
+                   "Mohon diperiksa/ditandatangani.\n".
                    "[Login Aplikasi]($loginUrl)";
             $this->telegram->sendMessage($dir->telegram_chat_id, $msg);
         }
 
         return redirect()->route('arsip-digital')->with('success', 'Surat berhasil dibuat dan disimpan ke Arsip!');
     }
+
     /**
      * Download Generated Word (HTML method)
      */
@@ -589,7 +593,7 @@ class DokumenController extends Controller
             'tanggal' => 'required|date',
             'isi' => 'required|string',
             'nama_ttd' => 'required|string',
-            'jabatan_ttd' => 'required|string'
+            'jabatan_ttd' => 'required|string',
         ]);
 
         $data = $request->all();
@@ -598,15 +602,15 @@ class DokumenController extends Controller
         $logoPath = public_path('images/Logo Yayasan Bersih.png');
         if (file_exists($logoPath)) {
             $logoData = base64_encode(file_get_contents($logoPath));
-            $data['logo_base64'] = 'data:image/png;base64,' . $logoData;
+            $data['logo_base64'] = 'data:image/png;base64,'.$logoData;
         }
 
         $content = view('word.surat', compact('data'))->render();
-        
-        $filename = 'Surat_' . str_replace(['/', '\\'], '-', $request->nomor_surat) . '.doc';
+
+        $filename = 'Surat_'.str_replace(['/', '\\'], '-', $request->nomor_surat).'.doc';
 
         return response($content)
             ->header('Content-Type', 'application/msword')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 }

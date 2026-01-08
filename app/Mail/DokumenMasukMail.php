@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Dokumen;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -31,7 +30,7 @@ class DokumenMasukMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Dokumen Masuk: ' . $this->dokumen->judul,
+            subject: 'Dokumen Masuk: '.$this->dokumen->judul,
         );
     }
 
@@ -54,7 +53,7 @@ class DokumenMasukMail extends Mailable
     public function attachments(): array
     {
         $attachments = [];
-        
+
         if ($this->dokumen->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->dokumen->file_path)) {
             $attachments[] = Attachment::fromPath(\Illuminate\Support\Facades\Storage::disk('public')->path($this->dokumen->file_path))
                 ->as($this->dokumen->file_name ?? 'dokumen.pdf')

@@ -14,7 +14,9 @@ class User extends Authenticatable
 
     // Role constants
     const ROLE_DIREKTUR = 'direktur';
+
     const ROLE_STAFF = 'staff';
+
     const ROLE_INSTANSI = 'instansi';
 
     /**
@@ -35,6 +37,7 @@ class User extends Authenticatable
         'is_active',
         'telegram_chat_id',
         'plain_password',
+        'module_access',
     ];
 
     /**
@@ -58,6 +61,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'module_access' => 'array',
         ];
     }
 
@@ -115,7 +119,7 @@ class User extends Authenticatable
     // Get role label
     public function getRoleLabelAttribute()
     {
-        return match($this->role) {
+        return match ($this->role) {
             'direktur' => 'Sekjen Yayasan',
             'staff' => 'Staff Sekjen',
             'instansi' => 'Unit Usaha',

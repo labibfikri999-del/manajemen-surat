@@ -15,7 +15,7 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -23,8 +23,8 @@ class CheckRole
 
         // Check if user has one of the required roles
         // Jika tidak punya akses, redirect ke dashboard dengan pesan
-        if (!in_array($user->role, $roles)) {
-            return redirect()->route('dashboard')->with('error', '🔒 Anda tidak memiliki akses ke halaman tersebut. Menu ini khusus untuk ' . implode('/', array_map('ucfirst', $roles)) . '.');
+        if (! in_array($user->role, $roles)) {
+            return redirect()->route('dashboard')->with('error', '🔒 Anda tidak memiliki akses ke halaman tersebut. Menu ini khusus untuk '.implode('/', array_map('ucfirst', $roles)).'.');
         }
 
         return $next($request);

@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Models\Dokumen;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
-use App\Models\Dokumen;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with('countValidasi', $countValidasi)
-                 ->with('countProses', $countProses);
+                ->with('countProses', $countProses);
         });
     }
 }

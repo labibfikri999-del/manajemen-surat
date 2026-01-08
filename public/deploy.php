@@ -12,20 +12,20 @@
 define('SECRET_TOKEN', 'RAHASIA_SUPER_AMAN_123');
 
 // 2. Cek Token
-if (!isset($_GET['key']) || $_GET['key'] !== SECRET_TOKEN) {
+if (! isset($_GET['key']) || $_GET['key'] !== SECRET_TOKEN) {
     http_response_code(403);
-    die('⛔ Akses Ditolak: Token salah.');
+    exit('⛔ Akses Ditolak: Token salah.');
 }
 
 // 3. Konfigurasi
 $gitBranch = 'main'; // sesuaikan dengan branch Anda (main/master)
-$logFile   = '../storage/logs/deploy.log';
+$logFile = '../storage/logs/deploy.log';
 
 // 4. Perintah Git
 $commands = [
     'echo $PWD',
     'whoami',
-    'git pull origin ' . $gitBranch,
+    'git pull origin '.$gitBranch,
     'git status',
     // 'php artisan migrate --force', // Aktifkan jika perlu
 ];
@@ -35,13 +35,13 @@ $output = '';
 foreach ($commands as $command) {
     // Jalankan perintah di root folder (naik satu level dari public)
     $tmp = shell_exec("cd .. && $command 2>&1");
-    
+
     $output .= "<span style=\"color: #6BE585;\">\$</span> <span style=\"color: #DBDBDB;\">{$command}\n</span>";
-    $output .= htmlentities(trim($tmp)) . "\n\n";
+    $output .= htmlentities(trim($tmp))."\n\n";
 }
 
 // 6. Log & Tampilkan
-file_put_contents($logFile, date('Y-m-d H:i:s') . "\n" . $output . "\n-------------------\n", FILE_APPEND);
+file_put_contents($logFile, date('Y-m-d H:i:s')."\n".$output."\n-------------------\n", FILE_APPEND);
 ?>
 
 <!DOCTYPE html>

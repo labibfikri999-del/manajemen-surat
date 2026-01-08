@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\BalasanApiController;
 use App\Models\Dokumen;
 use App\Models\User;
-use App\Models\ArsipDigital;
-use App\Http\Controllers\Api\BalasanApiController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,26 +18,27 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Statistics API endpoints
 Route::middleware('web')->group(function () {
-    
+
     // Surat Masuk = Dokumen dengan jenis 'surat_masuk' atau null (legacy)
     Route::get('/surat-masuk', function () {
         $user = auth()->user();
         $count = 0;
         if ($user && $user->instansi_id) {
-            $count = \App\Models\Dokumen::where(function($q) {
+            $count = \App\Models\Dokumen::where(function ($q) {
                 $q->where('jenis_dokumen', 'surat_masuk')
-                  ->orWhereNull('jenis_dokumen');
+                    ->orWhereNull('jenis_dokumen');
             })
-            ->where('instansi_id', $user->instansi_id)
-            ->count();
-        } else if ($user) {
-            $count = \App\Models\Dokumen::where(function($q) {
+                ->where('instansi_id', $user->instansi_id)
+                ->count();
+        } elseif ($user) {
+            $count = \App\Models\Dokumen::where(function ($q) {
                 $q->where('jenis_dokumen', 'surat_masuk')
-                  ->orWhereNull('jenis_dokumen');
+                    ->orWhereNull('jenis_dokumen');
             })
-            ->where('user_id', $user->id)
-            ->count();
+                ->where('user_id', $user->id)
+                ->count();
         }
+
         return response()->json(['count' => $count]);
     });
 
@@ -50,11 +50,12 @@ Route::middleware('web')->group(function () {
             $count = \App\Models\Dokumen::where('jenis_dokumen', 'surat_keluar')
                 ->where('instansi_id', $user->instansi_id)
                 ->count();
-        } else if ($user) {
+        } elseif ($user) {
             $count = \App\Models\Dokumen::where('jenis_dokumen', 'surat_keluar')
                 ->where('user_id', $user->id)
                 ->count();
         }
+
         return response()->json(['count' => $count]);
     });
 
@@ -64,15 +65,17 @@ Route::middleware('web')->group(function () {
         $count = 0;
         if ($user && $user->instansi_id) {
             $count = \App\Models\ArsipDigital::where('instansi_id', $user->instansi_id)->count();
-        } else if ($user) {
+        } elseif ($user) {
             $count = \App\Models\ArsipDigital::where('user_id', $user->id)->count();
         }
+
         return response()->json(['count' => $count]);
     });
 
     // Total Pengguna Aktif
     Route::get('/pengguna-aktif', function () {
         $count = User::count();
+
         return response()->json(['count' => $count]);
     });
 
@@ -82,7 +85,7 @@ Route::middleware('web')->group(function () {
             ->selectRaw('kategori_arsip, COUNT(*) as count')
             ->groupBy('kategori_arsip')
             ->pluck('count', 'kategori_arsip');
-        
+
         return response()->json([
             'UMUM' => $counts['UMUM'] ?? 0,
             'SDM' => $counts['SDM'] ?? 0,
@@ -98,30 +101,31 @@ Route::middleware('web')->group(function () {
         $query = Dokumen::where('is_archived', true);
         if ($user && $user->instansi_id) {
             $query->where('instansi_id', $user->instansi_id);
-        } else if ($user) {
+        } elseif ($user) {
             $query->where('user_id', $user->id);
         }
         $totalArsip = $query->count();
         $totalBytes = $query->sum('file_size');
         // Format ukuran
         if ($totalBytes >= 1073741824) {
-            $totalSize = number_format($totalBytes / 1073741824, 2) . ' GB';
+            $totalSize = number_format($totalBytes / 1073741824, 2).' GB';
         } elseif ($totalBytes >= 1048576) {
-            $totalSize = number_format($totalBytes / 1048576, 2) . ' MB';
+            $totalSize = number_format($totalBytes / 1048576, 2).' MB';
         } elseif ($totalBytes >= 1024) {
-            $totalSize = number_format($totalBytes / 1024, 2) . ' KB';
+            $totalSize = number_format($totalBytes / 1024, 2).' KB';
         } else {
-            $totalSize = $totalBytes . ' B';
+            $totalSize = $totalBytes.' B';
         }
         $lastAccess = $query->orderBy('tanggal_arsip', 'desc')->first();
         $lastAccessText = 'Belum ada data';
         if ($lastAccess && $lastAccess->tanggal_arsip) {
             $lastAccessText = $lastAccess->tanggal_arsip->diffForHumans();
         }
+
         return response()->json([
             'total_dokumen' => $totalArsip,
             'ukuran_total' => $totalSize,
-            'akses_terakhir' => $lastAccessText
+            'akses_terakhir' => $lastAccessText,
         ]);
     });
 
@@ -133,24 +137,25 @@ Route::middleware('web')->group(function () {
             ->where('kategori_arsip', strtoupper($kategori));
         if ($user && $user->instansi_id) {
             $query->where('instansi_id', $user->instansi_id);
-        } else if ($user) {
+        } elseif ($user) {
             $query->where('user_id', $user->id);
         }
         $dokumens = $query->orderBy('tanggal_arsip', 'desc')->get();
+
         return response()->json($dokumens);
     });
 
     // Upload file ke arsip digital (Staff/Direktur)
     Route::post('/arsip-upload', function (Request $request) {
         $user = auth()->user();
-        
+
         // Check authorization
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized', 'message' => 'Silakan login terlebih dahulu'], 401);
         }
-        
+
         // Hanya staff dan direktur yang bisa upload langsung ke arsip
-        if (!$user->isStaff() && !$user->isDirektur()) {
+        if (! $user->isStaff() && ! $user->isDirektur()) {
             return response()->json(['error' => 'Forbidden', 'message' => 'Hanya Staff dan Direktur yang dapat mengupload'], 403);
         }
 
@@ -165,7 +170,7 @@ Route::middleware('web')->group(function () {
         $fileName = $file->getClientOriginalName();
         // Create dummy instansi kode if user tidak punya instansi
         $instansiKode = $user->instansi?->kode ?? 'ARSIP';
-        $filePath = $file->store('dokumen/' . $instansiKode . '/arsip', 'public');
+        $filePath = $file->store('dokumen/'.$instansiKode.'/arsip', 'public');
 
         // Create dokumen record - instansi_id bisa null
         $dokumenData = [
@@ -184,17 +189,17 @@ Route::middleware('web')->group(function () {
             'processed_by' => $user->id,
             'tanggal_selesai' => now(),
         ];
-        
+
         // Hanya tambahkan instansi_id jika ada
         if ($user->instansi_id) {
             $dokumenData['instansi_id'] = $user->instansi_id;
         }
-        
+
         $dokumen = Dokumen::create($dokumenData);
 
         return response()->json([
             'message' => 'File berhasil diupload ke arsip',
-            'dokumen' => $dokumen
+            'dokumen' => $dokumen,
         ]);
     });
 
@@ -207,17 +212,21 @@ Route::middleware('web')->group(function () {
     // Notifikasi Counting
     Route::get('/notifikasi/count', function () {
         $user = auth()->user();
-        if (!$user) return response()->json(['count' => 0]);
+        if (! $user) {
+            return response()->json(['count' => 0]);
+        }
 
         if ($user->role === 'direktur') {
             // Count dokumen waiting for validation
             $count = \App\Models\Dokumen::where('status', 'menunggu_validasi')->count();
+
             return response()->json(['count' => $count]);
-        } 
-        
+        }
+
         if ($user->role === 'staff') {
             // Count dokumen approved (ready for processing)
             $count = \App\Models\Dokumen::where('status', 'disetujui')->count();
+
             return response()->json(['count' => $count]);
         }
 

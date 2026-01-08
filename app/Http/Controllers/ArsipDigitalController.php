@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Dokumen;
 use App\Models\ArsipDigital;
+use App\Models\Dokumen;
 use Illuminate\Http\Request;
-use ZipArchive;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class ArsipDigitalController extends Controller
 {
@@ -20,18 +20,20 @@ class ArsipDigitalController extends Controller
         // Filter based on user role/instansi
         if ($user && $user->instansi_id) {
             $query->where('instansi_id', $user->instansi_id);
-        } else if ($user && !$user->isDirektur() && !$user->isStaff()) {
-             // If user has no instansi and is not staff/direktur, they only see their own
+        } elseif ($user && ! $user->isDirektur() && ! $user->isStaff()) {
+            // If user has no instansi and is not staff/direktur, they only see their own
             $query->where('user_id', $user->id);
         }
-        // Direktur & Staff can typically see all, or we might want to restrict them too? 
+        // Direktur & Staff can typically see all, or we might want to restrict them too?
         // Based on existing api.php logic, usually they oversee everything or have specific logic.
         // But for safety, let's keep it consistent: Direktur/Staff see ALL, Instansi users restricted.
-        
-        $data = $query->latest('tanggal_arsip')->get()->map(function($item) {
+
+        $data = $query->latest('tanggal_arsip')->get()->map(function ($item) {
             $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
+
             return $item;
         });
+
         return response()->json($data);
     }
 
@@ -46,20 +48,20 @@ class ArsipDigitalController extends Controller
         ]);
 
         $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
+        $filename = time().'_'.$file->getClientOriginalName();
         $path = $file->storeAs('arsip-digital', $filename, 'public');
-        
+
         // Get file extension
         $extension = strtoupper($file->getClientOriginalExtension());
-        
+
         // Format file size
         $bytes = $file->getSize();
         if ($bytes >= 1048576) {
-            $ukuran = number_format($bytes / 1048576, 2) . ' MB';
+            $ukuran = number_format($bytes / 1048576, 2).' MB';
         } elseif ($bytes >= 1024) {
-            $ukuran = number_format($bytes / 1024, 2) . ' KB';
+            $ukuran = number_format($bytes / 1024, 2).' KB';
         } else {
-            $ukuran = $bytes . ' B';
+            $ukuran = $bytes.' B';
         }
 
         $user = Auth::user();
@@ -84,7 +86,7 @@ class ArsipDigitalController extends Controller
     public function update(Request $request, $id)
     {
         $arsip = ArsipDigital::findOrFail($id);
-        
+
         $validated = $request->validate([
             'nama_dokumen' => 'required|string',
             'kategori' => 'nullable|string',
@@ -104,19 +106,19 @@ class ArsipDigitalController extends Controller
             if ($arsip->file_path && Storage::disk('public')->exists($arsip->file_path)) {
                 Storage::disk('public')->delete($arsip->file_path);
             }
-            
+
             $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $path = $file->storeAs('arsip-digital', $filename, 'public');
-            
+
             $extension = strtoupper($file->getClientOriginalExtension());
             $bytes = $file->getSize();
             if ($bytes >= 1048576) {
-                $ukuran = number_format($bytes / 1048576, 2) . ' MB';
+                $ukuran = number_format($bytes / 1048576, 2).' MB';
             } elseif ($bytes >= 1024) {
-                $ukuran = number_format($bytes / 1024, 2) . ' KB';
+                $ukuran = number_format($bytes / 1024, 2).' KB';
             } else {
-                $ukuran = $bytes . ' B';
+                $ukuran = $bytes.' B';
             }
 
             $updateData['nama_file'] = $file->getClientOriginalName();
@@ -135,21 +137,21 @@ class ArsipDigitalController extends Controller
     public function destroy($id)
     {
         $dokumen = Dokumen::findOrFail($id);
-        
+
         // Soft delete or hard delete? Usually hard delete for arsip cleanup if requested
-        // But Dokumen might be referenced elsewhere. 
+        // But Dokumen might be referenced elsewhere.
         // For now, let's just set is_archived = false? No, user wants to delete.
         // Let's do delete() which will be consistent.
-        
+
         if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
             Storage::disk('public')->delete($dokumen->file_path);
         }
-        
+
         $dokumen->delete();
+
         return response()->json(['message' => 'File deleted successfully']);
     }
-    
-    
+
     // Download file
     public function download($id)
     {
@@ -161,11 +163,12 @@ class ArsipDigitalController extends Controller
             abort(403, 'Unauthorized access to this document.');
         }
 
-        if (!$arsip->file_path || !Storage::disk('public')->exists($arsip->file_path)) {
+        if (! $arsip->file_path || ! Storage::disk('public')->exists($arsip->file_path)) {
             return response()->json(['message' => 'File not found'], 404);
         }
-        
+
         $path = Storage::disk('public')->path($arsip->file_path);
+
         return response()->download($path, $arsip->file_name ?? 'dokumen.pdf');
     }
 
@@ -175,26 +178,26 @@ class ArsipDigitalController extends Controller
         $query = Dokumen::where('is_archived', true);
         $totalDokumen = $query->count();
         $totalBytes = $query->sum('file_size');
-        
+
         // Format size
         if ($totalBytes >= 1073741824) {
-            $ukuranTotal = number_format($totalBytes / 1073741824, 2) . ' GB';
+            $ukuranTotal = number_format($totalBytes / 1073741824, 2).' GB';
         } elseif ($totalBytes >= 1048576) {
-            $ukuranTotal = number_format($totalBytes / 1048576, 2) . ' MB';
+            $ukuranTotal = number_format($totalBytes / 1048576, 2).' MB';
         } elseif ($totalBytes >= 1024) {
-            $ukuranTotal = number_format($totalBytes / 1024, 2) . ' KB';
+            $ukuranTotal = number_format($totalBytes / 1024, 2).' KB';
         } else {
-            $ukuranTotal = $totalBytes . ' B';
+            $ukuranTotal = $totalBytes.' B';
         }
-        
+
         // Get last access
         $lastAccess = Dokumen::where('is_archived', true)->latest('updated_at')->first();
         $aksesTerakhir = $lastAccess ? $lastAccess->updated_at->diffForHumans() : 'Belum ada data';
-        
+
         return response()->json([
             'total_dokumen' => $totalDokumen,
             'ukuran_total' => $ukuranTotal,
-            'akses_terakhir' => $aksesTerakhir
+            'akses_terakhir' => $aksesTerakhir,
         ]);
     }
 
@@ -210,7 +213,7 @@ class ArsipDigitalController extends Controller
             'SURAT_KELUAR' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SURAT_KELUAR')->count(),
             'SK' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SK')->count(),
         ];
-        
+
         return response()->json($counts);
     }
 
@@ -222,14 +225,16 @@ class ArsipDigitalController extends Controller
             ->with(['instansi', 'processor'])
             ->latest('tanggal_arsip')
             ->get();
-        
-        $dokumens->map(function($item) {
+
+        $dokumens->map(function ($item) {
             $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
+
             return $item;
         });
-        
+
         return response()->json($dokumens);
     }
+
     // Download all files in a category as ZIP
     public function downloadKategori($kategori)
     {
@@ -241,15 +246,15 @@ class ArsipDigitalController extends Controller
             return redirect()->back()->with('error', 'Tidak ada dokumen dalam kategori ini untuk diunduh.');
         }
 
-        $zipFileName = 'Arsip_' . $kategori . '_' . date('Ymd_His') . '.zip';
+        $zipFileName = 'Arsip_'.$kategori.'_'.date('Ymd_His').'.zip';
         $tempDir = storage_path('app/public/temp');
-        if (!file_exists($tempDir)) {
+        if (! file_exists($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
-        $zipPath = $tempDir . '/' . $zipFileName;
+        $zipPath = $tempDir.'/'.$zipFileName;
 
         $zip = new ZipArchive;
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             foreach ($dokumens as $dok) {
                 if ($dok->file_path && Storage::disk('public')->exists($dok->file_path)) {
                     $absolutePath = Storage::disk('public')->path($dok->file_path);
