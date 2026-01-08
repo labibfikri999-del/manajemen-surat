@@ -150,7 +150,7 @@
     </main>
 
     <!-- Back to Portal Button (Bottom Left) -->
-    <a href="{{ url('/') }}" class="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg text-slate-600 font-medium text-sm hover:bg-white hover:text-fuchsia-600 hover:scale-105 transition-all duration-300 group">
+    <a href="{{ url('/') }}" class="mt-8 mb-6 md:mb-0 md:mt-0 md:fixed md:bottom-6 md:left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg text-slate-600 font-medium text-sm hover:bg-white hover:text-fuchsia-600 hover:scale-105 transition-all duration-300 group">
         <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         <span>Kembali ke Portal</span>
     </a>

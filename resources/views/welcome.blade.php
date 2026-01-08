@@ -119,13 +119,21 @@
 
             <script>
                 document.addEventListener("mousemove", parallax);
+                let ticking = false;
+                
                 function parallax(e) {
-                    document.querySelectorAll(".parallax").forEach(function(move){
-                        var moving_value = move.getAttribute("data-value");
-                        var x = (e.clientX * moving_value) / 250;
-                        var y = (e.clientY * moving_value) / 250;
-                        move.style.transform = "translateX(" + x + "px) translateY(" + y + "px)";
-                    });
+                    if (!ticking) {
+                        window.requestAnimationFrame(function() {
+                            document.querySelectorAll(".parallax").forEach(function(move){
+                                var moving_value = move.getAttribute("data-value");
+                                var x = (e.clientX * moving_value) / 250;
+                                var y = (e.clientY * moving_value) / 250;
+                                move.style.transform = "translateX(" + x + "px) translateY(" + y + "px)";
+                            });
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
                 }
             </script>
             
