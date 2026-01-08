@@ -98,10 +98,11 @@
     </div>
 
     <!-- Animated Background Blobs (Fixed to viewport for consistent parallax) -->
+    <!-- Animated Background Blobs (Optimization: will-change-transform) -->
     <div class="fixed inset-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
-        <div class="absolute top-0 -left-10 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-70 animate-blob"></div>
-        <div class="absolute top-0 -right-10 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-70 animate-blob animation-delay-2000"></div>
-        <div class="absolute -bottom-32 left-20 w-96 h-96 bg-lime-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-70 animate-blob animation-delay-4000"></div>
+        <div class="absolute top-0 -left-10 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob will-change-transform"></div>
+        <div class="absolute top-0 -right-10 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-2000 will-change-transform"></div>
+        <div class="absolute -bottom-32 left-20 w-96 h-96 bg-lime-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-4000 will-change-transform"></div>
     </div>
 
     <!-- Main Container -->
@@ -117,25 +118,8 @@
             <!-- Right Decoration (CSS Aurora) -->
             <div data-value="2" class="parallax absolute -right-20 top-1/2 transform -translate-y-1/2 w-64 h-96 bg-gradient-to-l from-blue-400 to-indigo-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-2000 hidden lg:block pointer-events-none"></div>
 
-            <script>
-                document.addEventListener("mousemove", parallax);
-                let ticking = false;
-                
-                function parallax(e) {
-                    if (!ticking) {
-                        window.requestAnimationFrame(function() {
-                            document.querySelectorAll(".parallax").forEach(function(move){
-                                var moving_value = move.getAttribute("data-value");
-                                var x = (e.clientX * moving_value) / 250;
-                                var y = (e.clientY * moving_value) / 250;
-                                move.style.transform = "translateX(" + x + "px) translateY(" + y + "px)";
-                            });
-                            ticking = false;
-                        });
-                        ticking = true;
-                    }
-                }
-            </script>
+            <!-- JS Parallax Removed for Performance -->
+            <!-- The CSS 'animate-blob' class handles the ambient movement efficiently -->
             
             <img src="{{ asset('images/logo_rsi_ntb_new.png') }}" alt="Logo" class="h-48 md:h-64 w-auto mx-auto mb-10 animate-float drop-shadow-2xl filter brightness-110">
             
