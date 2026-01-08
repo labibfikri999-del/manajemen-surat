@@ -20,12 +20,14 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Redirect root to login or dashboard
+// Root route (Portal)
 Route::get('/', function(){ 
+    // Jika sudah login, tetap arahkan ke dashboard
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    // Jika belum, tampilkan portal landing page
+    return view('welcome');
 });
 
 // PROTECTED routes (perlu login)
