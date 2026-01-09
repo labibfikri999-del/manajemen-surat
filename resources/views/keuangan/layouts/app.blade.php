@@ -79,22 +79,24 @@
                 </div>
 
                 <!-- Pemasukan / Revenue -->
-                <a href="#" class="flex items-center px-6 py-3.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 text-sm font-medium transition-all duration-200 group">
+                <a href="{{ route('keuangan.pemasukan') }}" class="{{ request()->routeIs('keuangan.pemasukan') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Pemasukan</span>
                 </a>
 
                 <!-- Pengeluaran / Expense -->
-                <a href="#" class="flex items-center px-6 py-3.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 text-sm font-medium transition-all duration-200 group">
+                <a href="{{ route('keuangan.pengeluaran') }}" class="{{ request()->routeIs('keuangan.pengeluaran') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Pengeluaran</span>
                 </a>
 
-                <!-- Klaim Asuransi (Critical for Hospitals) -->
-                <a href="#" class="flex items-center px-6 py-3.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 text-sm font-medium transition-all duration-200 group">
+                <!-- Klaim Asuransi -->
+                <a href="{{ route('keuangan.klaim.index') }}" class="{{ request()->routeIs('keuangan.klaim.*') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Klaim Asuransi</span>
                 </a>
+
+
 
                 <div class="px-6 pt-6 pb-2" x-show="sidebarOpen">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Laporan</p>
@@ -104,6 +106,26 @@
                 <a href="#" class="flex items-center px-6 py-3.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Laba Rugi</span>
+                </a>
+
+
+
+                <!-- Neraca -->
+                <a href="{{ route('keuangan.neraca') }}" class="{{ request()->routeIs('keuangan.neraca') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Neraca</span>
+                </a>
+
+                <!-- Arus Kas -->
+                <a href="{{ route('keuangan.arus-kas') }}" class="{{ request()->routeIs('keuangan.arus-kas') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Arus Kas</span>
+                </a>
+
+                <!-- Catatan Keuangan -->
+                <a href="{{ route('keuangan.catatan') }}" class="{{ request()->routeIs('keuangan.catatan') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Catatan Keuangan</span>
                 </a>
                 
                 <!-- Logout -->

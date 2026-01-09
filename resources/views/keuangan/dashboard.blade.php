@@ -10,13 +10,13 @@
             <p class="text-slate-500">Laporan performa finansial bulan ini (Live Reporting).</p>
         </div>
         <div class="flex items-center gap-3">
-            <button class="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl font-medium text-sm shadow-sm hover:bg-slate-50 transition-colors">
+            <a href="{{ route('keuangan.dashboard.pdf') }}" class="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl font-medium text-sm shadow-sm hover:bg-slate-50 transition-colors">
                 Download PDF
-            </button>
-            <button class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-200 transition-all active:scale-95 flex items-center gap-2">
+            </a>
+            <a href="{{ route('keuangan.transaksi.create') }}" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-200 transition-all active:scale-95 flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                 Catat Transaksi
-            </button>
+            </a>
         </div>
     </div>
 
@@ -119,7 +119,7 @@
                             <p class="text-xs text-slate-400">{{ $claim->days }} hari yang lalu</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-slate-800 text-sm">{{ $claim->amount }}</p>
+                            <p class="font-bold text-slate-800 text-sm">{{ $claim->amount_formatted }}</p>
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $claim->status == 'Verifikasi' ? 'bg-amber-100 text-amber-700' : ($claim->status == 'Submitted' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
                                 {{ $claim->status }}
                             </span>
@@ -161,17 +161,17 @@
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                labels: @json($months),
                 datasets: [
                     {
                         label: 'Pemasukan',
-                        data: [1200, 1900, 300, 500, 200, 3000], // Mock Data (scaled down)
+                        data: @json($pemasukanData),
                         backgroundColor: '#10b981',
                         borderRadius: 6,
                     },
                     {
                         label: 'Pengeluaran',
-                        data: [1000, 1300, 250, 400, 150, 2100], // Mock Data
+                        data: @json($pengeluaranData),
                         backgroundColor: '#f59e0b',
                         borderRadius: 6,
                     }

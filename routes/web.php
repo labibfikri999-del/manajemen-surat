@@ -121,6 +121,21 @@ Route::middleware('auth')->group(function () {
     // Protected Routes Keuangan
     Route::prefix('keuangan')->name('keuangan.')->middleware(['auth', 'module.access:keuangan'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Keuangan\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/download-pdf', [App\Http\Controllers\Keuangan\DashboardController::class, 'downloadPdf'])->name('dashboard.pdf');
+        Route::get('/neraca', [App\Http\Controllers\Keuangan\DashboardController::class, 'neraca'])->name('neraca');
+        Route::get('/arus-kas', [App\Http\Controllers\Keuangan\DashboardController::class, 'arusKas'])->name('arus-kas');
+        Route::get('/catatan', [App\Http\Controllers\Keuangan\DashboardController::class, 'catatan'])->name('catatan');
+        Route::get('/pemasukan', [App\Http\Controllers\Keuangan\TransactionController::class, 'pemasukan'])->name('pemasukan');
+        Route::get('/pengeluaran', [App\Http\Controllers\Keuangan\TransactionController::class, 'pengeluaran'])->name('pengeluaran');
+        
+        Route::get('/transaksi/catat', [App\Http\Controllers\Keuangan\TransactionController::class, 'create'])->name('transaksi.create');
+        Route::post('/transaksi/store', [App\Http\Controllers\Keuangan\TransactionController::class, 'store'])->name('transaksi.store');
+        Route::get('/transaksi/{id}/edit', [App\Http\Controllers\Keuangan\TransactionController::class, 'edit'])->name('transaksi.edit');
+        Route::put('/transaksi/{id}', [App\Http\Controllers\Keuangan\TransactionController::class, 'update'])->name('transaksi.update');
+        Route::delete('/transaksi/{id}', [App\Http\Controllers\Keuangan\TransactionController::class, 'destroy'])->name('transaksi.destroy');
+
+        // Klaim Asuransi
+        Route::resource('klaim', App\Http\Controllers\Keuangan\ClaimController::class);
     });
 
     // Protected Routes Pegawai
