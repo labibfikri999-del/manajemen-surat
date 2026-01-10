@@ -116,15 +116,42 @@ Route::middleware('auth')->group(function () {
     // Protected Routes SDM
     Route::prefix('sdm')->name('sdm.')->middleware(['auth', 'module.access:sdm'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\SDM\DashboardController::class, 'index'])->name('dashboard');
+        
+        // Pegawai
+        Route::get('/pegawai/create', [App\Http\Controllers\SDM\PegawaiController::class, 'create'])->name('pegawai.create');
+        Route::post('/pegawai', [App\Http\Controllers\SDM\PegawaiController::class, 'store'])->name('pegawai.store');
+        
+        // Absensi
+        Route::get('/absen', [App\Http\Controllers\SDM\AbsensiController::class, 'index'])->name('absen.index');
+        Route::post('/absen', [App\Http\Controllers\SDM\AbsensiController::class, 'store'])->name('absen.store');
+        
+        // Jadwal
+        Route::get('/jadwal', [App\Http\Controllers\SDM\JadwalController::class, 'index'])->name('jadwal.index');
+        
+        // Gaji
+        Route::get('/gaji', [App\Http\Controllers\SDM\GajiController::class, 'index'])->name('gaji.index');
+        
+        // Settings
+        Route::get('/settings', function() {
+            return view('sdm.settings.index');
+        })->name('settings');
     });
 
     // Protected Routes Keuangan
     Route::prefix('keuangan')->name('keuangan.')->middleware(['auth', 'module.access:keuangan'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Keuangan\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/download-pdf', [App\Http\Controllers\Keuangan\DashboardController::class, 'downloadPdf'])->name('dashboard.pdf');
-        Route::get('/neraca', [App\Http\Controllers\Keuangan\DashboardController::class, 'neraca'])->name('neraca');
-        Route::get('/arus-kas', [App\Http\Controllers\Keuangan\DashboardController::class, 'arusKas'])->name('arus-kas');
-        Route::get('/catatan', [App\Http\Controllers\Keuangan\DashboardController::class, 'catatan'])->name('catatan');
+        
+        // Laporan Routes (Moved from DashboardController to LaporanController)
+        Route::get('/neraca', [App\Http\Controllers\Keuangan\LaporanController::class, 'neraca'])->name('neraca');
+        Route::get('/arus-kas', [App\Http\Controllers\Keuangan\LaporanController::class, 'arusKas'])->name('arus-kas');
+        Route::get('/catatan', [App\Http\Controllers\Keuangan\LaporanController::class, 'catatan'])->name('catatan');
+        
+        // Catatan CRUD
+        Route::post('/catatan', [App\Http\Controllers\Keuangan\LaporanController::class, 'storeCatatan'])->name('catatan.store');
+        Route::put('/catatan/{id}', [App\Http\Controllers\Keuangan\LaporanController::class, 'updateCatatan'])->name('catatan.update');
+        Route::delete('/catatan/{id}', [App\Http\Controllers\Keuangan\LaporanController::class, 'destroyCatatan'])->name('catatan.destroy');
+
         Route::get('/pemasukan', [App\Http\Controllers\Keuangan\TransactionController::class, 'pemasukan'])->name('pemasukan');
         Route::get('/pengeluaran', [App\Http\Controllers\Keuangan\TransactionController::class, 'pengeluaran'])->name('pengeluaran');
         
@@ -136,6 +163,9 @@ Route::middleware('auth')->group(function () {
 
         // Klaim Asuransi
         Route::resource('klaim', App\Http\Controllers\Keuangan\ClaimController::class);
+
+        // Laporan
+        Route::get('/laporan/laba-rugi', [App\Http\Controllers\Keuangan\LaporanController::class, 'labaRugi'])->name('laporan.laba-rugi');
     });
 
     // Protected Routes Pegawai

@@ -17,10 +17,10 @@
                 </span>
                 Live Update
             </span>
-            <button class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-cyan-200 transition-all active:scale-95 flex items-center gap-2">
+            <a href="{{ route('sdm.pegawai.create') }}" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-cyan-200 transition-all active:scale-95 flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Pegawai Baru
-            </button>
+            </a>
         </div>
     </div>
 
@@ -56,7 +56,7 @@
                 </div>
                 <h2 class="text-3xl font-bold text-slate-800">{{ $stats['hadir_hari_ini'] }} <span class="text-sm font-medium text-slate-400">Orang</span></h2>
                 <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ ($stats['hadir_hari_ini'] / $stats['total_pegawai']) * 100 }}%"></div>
+                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? ($stats['hadir_hari_ini'] / $stats['total_pegawai']) * 100 : 0 }}%"></div>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
                         <h3 class="text-lg font-bold text-slate-800">Tim Jaga Hari Ini</h3>
                         <p class="text-slate-500 text-sm">Monitoring staff medis real-time</p>
                     </div>
-                    <button class="text-cyan-600 text-sm font-bold hover:underline">Lihat Semua Jadwal</button>
+                    <a href="{{ route('sdm.jadwal.index') }}" class="text-cyan-600 text-sm font-bold hover:underline">Lihat Semua Jadwal</a>
                 </div>
 
                 <div class="space-y-4">
@@ -173,27 +173,22 @@
             <div class="bg-gradient-to-br from-cyan-500 to-sky-600 rounded-3xl p-6 text-white shadow-xl shadow-cyan-200">
                 <h3 class="text-lg font-bold mb-6">Akses Cepat</h3>
                 <div class="grid grid-cols-2 gap-4">
-                    <button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all">
+                    <a href="{{ route('sdm.absen.index') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         <span class="text-xs font-bold">Input Absen</span>
-                    </button>
-                    <button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all">
+                    </a>
+                    <a href="{{ route('sdm.gaji.index') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span class="text-xs font-bold">Slip Gaji</span>
-                    </button>
-                    <button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all">
+                    </a>
+                    <a href="{{ route('sdm.jadwal.index') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span class="text-xs font-bold">Jadwal</span>
-                    </button>
-                    <button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all">
+                    </a>
+                    <a href="{{ route('sdm.settings') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span class="text-xs font-bold">Setting</span>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
+                    </a>
 </div>
 
 <script>

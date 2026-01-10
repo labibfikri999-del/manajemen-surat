@@ -9,29 +9,56 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Mock Data for "Pro" Dashboard Demonstration
         // 1. Shift Hari Ini
-        $shifts = [
-            (object)['name' => 'Dr. Farhan', 'role' => 'Dokter Umum', 'shift' => 'Pagi (07:00 - 14:00)', 'status' => 'On Duty', 'img' => 'F'],
-            (object)['name' => 'Sr. Siti Aminah', 'role' => 'Perawat Senior', 'shift' => 'Pagi (07:00 - 14:00)', 'status' => 'On Duty', 'img' => 'S'],
-            (object)['name' => 'Drg. Budi', 'role' => 'Dokter Gigi', 'shift' => 'Siang (14:00 - 21:00)', 'status' => 'Scheduled', 'img' => 'B'],
-            (object)['name' => 'Sr. Rina', 'role' => 'Perawat', 'shift' => 'Siang (14:00 - 21:00)', 'status' => 'Scheduled', 'img' => 'R'],
-        ];
+        $shifts = \App\Models\SDM\SdmShift::whereDate('date', \Carbon\Carbon::today())
+            ->with('pegawai')
+            ->get()
+            ->map(function($shift) {
+                return (object)[
+                    'name' => $shift->pegawai->name,
+                    'role' => $shift->pegawai->role,
+                    'shift' => $shift->shift_name . ' (' . \Carbon\Carbon::parse($shift->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($shift->end_time)->format('H:i') . ')',
+                    'status' => $shift->status,
+                    'img' => substr($shift->pegawai->name, 0, 1),
+                ];
+            });
 
         // 2. Statistik Cepat
         $stats = [
-            'total_pegawai' => 142,
-            'hadir_hari_ini' => 98, // prosentase 98/142
-            'cuti' => 4,
-            'sakit' => 2,
+            'total_pegawai' => \App\Models\SDM\SdmPegawai::where('status', 'active')->count(),
+            'hadir_hari_ini' => \App\Models\SDM\SdmAttendance::whereDate('date', \Carbon\Carbon::today())->where('status', 'Hadir')->count(),
+            'cuti' => \App\Models\SDM\SdmLeave::whereDate('start_date', '<=', \Carbon\Carbon::today())
+                        ->whereDate('end_date', '>=', \Carbon\Carbon::today())
+                        ->where('type', 'Cuti Tahunan')
+                        ->count(),
+            'sakit' => \App\Models\SDM\SdmLeave::whereDate('start_date', '<=', \Carbon\Carbon::today())
+                        ->whereDate('end_date', '>=', \Carbon\Carbon::today())
+                        ->where('type', 'Sakit')
+                        ->count(),
         ];
         
-        // 3. Action Items (STR Expiring)
-        $alerts = [
-            (object)['message' => 'STR Dr. Andi expired dalam 15 hari', 'type' => 'critical'],
-            (object)['message' => 'Kontrak Sr. Dewi berakhir bulan depan', 'type' => 'warning'],
-            (object)['message' => '3 Pengajuan Cuti menunggu persetujuan', 'type' => 'info'],
-        ];
+        // 3. Action Items (alerts)
+        $alerts = collect();
+
+        // Expiring STRs
+        $expiringStrs = \App\Models\SDM\SdmStr::where('expiry_date', '<', \Carbon\Carbon::now()->addDays(30))
+                        ->with('pegawai')
+                        ->get();
+        foreach($expiringStrs as $str) {
+            $alerts->push((object)[
+                'message' => $str->type . ' ' . $str->pegawai->name . ' expired dalam ' . $str->expiry_date->diffInDays(\Carbon\Carbon::now()) . ' hari',
+                'type' => 'critical'
+            ]);
+        }
+
+        // Pending Leaves
+        $pendingLeaves = \App\Models\SDM\SdmLeave::where('status', 'Pending')->count();
+        if($pendingLeaves > 0) {
+            $alerts->push((object)[
+                'message' => $pendingLeaves . ' Pengajuan Cuti menunggu persetujuan',
+                'type' => 'info'
+            ]);
+        }
 
         return view('sdm.dashboard', compact('shifts', 'stats', 'alerts'));
     }

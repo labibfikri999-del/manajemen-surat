@@ -7,14 +7,38 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Neraca Keuangan</h1>
-            <p class="text-slate-500">Laporan Posisi Keuangan per {{ date('d F Y') }}</p>
+            <p class="text-slate-500">Laporan Posisi Keuangan per {{ date('d F Y', mktime(0, 0, 0, $month, 1, $year)) }}</p>
         </div>
-        <div class="flex items-center gap-3">
-            <button class="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl font-medium text-sm shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Export PDF
+        
+        <form action="{{ route('keuangan.neraca') }}" method="GET" class="flex flex-wrap items-center gap-3">
+             <div class="relative group">
+                <select name="month" class="pl-4 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:border-amber-500 transition-colors cursor-pointer appearance-none">
+                    @foreach(range(1, 12) as $m)
+                        <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <div class="relative group">
+                <select name="year" class="pl-4 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:border-amber-500 transition-colors cursor-pointer appearance-none">
+                    @foreach(range(date('Y'), date('Y')-5) as $y)
+                        <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors">
+                Filter
             </button>
-        </div>
+        </form>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -35,7 +59,7 @@
                         @foreach($assets['lancar'] as $name => $val)
                         <div class="flex justify-between items-center group">
                             <span class="text-slate-600 font-medium group-hover:text-emerald-600 transition-colors">{{ $name }}</span>
-                            <span class="font-bold text-slate-800">{{ $val }}</span>
+                            <span class="font-bold text-slate-800">Rp {{ number_format($val, 0, ',', '.') }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -53,7 +77,9 @@
                         @foreach($assets['tetap'] as $name => $val)
                         <div class="flex justify-between items-center group">
                             <span class="text-slate-600 font-medium group-hover:text-emerald-600 transition-colors">{{ $name }}</span>
-                            <span class="font-bold {{ str_contains($val, '(') ? 'text-red-500' : 'text-slate-800' }}">{{ $val }}</span>
+                            <span class="font-bold {{ $val < 0 ? 'text-red-500' : 'text-slate-800' }}">
+                                {{ $val < 0 ? '(' : '' }}Rp {{ number_format(abs($val), 0, ',', '.') }}{{ $val < 0 ? ')' : '' }}
+                            </span>
                         </div>
                         @endforeach
                     </div>
@@ -64,7 +90,7 @@
             <div class="bg-emerald-600 rounded-3xl p-6 text-white shadow-lg shadow-emerald-200 flex justify-between items-center">
                 <div>
                     <p class="text-emerald-100 text-sm font-medium">Total Aset</p>
-                    <h2 class="text-3xl font-bold">Rp 22.050.000.000</h2>
+                    <h2 class="text-3xl font-bold">Rp {{ number_format($totalAssets, 0, ',', '.') }}</h2>
                 </div>
                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
@@ -92,7 +118,7 @@
                             @foreach($liabilities['pendek'] as $name => $val)
                             <div class="flex justify-between items-center border-l-2 border-transparent hover:border-amber-400 pl-2 transition-all">
                                 <span class="text-slate-600 font-medium">{{ $name }}</span>
-                                <span class="font-bold text-slate-800">{{ $val }}</span>
+                                <span class="font-bold text-slate-800">Rp {{ number_format($val, 0, ',', '.') }}</span>
                             </div>
                             @endforeach
                         </div>
@@ -104,7 +130,7 @@
                             @foreach($liabilities['panjang'] as $name => $val)
                             <div class="flex justify-between items-center border-l-2 border-transparent hover:border-amber-400 pl-2 transition-all">
                                 <span class="text-slate-600 font-medium">{{ $name }}</span>
-                                <span class="font-bold text-slate-800">{{ $val }}</span>
+                                <span class="font-bold text-slate-800">Rp {{ number_format($val, 0, ',', '.') }}</span>
                             </div>
                             @endforeach
                         </div>
@@ -123,7 +149,7 @@
                         @foreach($equity as $name => $val)
                         <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl">
                             <span class="text-slate-600 font-medium">{{ $name }}</span>
-                            <span class="font-bold text-slate-800">{{ $val }}</span>
+                            <span class="font-bold text-slate-800">Rp {{ number_format($val, 0, ',', '.') }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -134,7 +160,7 @@
              <div class="bg-slate-800 rounded-3xl p-6 text-white shadow-lg shadow-slate-300 flex justify-between items-center">
                 <div>
                     <p class="text-slate-400 text-sm font-medium">Total Liabilitas + Ekuitas</p>
-                    <h2 class="text-3xl font-bold">Rp 22.050.000.000</h2>
+                    <h2 class="text-3xl font-bold">Rp {{ number_format($totalLiabilities + $totalEquity, 0, ',', '.') }}</h2>
                 </div>
                 <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
                    <svg class="w-6 h-6 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>

@@ -7,14 +7,38 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Laporan Arus Kas</h1>
-            <p class="text-slate-500">Periode: {{ date('F Y') }}</p>
+            <p class="text-slate-500">Periode: {{ date('F Y', mktime(0, 0, 0, $month, 1, $year)) }}</p>
         </div>
-        <div class="flex items-center gap-3">
-             <div class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold border border-emerald-100 flex items-center gap-2">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                Cash-Positive
+        
+        <form action="{{ route('keuangan.arus-kas') }}" method="GET" class="flex flex-wrap items-center gap-3">
+             <div class="relative group">
+                <select name="month" class="pl-4 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:border-amber-500 transition-colors cursor-pointer appearance-none">
+                    @foreach(range(1, 12) as $m)
+                        <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
             </div>
-        </div>
+
+            <div class="relative group">
+                <select name="year" class="pl-4 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:border-amber-500 transition-colors cursor-pointer appearance-none">
+                    @foreach(range(date('Y'), date('Y')-5) as $y)
+                        <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors">
+                Filter
+            </button>
+        </form>
     </div>
 
     <!-- Main Card -->
@@ -29,14 +53,16 @@
                 Aktivitas Operasional
             </h2>
             <div class="space-y-4 pl-4 md:pl-14">
-                @foreach($arusKas['operasional'] as $item)
+                @forelse($arusKas['operasional'] as $item)
                 <div class="flex justify-between items-center group">
                     <span class="text-slate-600 font-medium group-hover:text-blue-600 transition-colors">{{ $item['desc'] }}</span>
                     <span class="font-bold {{ $item['type'] == 'in' ? 'text-emerald-600' : 'text-slate-800' }}">
                         {{ $item['type'] == 'in' ? '+ ' : '' }}Rp {{ number_format($item['amount'], 0, ',', '.') }}
                     </span>
                 </div>
-                @endforeach
+                @empty
+                <p class="text-slate-400 text-sm italic">Tidak ada transaksi operasional periode ini.</p>
+                @endforelse
                 <div class="border-t border-slate-100 pt-3 mt-2 flex justify-between items-center">
                     <span class="font-bold text-slate-800">Arus Kas Bersih dari Operasional</span>
                     <span class="font-bold text-blue-600 text-lg">Rp {{ number_format(array_sum(array_column($arusKas['operasional'], 'amount')), 0, ',', '.') }}</span>
@@ -53,14 +79,16 @@
                 Aktivitas Investasi
             </h2>
              <div class="space-y-4 pl-4 md:pl-14">
-                @foreach($arusKas['investasi'] as $item)
+                @forelse($arusKas['investasi'] as $item)
                  <div class="flex justify-between items-center">
                     <span class="text-slate-600 font-medium">{{ $item['desc'] }}</span>
                      <span class="font-bold {{ $item['type'] == 'in' ? 'text-emerald-600' : 'text-slate-800' }}">
                          {{ $item['type'] == 'in' ? '+ ' : '' }}Rp {{ number_format($item['amount'], 0, ',', '.') }}
                     </span>
                 </div>
-                @endforeach
+                @empty
+                <p class="text-slate-400 text-sm italic">Tidak ada transaksi investasi periode ini.</p>
+                @endforelse
                 <div class="border-t border-slate-200 pt-3 mt-2 flex justify-between items-center">
                     <span class="font-bold text-slate-800">Arus Kas Bersih dari Investasi</span>
                     <span class="font-bold text-purple-600 text-lg">Rp {{ number_format(array_sum(array_column($arusKas['investasi'], 'amount')), 0, ',', '.') }}</span>
@@ -77,14 +105,16 @@
                 Aktivitas Pendanaan
             </h2>
              <div class="space-y-4 pl-4 md:pl-14">
-                @foreach($arusKas['pendanaan'] as $item)
+                @forelse($arusKas['pendanaan'] as $item)
                  <div class="flex justify-between items-center">
                     <span class="text-slate-600 font-medium">{{ $item['desc'] }}</span>
                      <span class="font-bold {{ $item['type'] == 'in' ? 'text-emerald-600' : 'text-slate-800' }}">
                          {{ $item['type'] == 'in' ? '+ ' : '' }}Rp {{ number_format($item['amount'], 0, ',', '.') }}
                     </span>
                 </div>
-                @endforeach
+                @empty
+                <p class="text-slate-400 text-sm italic">Tidak ada transaksi pendanaan periode ini.</p>
+                @endforelse
                  <div class="border-t border-slate-100 pt-3 mt-2 flex justify-between items-center">
                     <span class="font-bold text-slate-800">Arus Kas Bersih dari Pendanaan</span>
                     <span class="font-bold text-orange-600 text-lg">Rp {{ number_format(array_sum(array_column($arusKas['pendanaan'], 'amount')), 0, ',', '.') }}</span>
@@ -103,9 +133,11 @@
                 @endphp
                  <h2 class="text-3xl font-bold mt-1">Rp {{ number_format($total, 0, ',', '.') }}</h2>
             </div>
-            <div class="text-right hidden md:block">
-                <p class="text-slate-400 text-sm">Saldo Awal: Rp 200.000.000</p>
-                <p class="text-emerald-400 font-bold text-lg mt-1">Saldo Akhir: Rp {{ number_format($total + 200000000, 0, ',', '.') }}</p>
+             <div class="text-right hidden md:block">
+                <p class="text-slate-400 text-sm">Mutasi Kas Periode Ini</p>
+                <p class="text-emerald-400 font-bold text-lg mt-1 block">
+                    {{ $total >= 0 ? 'Surplus' : 'Defisit' }}
+                </p>
             </div>
         </div>
 

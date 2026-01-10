@@ -103,7 +103,7 @@
                 </div>
 
                 <!-- Laporan Laba Rugi -->
-                <a href="#" class="flex items-center px-6 py-3.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 text-sm font-medium transition-all duration-200 group">
+                <a href="{{ route('keuangan.laporan.laba-rugi') }}" class="{{ request()->routeIs('keuangan.laporan.laba-rugi') ? 'nav-item-active' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Laba Rugi</span>
                 </a>
