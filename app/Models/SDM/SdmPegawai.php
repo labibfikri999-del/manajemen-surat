@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class SdmPegawai extends Model
 {
     protected $guarded = ['id'];
+    
+    // Add default values if needed, but schema default handles it.
+
 
     public function shifts()
     {

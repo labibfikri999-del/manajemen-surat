@@ -68,31 +68,31 @@
             <!-- Menu -->
             <nav class="flex-1 overflow-y-auto py-4 space-y-1">
                 <!-- Dashboard -->
-                <a href="#" class="nav-item-active flex items-center px-6 py-3 text-sm font-medium transition-colors">
+                <a href="{{ route('aset.dashboard') }}" class="{{ request()->routeIs('aset.dashboard') ? 'nav-item-active' : '' }} flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Overview</span>
                 </a>
 
                 <!-- Inventaris -->
-                <a href="#" class="flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
+                <a href="{{ route('aset.inventory.index') }}" class="{{ request()->routeIs('aset.inventory*') ? 'nav-item-active' : '' }} flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Inventaris Aset</span>
                 </a>
 
                 <!-- Mutasi -->
-                <a href="#" class="flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
+                <a href="{{ route('aset.mutation.index') }}" class="{{ request()->routeIs('aset.mutation*') ? 'nav-item-active' : '' }} flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Mutasi & Peminjaman</span>
                 </a>
 
                 <!-- Maintenance -->
-                <a href="#" class="flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
+                <a href="{{ route('aset.maintenance.index') }}" class="{{ request()->routeIs('aset.maintenance*') ? 'nav-item-active' : '' }} flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Maintenance</span>
                 </a>
 
                 <!-- Laporan -->
-                <a href="#" class="flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
+                <a href="{{ route('aset.report.index') }}" class="{{ request()->routeIs('aset.report*') ? 'nav-item-active' : '' }} flex items-center px-6 py-3 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Laporan</span>
                 </a>

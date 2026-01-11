@@ -3,6 +3,41 @@
 @section('content')
 <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
     
+    <!-- Alerts -->
+    @if(session('error'))
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-red-700">
+                    {{ session('error') }}
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('success'))
+    <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-emerald-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-emerald-700">
+                    {{ session('success') }}
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -28,8 +63,8 @@
             <div class="relative z-10">
                 <h3 class="text-fuchsia-100 font-medium mb-1">Status Absensi</h3>
                 <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h2 class="text-3xl font-bold">{{ $attendance['status'] }}</h2>
+                    <span class="w-3 h-3 rounded-full {{ $attendanceData['status'] !== 'Absen' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400' }}"></span>
+                    <h2 class="text-3xl font-bold">{{ $attendanceData['status'] }}</h2>
                 </div>
             </div>
 
@@ -37,18 +72,33 @@
                 <div class="flex justify-between items-end border-b border-white/20 pb-4">
                     <div>
                         <p class="text-xs text-fuchsia-200 uppercase tracking-widest mb-1">Check In</p>
-                        <p class="text-2xl font-bold font-mono">{{ $attendance['check_in'] }}</p>
+                        <p class="text-2xl font-bold font-mono">{{ $attendanceData['check_in'] }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-fuchsia-200 uppercase tracking-widest mb-1 text-right">Durasi</p>
-                        <p class="text-xl font-bold font-mono">{{ $attendance['working_hours'] }}</p>
+                         @if($attendanceData['check_out'] !== '-')
+                            <p class="text-xs text-fuchsia-200 uppercase tracking-widest mb-1 text-right">Check Out</p>
+                            <p class="text-xl font-bold font-mono">{{ $attendanceData['check_out'] }}</p>
+                        @else
+                            <p class="text-xs text-fuchsia-200 uppercase tracking-widest mb-1 text-right">Durasi</p>
+                            <p class="text-xl font-bold font-mono">{{ $attendanceData['working_hours'] }}</p>
+                        @endif
                     </div>
                 </div>
                 
-                <button class="w-full py-3 bg-white text-fuchsia-700 font-bold rounded-xl shadow-lg hover:bg-fuchsia-50 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Check Out
-                </button>
+                @if($attendanceData['can_checkout'])
+                    <form action="{{ route('pegawai.attendance.checkout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full py-3 bg-white text-fuchsia-700 font-bold rounded-xl shadow-lg hover:bg-fuchsia-50 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            Check Out
+                        </button>
+                    </form>
+                @else
+                    <button disabled class="w-full py-3 bg-white/20 text-white/50 font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        {{ $attendanceData['status'] === 'Absen' ? 'Belum Ada Jadwal' : 'Selesai' }}
+                    </button>
+                @endif
             </div>
         </div>
 

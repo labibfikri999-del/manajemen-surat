@@ -111,6 +111,18 @@ Route::middleware('auth')->group(function () {
     // Protected Routes Aset
     Route::prefix('aset')->name('aset.')->middleware(['auth', 'module.access:aset'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Aset\DashboardController::class, 'index'])->name('dashboard');
+        
+        // Inventaris
+        Route::resource('inventory', App\Http\Controllers\Aset\InventoryController::class);
+        
+        // Mutasi
+        Route::resource('mutation', App\Http\Controllers\Aset\MutationController::class);
+
+        // Maintenance
+        Route::resource('maintenance', App\Http\Controllers\Aset\MaintenanceController::class);
+
+        // Laporan
+        Route::get('report', [App\Http\Controllers\Aset\ReportController::class, 'index'])->name('report.index');
     });
 
     // Protected Routes SDM
@@ -118,19 +130,40 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\SDM\DashboardController::class, 'index'])->name('dashboard');
         
         // Pegawai
+        Route::get('/pegawai', [App\Http\Controllers\SDM\PegawaiController::class, 'index'])->name('pegawai.index');
         Route::get('/pegawai/create', [App\Http\Controllers\SDM\PegawaiController::class, 'create'])->name('pegawai.create');
         Route::post('/pegawai', [App\Http\Controllers\SDM\PegawaiController::class, 'store'])->name('pegawai.store');
+        Route::get('/pegawai/{id}/edit', [App\Http\Controllers\SDM\PegawaiController::class, 'edit'])->name('pegawai.edit');
+        Route::put('/pegawai/{id}', [App\Http\Controllers\SDM\PegawaiController::class, 'update'])->name('pegawai.update');
+        Route::delete('/pegawai/{id}', [App\Http\Controllers\SDM\PegawaiController::class, 'destroy'])->name('pegawai.destroy');
         
         // Absensi
         Route::get('/absen', [App\Http\Controllers\SDM\AbsensiController::class, 'index'])->name('absen.index');
         Route::post('/absen', [App\Http\Controllers\SDM\AbsensiController::class, 'store'])->name('absen.store');
+        Route::put('/absen/{id}', [App\Http\Controllers\SDM\AbsensiController::class, 'update'])->name('absen.update');
+        Route::delete('/absen/{id}', [App\Http\Controllers\SDM\AbsensiController::class, 'destroy'])->name('absen.destroy');
         
         // Jadwal
         Route::get('/jadwal', [App\Http\Controllers\SDM\JadwalController::class, 'index'])->name('jadwal.index');
+        Route::get('/jadwal/create', [App\Http\Controllers\SDM\JadwalController::class, 'create'])->name('jadwal.create');
+        Route::post('/jadwal', [App\Http\Controllers\SDM\JadwalController::class, 'store'])->name('jadwal.store');
+        Route::get('/jadwal/{id}/edit', [App\Http\Controllers\SDM\JadwalController::class, 'edit'])->name('jadwal.edit');
+        Route::put('/jadwal/{id}', [App\Http\Controllers\SDM\JadwalController::class, 'update'])->name('jadwal.update');
+        Route::delete('/jadwal/{id}', [App\Http\Controllers\SDM\JadwalController::class, 'destroy'])->name('jadwal.destroy');
         
         // Gaji
         Route::get('/gaji', [App\Http\Controllers\SDM\GajiController::class, 'index'])->name('gaji.index');
+        Route::get('/gaji/create', [App\Http\Controllers\SDM\GajiController::class, 'create'])->name('gaji.create');
+        Route::post('/gaji', [App\Http\Controllers\SDM\GajiController::class, 'store'])->name('gaji.store');
+        Route::get('/gaji/{id}', [App\Http\Controllers\SDM\GajiController::class, 'show'])->name('gaji.show');
+        Route::delete('/gaji/{id}', [App\Http\Controllers\SDM\GajiController::class, 'destroy'])->name('gaji.destroy');
+        Route::get('/api/pegawai/{id}/salary', [App\Http\Controllers\SDM\GajiController::class, 'getPegawaiData']);
         
+        // Laporan
+        Route::get('/laporan', [App\Http\Controllers\SDM\LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('/laporan/absensi', [App\Http\Controllers\SDM\LaporanController::class, 'absensi'])->name('laporan.absensi');
+        Route::get('/laporan/gaji', [App\Http\Controllers\SDM\LaporanController::class, 'gaji'])->name('laporan.gaji');
+
         // Settings
         Route::get('/settings', function() {
             return view('sdm.settings.index');
@@ -171,6 +204,22 @@ Route::middleware('auth')->group(function () {
     // Protected Routes Pegawai
     Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'module.access:pegawai'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Pegawai\DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/attendance/checkout', [App\Http\Controllers\Pegawai\DashboardController::class, 'checkOut'])->name('attendance.checkout');
+        
+        // Aktivitas - Absensi
+        Route::get('/absensi', [App\Http\Controllers\Pegawai\AbsensiController::class, 'index'])->name('absensi.index');
+
+        // Aktivitas - Cuti
+        Route::get('/cuti', [App\Http\Controllers\Pegawai\CutiController::class, 'index'])->name('cuti.index');
+        Route::get('/cuti/create', [App\Http\Controllers\Pegawai\CutiController::class, 'create'])->name('cuti.create');
+        Route::post('/cuti', [App\Http\Controllers\Pegawai\CutiController::class, 'store'])->name('cuti.store');
+
+        // Aktivitas - Slip Gaji
+        Route::get('/gaji', [App\Http\Controllers\Pegawai\GajiController::class, 'index'])->name('gaji.index');
+        Route::get('/gaji/{id}', [App\Http\Controllers\Pegawai\GajiController::class, 'show'])->name('gaji.show');
+
+        // Info - Data Diri
+        Route::get('/profile', [App\Http\Controllers\Pegawai\ProfileController::class, 'index'])->name('profile.index');
     });
 
 

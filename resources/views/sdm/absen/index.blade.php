@@ -1,120 +1,175 @@
 @extends('sdm.layouts.app')
 
 @section('content')
-<div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
-    <div class="flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-slate-800">Manajemen Absensi</h1>
-            <p class="text-slate-500">Input dan monitor kehadiran pegawai hari ini.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700">
-                {{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}
-            </span>
-        </div>
+<div class="p-4 md:p-8 space-y-8">
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-bold text-slate-800">Data Absensi</h1>
+        <p class="text-slate-500">Kelola kehadiran pegawai rumah sakit.</p>
     </div>
-
-    @if(session('success'))
-    <div class="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-        {{ session('success') }}
-    </div>
-    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Input Absensi Form -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-600 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    </span>
-                    Input Absen
-                </h2>
-                
-                @if($pegawais->isEmpty())
-                <div class="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    <p class="text-slate-500 text-sm">Semua pegawai sudah absen hari ini.</p>
+        <!-- Main Content: Log Absensi -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Filter Tanggal -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
+                <span class="font-bold text-slate-700">Tanggal:</span>
+                <form action="{{ route('sdm.absen.index') }}" method="GET" class="flex-1 flex gap-2">
+                    <input type="date" name="date" value="{{ $date }}" class="w-full md:w-auto flex-1 rounded-xl border-slate-200 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500">
+                    <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl font-bold transition-all">Lihat</button>
+                </form>
+            </div>
+
+            <!-- List Absensi -->
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="font-bold text-lg text-slate-800">Log Kehadiran ({{ \Carbon\Carbon::parse($date)->format('d M Y') }})</h2>
+                    <span class="text-sm text-slate-500">{{ count($attendances) }} Pegawai Hadir</span>
                 </div>
-                @else
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Pegawai</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Jam Masuk</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Jam Pulang</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Status</th>
+                                <th class="px-6 py-4 font-bold text-slate-700 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            @forelse($attendances as $absensi)
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600 font-bold text-xs">
+                                            {{ substr($absensi->pegawai->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm">{{ $absensi->pegawai->name }}</h3>
+                                            <p class="text-xs text-slate-500">{{ $absensi->pegawai->role }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    {{ \Carbon\Carbon::parse($absensi->clock_in)->format('H:i') }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    @if($absensi->clock_out)
+                                        {{ \Carbon\Carbon::parse($absensi->clock_out)->format('H:i') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
+                                    @php
+                                        $statusClass = match($absensi->status) {
+                                            'Hadir' => 'bg-emerald-100 text-emerald-600',
+                                            'Telat' => 'bg-yellow-100 text-yellow-600',
+                                            'Ijin' => 'bg-blue-100 text-blue-600',
+                                            'Sakit' => 'bg-purple-100 text-purple-600',
+                                            default => 'bg-slate-100 text-slate-600'
+                                        };
+                                    @endphp
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
+                                        {{ $absensi->status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    @if(!$absensi->clock_out && $date == date('Y-m-d'))
+                                    <form action="{{ route('sdm.absen.update', $absensi->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="clock_out_action" value="1">
+                                        <button type="submit" class="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-700 transition-colors">
+                                            Clock Out
+                                        </button>
+                                    </form>
+                                    @elseif($absensi->clock_out)
+                                        <span class="text-xs text-slate-400">Selesai</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                    Belum ada data absensi untuk tanggal ini.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Input Manual (Only for Today) -->
+        @if($date == date('Y-m-d'))
+        <div class="space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                <h2 class="font-bold text-lg text-slate-800 mb-4">Input Absensi Manual</h2>
+                <p class="text-sm text-slate-500 mb-6">Catat kehadiran pegawai secara manual jika belum melakukan scan.</p>
+
                 <form action="{{ route('sdm.absen.store') }}" method="POST" class="space-y-4">
                     @csrf
+                    
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">Pilih Pegawai</label>
-                        <select name="pegawai_id" class="w-full rounded-xl border-slate-200 text-slate-700 text-sm focus:border-cyan-500 focus:ring-cyan-500" required>
-                            <option value="" disabled selected>-- Pilih Nama --</option>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Pilih Pegawai</label>
+                        <select name="pegawai_id" class="w-full rounded-xl border-slate-200 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500" required>
+                            <option value="" disabled selected>-- Pegawai Belum Absen --</option>
                             @foreach($pegawais as $p)
-                            <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->role }})</option>
+                                <option value="{{ $p->id }}">{{ $p->name }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-1">Jam Masuk</label>
-                            <input type="time" name="clock_in" value="{{ date('H:i') }}" class="w-full rounded-xl border-slate-200 text-slate-700 text-sm focus:border-cyan-500 focus:ring-cyan-500" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-1">Status</label>
-                            <select name="status" class="w-full rounded-xl border-slate-200 text-slate-700 text-sm focus:border-cyan-500 focus:ring-cyan-500">
-                                <option value="Hadir">Hadir</option>
-                                <option value="Telat">Telat</option>
-                                <option value="Sakit">Sakit</option>
-                                <option value="Ijin">Ijin</option>
-                            </select>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Jam Masuk</label>
+                        <input type="time" name="clock_in" value="{{ date('H:i') }}" class="w-full rounded-xl border-slate-200 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500" required>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">Catatan</label>
-                        <input type="text" name="notes" placeholder="Opsional" class="w-full rounded-xl border-slate-200 text-slate-700 text-sm focus:border-cyan-500 focus:ring-cyan-500">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Status Kehadiran</label>
+                        <select name="status" class="w-full rounded-xl border-slate-200 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500" required>
+                            <option value="Hadir">Hadir</option>
+                            <option value="Telat">Telat</option>
+                            <option value="Ijin">Ijin</option>
+                            <option value="Sakit">Sakit</option>
+                        </select>
                     </div>
 
-                    <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-cyan-200 active:scale-95">
+                     <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Catatan (Opsional)</label>
+                        <textarea name="notes" class="w-full rounded-xl border-slate-200 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500" rows="2"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-cyan-200 transition-all active:scale-95">
                         Simpan Absensi
                     </button>
                 </form>
-                @endif
             </div>
-        </div>
-
-        <!-- Attendance List -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-800 mb-6">Kehadiran Hari Ini</h2>
-                
-                <div class="space-y-3">
-                    @forelse($attendances as $att)
-                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm">
-                                {{ substr($att->pegawai->name, 0, 1) }}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800">{{ $att->pegawai->name }}</h4>
-                                <p class="text-xs text-slate-500">{{ $att->pegawai->role }}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold {{ $att->status == 'Hadir' ? 'bg-green-100 text-green-700' : ($att->status == 'Telat' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700') }}">
-                                {{ $att->status }}
-                            </span>
-                            <p class="text-xs font-mono text-slate-500 mt-1">{{ \Carbon\Carbon::parse($att->clock_in)->format('H:i') }}</p>
-                        </div>
+            
+            <div class="bg-blue-50 rounded-3xl p-6 border border-blue-100">
+                <div class="flex items-start gap-4">
+                    <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    @empty
-                     <div class="text-center py-12">
-                        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <p class="text-slate-500 font-medium">Belum ada data absensi hari ini.</p>
+                    <div>
+                        <h3 class="font-bold text-blue-800 mb-1">Panduan Absensi</h3>
+                        <p class="text-sm text-blue-600 leading-relaxed">
+                            Pastikan pegawai yang dipilih adalah benar sebelum menyimpan. Data absensi mempengaruhi perhitungan gaji bulanan.
+                        </p>
                     </div>
-                    @endforelse
                 </div>
             </div>
         </div>
-
+        @else
+        <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 text-center">
+            <p class="text-slate-500">Anda sedang melihat data historis. Input manual hanya tersedia untuk hari ini.</p>
+            <a href="{{ route('sdm.absen.index') }}" class="text-cyan-600 font-bold hover:underline mt-2 inline-block">Kembali ke Hari Ini</a>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
