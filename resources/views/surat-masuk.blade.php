@@ -461,6 +461,7 @@
 
     // Setup existing edit/delete buttons
     let allRowsData = [];
+    const storageRoot = "{{ asset('storage') }}";
 
     // Load data dari server
     async function loadData() {
@@ -475,7 +476,7 @@
           tanggal_diterima: doc.created_at.split('T')[0],
           pengirim: doc.user ? doc.user.name : 'Pusat/Staff', // Fallback name
           perihal: doc.judul + (doc.deskripsi ? ' - ' + doc.deskripsi : ''),
-          file_url: '/storage/' + doc.file_path,
+          file_url: `${storageRoot}/${doc.file_path}`,
           is_digital: true, // Flag to identify
           status: 'Digital'
         }));
@@ -582,7 +583,7 @@
         `;
 
         const downloadBtn = item.file_url || item.file ? `
-            <a href="${item.file_url || '/storage/' + item.file}" download target="_blank"
+            <a href="${item.file_url || storageRoot + '/' + item.file}" download target="_blank"
                     class="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition" 
                     title="Download File">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -592,7 +593,11 @@
         const actionButtons = `
             <div class="flex items-center justify-center gap-2">
                ${editBtn}
-               ${viewBtn}
+               <button onclick="showPreviewModal('${item.file_url || storageRoot + '/' + item.file}', '${item.perihal?.replace(/'/g, "\\'") || ''}', '${(item.file || item.file_url || '').split('.').pop()}')"
+                    class="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition btn-view" 
+                    title="Lihat File">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+               </button>
                ${downloadBtn}
                ${deleteBtn}
             </div>

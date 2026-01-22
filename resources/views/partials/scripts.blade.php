@@ -94,6 +94,7 @@
             }
             data.dokumens.forEach(dok => {
                 if (!dok.balasan_file) return;
+                const storageRoot = "{{ asset('storage') }}";
                 const item = document.createElement('div');
                 item.className = 'flex items-center justify-between px-3 py-2 border-b hover:bg-emerald-50 cursor-pointer';
                 item.innerHTML = `<div>
@@ -101,7 +102,7 @@
                     <div class='text-xs text-gray-500'>${dok.nomor_dokumen}</div>
                 </div>
                 <div class='flex gap-2'>
-                    <button class='px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700' onclick='markBalasanRead(${dok.id}, "/storage/${dok.balasan_file}")'>Lihat</button>
+                    <button class='px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700' onclick='markBalasanRead(${dok.id}, "${storageRoot}/${dok.balasan_file}")'>Lihat</button>
                     <a href='/api/dokumen/${dok.id}/download-balasan' class='px-3 py-1 bg-gray-200 text-emerald-700 rounded text-xs font-bold hover:bg-gray-300' download>Download</a>
                 </div>`;
                 list.appendChild(item);

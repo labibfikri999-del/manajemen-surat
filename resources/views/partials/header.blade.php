@@ -67,7 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const ext = dok.balasan_file.split('.').pop().toLowerCase();
                 // Escape quotes for JS string
                 const safeTitle = dok.judul.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const fileUrl = `/storage/${dok.balasan_file}`;
+                const storageRoot = "{{ asset('storage') }}";
+                const fileUrl = `${storageRoot}/${dok.balasan_file}`;
                 
                 const item = document.createElement('div');
                 item.className = 'flex items-start gap-3 px-4 py-3 border-b hover:bg-emerald-50 transition-colors bg-white cursor-pointer group';
