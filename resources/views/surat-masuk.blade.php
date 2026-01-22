@@ -260,9 +260,55 @@
         // Use == to match string ID with number/string in data
         const item = allRowsData.find(d => d.id == id);
         if (item) {
+            if (item.is_read === false) {
+                 markAsRead(item.id);
+            }
             const url = item.file_url || (storageRoot + '/' + item.file);
             const ext = (item.file || item.file_url || '').split('.').pop();
             showPreviewModal(url, item.perihal, ext);
+        }
+    }
+
+    function markAsRead(id) {
+        // Optimistically update UI
+        const badge = document.getElementById('badge-' + id);
+        if (badge) badge.remove();
+        
+        // Update local data
+        const item = allRowsData.find(d => d.id == id);
+        if (item && item.is_read === false) {
+             item.is_read = true;
+             
+             // Update Sidebar Badge
+             const sidebarBadge = document.getElementById('sidebar-badge-surat-masuk');
+             if (sidebarBadge) {
+                 let count = parseInt(sidebarBadge.textContent.trim()) || 0;
+                 if (count > 0) {
+                     count--;
+                     if (count === 0) {
+                         sidebarBadge.remove();
+                     } else {
+                         sidebarBadge.textContent = count;
+                     }
+                 }
+             }
+        } else if (item) {
+             // If item.is_read is already true, do nothing to sidebar to prevent double decrement
+             item.is_read = true; 
+        }
+
+        const idStr = String(id);
+        if (idStr.startsWith('digital_')) {
+             const realId = idStr.replace('digital_', '');
+             fetch(`/api/balasan/mark-read/${realId}`, {
+                method: 'POST', 
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+             }).then(() => {
+                 console.log('Document marked as read');
+                 // Badge already updated optimistically
+             }).catch(err => console.error('Failed to mark read', err));
         }
     }
 
@@ -488,7 +534,8 @@
           perihal: doc.judul + (doc.deskripsi ? ' - ' + doc.deskripsi : ''),
           file_url: `${storageRoot}/${doc.file_path}`,
           is_digital: true, // Flag to identify
-          status: 'Digital'
+          status: 'Digital',
+          is_read: doc.is_read // Added is_read
         }));
 
         allRowsData = [...digitalData, ...manualData];
@@ -594,6 +641,7 @@
 
         const downloadBtn = item.file_url || item.file ? `
             <a href="${item.file_url || storageRoot + '/' + item.file}" download target="_blank"
+                    onclick="markAsRead('${item.id}')"
                     class="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition" 
                     title="Download File">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -617,7 +665,10 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${index + 1}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.tanggal_diterima}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.pengirim}</td>
-          <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="${item.perihal}">${item.perihal}</td>
+          <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="${item.perihal}">
+              ${item.perihal}
+              ${item.is_read === false ? '<span id="badge-' + item.id + '" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">BARU</span>' : ''}
+          </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${jenis}</td>
           <td class="px-6 py-4 whitespace-nowrap">
              <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${sifatColor}">

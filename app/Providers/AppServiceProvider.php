@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             $countValidasi = 0;
             $countProses = 0;
+            $countSuratMasuk = 0;
 
             if ($user) {
                 if ($user->role === 'direktur') {
@@ -41,10 +42,18 @@ class AppServiceProvider extends ServiceProvider
                 if ($user->role === 'staff') {
                     $countProses = Dokumen::where('status', 'disetujui')->count();
                 }
+                if ($user->role === 'instansi') {
+                    // Count unread notifications for instansi from balasan_read_status
+                    $countSuratMasuk = \Illuminate\Support\Facades\DB::table('balasan_read_status')
+                        ->where('user_id', $user->id)
+                        ->where('terbaca', false)
+                        ->count();
+                }
             }
 
             $view->with('countValidasi', $countValidasi)
-                ->with('countProses', $countProses);
+                ->with('countProses', $countProses)
+                ->with('countSuratMasuk', $countSuratMasuk);
         });
     }
 }

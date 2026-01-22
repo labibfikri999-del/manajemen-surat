@@ -166,7 +166,32 @@ class PageController extends Controller
                     $q->whereIn('role', ['staff', 'direktur', 'sekjen']);
                 })
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(function ($doc) use ($user) {
+                    // Check read status manually
+                    $isRead = \Illuminate\Support\Facades\DB::table('balasan_read_status')
+                        ->where('dokumen_id', $doc->id)
+                        ->where('user_id', $user->id)
+                        ->value('terbaca');
+                    
+                    // If no record found, assume read? Or unread? 
+                    // Usually if it's in the list it should have a record if it was sent via the proper flow.
+                    // If null, we defaults to true (read) to avoid annoying badges for old docs, OR false if we want strictness.
+                    // Let's default to true if not found, to be safe, or false if we trust the loop.
+                    // Based on DokumenController, we insert records. 
+                    // Let's treat null as true (read) or simply cast to bool.
+                    // If logic matches DokumenController, unread is 0 (false).
+                    $doc->is_read = $isRead === 0 ? false : true; 
+                    // Wait, DB stores boolean as 0/1. value('terbaca') returns 0 or 1.
+                    // If $isRead is 0 => unread. If 1 => read.
+                    // If null => maybe old document? Let's treat as read.
+                    if ($isRead === 0) {
+                        $doc->is_read = false;
+                    } else {
+                        $doc->is_read = true;
+                    }
+                    return $doc;
+                });
 
             // Get Manual Surat Masuk
             $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi'])

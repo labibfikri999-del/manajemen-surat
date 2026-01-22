@@ -125,6 +125,10 @@
                                     <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
                                         {{ $countProses }}
                                     </span>
+                                @elseif($menu['name'] == 'Surat Masuk' && isset($countSuratMasuk) && $countSuratMasuk > 0)
+                                    <span id="sidebar-badge-surat-masuk" class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                                        {{ $countSuratMasuk }}
+                                    </span>
                                 @endif
 
                                 <span class="tooltip-text">{{ $menu['name'] }}</span>
