@@ -95,6 +95,7 @@ class DokumenController extends Controller
 
         $request->validate([
             'judul' => 'required|string|max:255',
+            'nomor_surat' => 'nullable|string|max:100', // Validation
             'jenis' => 'required|string|in:surat_masuk,surat_keluar,proposal,laporan,sk,kontrak,lainnya',
             'deskripsi' => 'nullable|string',
             'tujuan_instansi_id' => 'nullable|exists:instansis,id',
@@ -134,6 +135,7 @@ class DokumenController extends Controller
 
         $createData = [
             'nomor_dokumen' => $nomorDokumen,
+            'nomor_surat' => $request->nomor_surat, // Save manual nomor_surat
             'judul' => $request->judul,
             'jenis_dokumen' => $request->jenis,
             'deskripsi' => $request->deskripsi,

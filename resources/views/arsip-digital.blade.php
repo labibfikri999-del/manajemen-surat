@@ -604,6 +604,7 @@
               </div>
               <div class="ml-4">
                 <div class="text-sm font-medium text-gray-900">${namaDoc}</div>
+                <div class="text-xs text-emerald-600 font-mono mt-0.5">${dok.nomor_surat || dok.nomor_dokumen || ''}</div>
                 <div class="text-sm text-gray-500">${dok.nama_file || '-'}</div>
               </div>
             </div>
@@ -1130,9 +1131,10 @@
         const filtered = currentFolderDocuments.filter(doc => {
           const docName = (doc.nama_dokumen || doc.judul || doc.nama_file || '').toLowerCase();
           const docNumber = (doc.nomor_dokumen || '').toLowerCase();
+          const suratNumber = (doc.nomor_surat || '').toLowerCase();
           const docDesc = (doc.deskripsi || '').toLowerCase();
           
-          return docName.includes(query) || docNumber.includes(query) || docDesc.includes(query);
+          return docName.includes(query) || docNumber.includes(query) || suratNumber.includes(query) || docDesc.includes(query);
         });
 
         if (filtered.length === 0) {

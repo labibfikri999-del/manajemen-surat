@@ -48,6 +48,14 @@
                         @csrf
                         
                         <div class="space-y-6">
+                            {{-- Nomor Surat (Opsional/Wajib) --}}
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nomor Surat <span class="text-xs text-gray-500 font-normal">(Sesuai surat fisik)</span></label>
+                                <input type="text" name="nomor_surat" 
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                                    placeholder="Contoh: 001/YARSI/I/2026">
+                            </div>
+
                             {{-- Judul Dokumen --}}
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Dokumen <span class="text-red-500">*</span></label>
