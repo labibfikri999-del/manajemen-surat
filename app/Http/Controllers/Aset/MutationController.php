@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Aset\Aset;
 use App\Models\Aset\AsetMutation;
+use App\Http\Requests\Aset\StoreMutationRequest;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class MutationController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $mutations = AsetMutation::with('aset')->orderBy('created_at', 'desc')->paginate(15);
         
@@ -22,21 +25,15 @@ class MutationController extends Controller
         return view('aset.mutation.index', compact('mutations', 'stats'));
     }
 
-    public function create()
+    public function create(): View
     {
         $asets = Aset::orderBy('name')->get();
         return view('aset.mutation.create', compact('asets'));
     }
 
-    public function store(Request $request)
+    public function store(StoreMutationRequest $request): RedirectResponse
     {
-        $request->validate([
-            'aset_id' => 'required|exists:asets,id',
-            'type' => 'required',
-            'person_in_charge' => 'required',
-            'destination_location' => 'required',
-            'date' => 'required|date',
-        ]);
+        // Validation is handled by StoreMutationRequest
 
         $aset = Aset::findOrFail($request->aset_id);
 

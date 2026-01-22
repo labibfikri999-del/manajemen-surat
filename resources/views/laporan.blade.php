@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Laporan — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">

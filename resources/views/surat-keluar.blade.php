@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Surat Keluar — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   @include('partials.styles')
 </head>

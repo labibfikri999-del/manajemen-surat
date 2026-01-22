@@ -43,7 +43,7 @@
     <table class="header-table" cellspacing="0" cellpadding="0">
         <tr>
             <td class="logo-cell">
-                <img src="{{ public_path('images/logo_rsi_ntb.png') }}" class="logo-img" alt="Logo">
+                <img src="{{ public_path('images/logo_rsi_ntb_new.png') }}" class="logo-img" alt="Logo">
             </td>
             <td class="text-cell">
                 <div class="kop-y">Y A Y A S A N</div>

@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Aset\Aset;
 use App\Models\Aset\AsetMaintenance;
+use App\Http\Requests\Aset\StoreMaintenanceRequest;
+use App\Http\Requests\Aset\UpdateMaintenanceRequest;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class MaintenanceController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $maintenances = AsetMaintenance::with('aset')
             ->orderBy('scheduled_date', 'desc')
@@ -25,20 +29,15 @@ class MaintenanceController extends Controller
         return view('aset.maintenance.index', compact('maintenances', 'stats'));
     }
 
-    public function create()
+    public function create(): View
     {
         $asets = Aset::orderBy('name')->get();
         return view('aset.maintenance.create', compact('asets'));
     }
 
-    public function store(Request $request)
+    public function store(StoreMaintenanceRequest $request): RedirectResponse
     {
-        $request->validate([
-            'aset_id' => 'required',
-            'description' => 'required',
-            'scheduled_date' => 'required|date',
-            'status' => 'required',
-        ]);
+        // Validation is handled by StoreMaintenanceRequest
 
         AsetMaintenance::create([
             'aset_id' => $request->aset_id,
@@ -52,15 +51,14 @@ class MaintenanceController extends Controller
         return redirect()->route('aset.maintenance.index')->with('success', 'Jadwal maintenance berhasil dibuat.');
     }
     
-    public function update(Request $request, $id)
+    public function update(UpdateMaintenanceRequest $request, int $id): RedirectResponse
     {
-        // Simple status update logic if needed
         $maintenance = AsetMaintenance::findOrFail($id);
-        $maintenance->update($request->all());
+        $maintenance->update($request->validated());
         return back()->with('success', 'Status maintenance diperbarui.');
     }
         
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         AsetMaintenance::findOrFail($id)->delete();
         return back()->with('success', 'Data maintenance dihapus.');

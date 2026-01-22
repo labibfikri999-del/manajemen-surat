@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Surat Masuk — YARSI NTB</title>
-  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   @include('partials.styles')
 </head>
@@ -70,9 +70,7 @@
               <thead class="bg-gray-50 border-b border-gray-100">
                 <tr>
                   <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-16">No</th>
-                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No Agenda</th>
                   <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Tanggal</th>
-                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No Surat</th>
                   <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Asal Surat</th>
                   <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Perihal</th>
                   <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Jenis</th>
@@ -82,31 +80,22 @@
               </thead>
               <tbody id="tableBody" class="divide-y divide-emerald-100">
                 {{-- Skeleton Loading --}}
-                <tr class="animate-pulse skeleton-row">
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-8"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-32"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-24"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-40"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-48"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-16"></div></td>
                   <td class="px-6 py-4"><div class="h-5 bg-emerald-200 rounded w-16"></div></td>
                   <td class="px-6 py-4"><div class="h-8 bg-emerald-200 rounded w-32 ml-auto"></div></td>
                 </tr>
-                <tr class="animate-pulse skeleton-row">
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-8"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-32"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-24"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-40"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-48"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-16"></div></td>
                   <td class="px-6 py-4"><div class="h-5 bg-emerald-200 rounded w-16"></div></td>
                   <td class="px-6 py-4"><div class="h-8 bg-emerald-200 rounded w-32 ml-auto"></div></td>
                 </tr>
-                <tr class="animate-pulse skeleton-row">
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-8"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-32"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-24"></div></td>
-                  <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-40"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-48"></div></td>
                   <td class="px-6 py-4"><div class="h-4 bg-emerald-200 rounded w-16"></div></td>
                   <td class="px-6 py-4"><div class="h-5 bg-emerald-200 rounded w-16"></div></td>
@@ -555,7 +544,6 @@
         row.dataset.id = item.id;
         
         // Mock / Derived Data
-        const noAgenda = `SM/${new Date().getFullYear()}/12/${String(index + 1).padStart(4, '0')}`;
         const jenis = item.klasifikasi ? item.klasifikasi.nama : (item.is_digital ? 'Surat Digital' : 'Surat Masuk');
         const sifat = 'Biasa'; // Default mock
         const sifatColor = 'bg-gray-100 text-gray-600';
@@ -593,19 +581,26 @@
             </button>
         `;
 
+        const downloadBtn = item.file_url || item.file ? `
+            <a href="${item.file_url || '/storage/' + item.file}" download target="_blank"
+                    class="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition" 
+                    title="Download File">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </a>
+        ` : '';
+
         const actionButtons = `
             <div class="flex items-center justify-center gap-2">
                ${editBtn}
                ${viewBtn}
+               ${downloadBtn}
                ${deleteBtn}
             </div>
         `;
 
         row.innerHTML = `
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${index + 1}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${noAgenda}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.tanggal_diterima}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.nomor_surat || '-'}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.pengirim}</td>
           <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="${item.perihal}">${item.perihal}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${jenis}</td>
