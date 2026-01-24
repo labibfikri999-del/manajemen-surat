@@ -68,12 +68,44 @@
                             @if($user->isStaff())
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan Unit Usaha (Opsional)</label>
-                                    <select name="tujuan_instansi_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <select name="tujuan_instansi_id" id="tujuanInstansi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all disabled:bg-gray-100 disabled:text-gray-400">
                                         <option value="">-- Pilih Tujuan Unit Usaha (Kosongkan jika hanya kirim email) --</option>
                                         @foreach($instansis as $instansi)
                                             <option value="{{ $instansi->id }}">{{ $instansi->nama }}</option>
                                         @endforeach
                                     </select>
+                                    
+                                    {{-- Checkbox Kirim ke Semua --}}
+                                    <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                                        <label class="inline-flex items-center cursor-pointer w-full">
+                                            <div class="relative flex items-center">
+                                                <input type="checkbox" name="send_to_all" id="sendToAll" value="1" 
+                                                    class="peer h-5 w-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 transition duration-150 ease-in-out">
+                                            </div>
+                                            <span class="ml-3 text-sm font-semibold text-emerald-800">
+                                                🚀 Kirim ke SEMUA Unit Usaha (Serentak)
+                                            </span>
+                                        </label>
+                                        <p class="text-xs text-emerald-600 mt-1 ml-8">
+                                            Jika dicentang, dokumen akan otomatis dikirimkan ke seluruh unit usaha yang aktif.
+                                        </p>
+                                    </div>
+
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const sendToAll = document.getElementById('sendToAll');
+                                            const tujuanSelect = document.getElementById('tujuanInstansi');
+                                            
+                                            sendToAll.addEventListener('change', function() {
+                                                if(this.checked) {
+                                                    tujuanSelect.value = "";
+                                                    tujuanSelect.disabled = true;
+                                                } else {
+                                                    tujuanSelect.disabled = false;
+                                                }
+                                            });
+                                        });
+                                    </script>
                                 </div>
                                 
                                 {{-- Kategori Arsip (Opsional - Auto Archive) --}}

@@ -105,11 +105,129 @@ class DokumenController extends Controller
         ]);
 
         // Upload file
-        $file = $request->file('file');
-        $fileName = $file->getClientOriginalName();
         // Instansi Kode Logic
         $instansiKode = 'YAYASAN';
         $targetInstansiId = null;
+        $file = $request->file('file');
+        $fileName = $file->getClientOriginalName(); // Define fileName early
+
+        // === LOGIC BARU: KIRIM KE SEMUA UNIT USAHA ===
+        if ($user->isStaff() && $request->filled('send_to_all') && $request->send_to_all) {
+            
+            // 1. Ambil semua unit usaha aktif
+            $allInstansis = Instansi::where('is_active', true)->get();
+            
+            if ($allInstansis->isEmpty()) {
+                return response()->json(['error' => 'Tidak ada unit usaha aktif ditemukan.'], 400);
+            }
+
+            // 2. Simpan file master sementara (untuk dicopy nanti)
+            // Gunakan folder temp khusus
+            $masterPath = $file->store('dokumen/temp_broadcast', 'public');
+            $createdDocs = [];
+
+            foreach ($allInstansis as $targetInstansi) {
+                try {
+                    // A. Prepare File Path & Instansi Data
+                    $instansiKode = $targetInstansi->kode;
+                    $targetFolder = 'dokumen/' . $instansiKode;
+                    
+                    // Generate unique filename for this unit
+                    $extension = $file->getClientOriginalExtension();
+                    $uniqueName = pathinfo($fileName, PATHINFO_FILENAME) . '_' . time() . '_' . \Illuminate\Support\Str::random(5) . '.' . $extension;
+                    $finalPath = $targetFolder . '/' . $uniqueName;
+
+                    // B. Copy File
+                    Storage::disk('public')->copy($masterPath, $finalPath);
+
+                    // C. Generate Nomor Dokumen (Unique per Instansi)
+                    $nomorDokumen = Dokumen::generateNomorDokumen($instansiKode);
+
+                    // D. Prepare Data
+                    $createData = [
+                        'nomor_dokumen' => $nomorDokumen,
+                        'nomor_surat' => $request->nomor_surat,
+                        'judul' => $request->judul,
+                        'jenis_dokumen' => $request->jenis,
+                        'deskripsi' => $request->deskripsi,
+                        'file_path' => $finalPath,
+                        'file_name' => $fileName,
+                        'file_type' => $extension,
+                        'file_size' => $file->getSize(),
+                        'user_id' => $user->id,
+                        'instansi_id' => $targetInstansi->id,
+                        // Staff sending -> Auto Complete/Selesai/Surat Keluar
+                        'status' => 'selesai',
+                        'is_archived' => true,
+                        'tanggal_arsip' => now(),
+                        'tanggal_selesai' => now(),
+                        'kategori_arsip' => 'SURAT_KELUAR', // Default categories if not specified? 
+                        // Note: If sending logic implies Surat Keluar functionality:
+                    ];
+                    
+                    // Optional: If user selected Kategori Arsip in form (though usually hidden if disabled?)
+                    if ($request->filled('kategori_arsip')) {
+                         $createData['kategori_arsip'] = $request->kategori_arsip;
+                    }
+
+                    // E. Create Dokumen
+                    $dokumen = Dokumen::create($createData);
+                    $createdDocs[] = $dokumen;
+
+                    // F. Notifications & Relations
+                    
+                    // 1. Notif DB: Balasan Read Status (for receiver)
+                    $targetUsers = User::where('instansi_id', $targetInstansi->id)->get();
+                    foreach ($targetUsers as $targetUser) {
+                        DB::table('balasan_read_status')->insert([
+                            'dokumen_id' => $dokumen->id,
+                            'user_id' => $targetUser->id,
+                            'terbaca' => false,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    // 2. Email
+                    if ($targetInstansi->email) {
+                        try {
+                            Mail::to($targetInstansi->email)->send(new DokumenMasukMail($dokumen));
+                        } catch (\Exception $e) {
+                            Log::error('Gagal kirim email broadcast ke ' . $targetInstansi->nama . ': ' . $e->getMessage());
+                        }
+                    }
+
+                    // 3. Telegram
+                    $telegramUsers = User::where('instansi_id', $targetInstansi->id)->whereNotNull('telegram_chat_id')->get();
+                    foreach ($telegramUsers as $tUser) {
+                        $msg = "*SURAT MASUK DARI PUSAT* 📩\n".
+                               "Judul: _{$request->judul}_\n".
+                               "Pengirim: _Staff Pusat (Broadcast)_\n\n".
+                               "Silakan cek menu Surat Masuk.\n".
+                               '[Login Aplikasi]('.url('/login').')';
+                        try {
+                            $this->telegram->sendMessage($tUser->telegram_chat_id, $msg);
+                        } catch (\Exception $e) {
+                            Log::error('Telegram broadcast error: ' . $e->getMessage());
+                        }
+                    }
+
+                } catch (\Exception $e) {
+                    Log::error('Error processing broadcast for ' . $targetInstansi->nama . ': ' . $e->getMessage());
+                    // Continue to next instansi even if one fails
+                }
+            }
+
+            // Cleanup Master File
+            Storage::disk('public')->delete($masterPath);
+
+            return response()->json([
+                'message' => 'Dokumen berhasil dikirim ke ' . count($createdDocs) . ' unit usaha.',
+                'dokumen' => $createdDocs[0] ?? null, // Return first as sample
+            ], 201);
+        }
+
+        // === END LOGIC BARU ===
 
         // Jika user adalah instansi, gunakan kodenya
         if ($user->isInstansi()) {
@@ -148,7 +266,7 @@ class DokumenController extends Controller
             'status' => 'pending',
         ];
 
-        // Jika Staff mengirim ke Instansi atau Email Eksternal ATAU memilih kategori arsip
+        // Jika Staff mengupload (bukan broadcast)
         if ($user->isStaff()) {
             // Validasi tambahan untuk kategori arsip
             if ($request->filled('kategori_arsip')) {
