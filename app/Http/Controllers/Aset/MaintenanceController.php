@@ -39,14 +39,21 @@ class MaintenanceController extends Controller
     {
         // Validation is handled by StoreMaintenanceRequest
 
-        AsetMaintenance::create([
+        $data = [
             'aset_id' => $request->aset_id,
             'description' => $request->description,
             'cost' => $request->cost ?? 0,
             'status' => $request->status,
             'scheduled_date' => $request->scheduled_date,
             'vendor' => $request->vendor,
-        ]);
+        ];
+
+        // Set completion_date if status is Completed
+        if ($request->status === 'Completed') {
+            $data['completion_date'] = now();
+        }
+
+        AsetMaintenance::create($data);
 
         return redirect()->route('aset.maintenance.index')->with('success', 'Jadwal maintenance berhasil dibuat.');
     }
@@ -54,7 +61,15 @@ class MaintenanceController extends Controller
     public function update(UpdateMaintenanceRequest $request, int $id): RedirectResponse
     {
         $maintenance = AsetMaintenance::findOrFail($id);
-        $maintenance->update($request->validated());
+        
+        $data = $request->validated();
+        
+        // Set completion_date if status is changed to Completed and it wasn't completed before
+        if ($request->status === 'Completed' && $maintenance->status !== 'Completed') {
+            $data['completion_date'] = now();
+        }
+        
+        $maintenance->update($data);
         return back()->with('success', 'Status maintenance diperbarui.');
     }
         

@@ -158,7 +158,13 @@ class DokumenController extends Controller
                 $createData['tanggal_selesai'] = now(); // Mark as finished too
                 $createData['kategori_arsip'] = $request->kategori_arsip;
             } elseif ($targetInstansiId || $request->filled('email_eksternal')) {
-                $createData['status'] = 'disetujui'; // Bypass validation logic if sending but not archiving
+                $createData['status'] = 'selesai';
+                $createData['is_archived'] = true;
+                $createData['tanggal_arsip'] = now();
+                $createData['tanggal_selesai'] = now();
+                $createData['kategori_arsip'] = 'SURAT_KELUAR';
+            } else {
+                $createData['status'] = 'disetujui';
             }
 
             // Set balasan_file ONLY if targetInstansiId is set (internal flow), otherwise it's just an external send

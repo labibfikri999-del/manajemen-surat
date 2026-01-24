@@ -43,27 +43,26 @@ class GajiController extends Controller
         // Calculate Net
         $net = $request->basic_salary + $request->allowances - $request->deductions;
 
-        // Check duplicate
-        $exists = SdmPayroll::where('sdm_pegawai_id', $request->sdm_pegawai_id)
-            ->where('month', $request->month)
-            ->where('year', $request->year)
-            ->exists();
+        // Use firstOrCreate to prevent race conditions
+        $payroll = SdmPayroll::firstOrCreate(
+            [
+                'sdm_pegawai_id' => $request->sdm_pegawai_id,
+                'month' => $request->month,
+                'year' => $request->year,
+            ],
+            [
+                'basic_salary' => $request->basic_salary,
+                'allowances' => $request->allowances,
+                'deductions' => $request->deductions,
+                'net_salary' => $net,
+                'status' => 'Pending',
+                'payment_date' => now(), // Default just set to created date
+            ]
+        );
 
-        if ($exists) {
+        if (!$payroll->wasRecentlyCreated) {
             return redirect()->back()->with('error', 'Slip gaji untuk pegawai ini pada periode tersebut sudah ada.');
         }
-
-        SdmPayroll::create([
-            'sdm_pegawai_id' => $request->sdm_pegawai_id,
-            'month' => $request->month,
-            'year' => $request->year,
-            'basic_salary' => $request->basic_salary,
-            'allowances' => $request->allowances,
-            'deductions' => $request->deductions,
-            'net_salary' => $net,
-            'status' => 'Pending',
-            'payment_date' => now(), // Default just set to created date
-        ]);
 
         return redirect()->route('sdm.gaji.index')->with('success', 'Slip gaji berhasil dibuat.');
     }

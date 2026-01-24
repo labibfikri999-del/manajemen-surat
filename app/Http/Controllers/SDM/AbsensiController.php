@@ -40,22 +40,22 @@ class AbsensiController extends Controller
             'status' => 'required',
         ]);
 
-        // Check if already attended
-        $exists = SdmAttendance::where('sdm_pegawai_id', $request->pegawai_id)
-            ->whereDate('date', Carbon::today())
-            ->exists();
+        // Use firstOrCreate to prevent race conditions
+        $attendance = SdmAttendance::firstOrCreate(
+            [
+                'sdm_pegawai_id' => $request->pegawai_id,
+                'date' => Carbon::today(),
+            ],
+            [
+                'clock_in' => $request->clock_in ?? Carbon::now()->format('H:i:s'),
+                'status' => $request->status,
+                'notes' => $request->notes
+            ]
+        );
 
-        if ($exists) {
+        if (!$attendance->wasRecentlyCreated) {
             return redirect()->back()->with('error', 'Pegawai ini sudah absen hari ini.');
         }
-
-        SdmAttendance::create([
-            'sdm_pegawai_id' => $request->pegawai_id,
-            'date' => Carbon::today(),
-            'clock_in' => $request->clock_in ?? Carbon::now()->format('H:i:s'),
-            'status' => $request->status,
-            'notes' => $request->notes
-        ]);
 
         return redirect()->back()->with('success', 'Berhasil mencatat absensi masuk.');
     }

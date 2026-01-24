@@ -23,10 +23,10 @@ class StoreJadwalRequest extends FormRequest
     {
         return [
             'sdm_pegawai_id' => 'required|exists:sdm_pegawais,id',
-            'shift_name' => 'required|string',
+            'shift_name' => 'required|string|max:255',
             'date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ];
     }
 }

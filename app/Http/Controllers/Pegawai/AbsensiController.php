@@ -26,11 +26,12 @@ class AbsensiController extends Controller
 
         // Stats for current month
         $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
         $stats = [
-            'hadir' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->where('status', 'Hadir')->count(),
-            'telat' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->where('status', 'Telat')->count(),
-            'sakit' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->where('status', 'Sakit')->count(),
-            'total' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->count(),
+            'hadir' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->whereYear('date', $currentYear)->where('status', 'Hadir')->count(),
+            'telat' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->whereYear('date', $currentYear)->where('status', 'Telat')->count(),
+            'sakit' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->whereYear('date', $currentYear)->where('status', 'Sakit')->count(),
+            'total' => SdmAttendance::where('sdm_pegawai_id', $pegawai->id)->whereMonth('date', $currentMonth)->whereYear('date', $currentYear)->count(),
         ];
 
         return view('pegawai.absensi.index', compact('attendances', 'stats'));

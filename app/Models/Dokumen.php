@@ -57,6 +57,8 @@ class Dokumen extends Model
 
     const KATEGORI_HUKUM = 'HUKUM';
 
+    const KATEGORI_KEUANGAN = 'KEUANGAN';
+
     const KATEGORI_SURAT_KELUAR = 'SURAT_KELUAR';
 
     const KATEGORI_SK = 'SK';
