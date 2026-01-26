@@ -31,6 +31,12 @@
             'roles' => ['instansi'], // Hanya untuk Unit
         ],
         [
+            'name' => 'Surat Keluar',
+            'route' => 'surat-keluar',
+            'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>',
+            'roles' => ['instansi'], // Agenda Surat Keluar Unit
+        ],
+        [
             'name' => 'Validasi Dokumen',
             'route' => 'validasi-dokumen',
             'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',

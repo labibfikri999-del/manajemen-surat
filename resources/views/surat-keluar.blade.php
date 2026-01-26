@@ -25,21 +25,48 @@
           <p class="text-emerald-600 mt-2">Kelola semua surat yang keluar dari instansi</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
-          <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-emerald-600 text-xs md:text-sm font-medium">Total Surat Keluar</div>
-            <p class="text-2xl md:text-3xl font-bold text-emerald-900 mt-2">87</p>
-            <p class="text-xs text-emerald-500 mt-1">Tahun ini</p>
+        {{-- Statistics --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+          <!-- Total Surat Keluar -->
+          <div class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Surat Keluar</p>
+                <p id="statTotal" class="text-4xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-emerald-600 font-medium mt-1">Semua waktu</p>
+              </div>
+              <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-3 shadow-lg shadow-emerald-500/30 text-white">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8.5A2.5 2.5 0 015.5 6h13A2.5 2.5 0 0121 8.5v7A2.5 2.5 0 0118.5 18h-13A2.5 2.5 0 013 15.5v-7zM3 8.5l7 4 7-4"/></svg>
+              </div>
+            </div>
           </div>
-          <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-emerald-600 text-xs md:text-sm font-medium">Siap Dikirim</div>
-            <p class="text-2xl md:text-3xl font-bold text-orange-600 mt-2">5</p>
-            <p class="text-xs text-emerald-500 mt-1">Menunggu</p>
+
+          <!-- Siap Dikirim (Draft) -->
+          <div class="bg-white rounded-2xl shadow-lg shadow-orange-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-orange-100 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Draft / Pending</p>
+                <p id="statPending" class="text-4xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-orange-600 font-medium mt-1">Belum Terkirim</p>
+              </div>
+              <div class="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-3 shadow-lg shadow-orange-500/30 text-white">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
           </div>
-          <div class="bg-white rounded-lg shadow p-3 md:p-4">
-            <div class="text-emerald-600 text-xs md:text-sm font-medium">Sudah Dikirim</div>
-            <p class="text-2xl md:text-3xl font-bold text-green-600 mt-2">82</p>
-            <p class="text-xs text-emerald-500 mt-1">Selesai</p>
+
+          <!-- Sudah Dikirim -->
+          <div class="bg-white rounded-2xl shadow-lg shadow-blue-100/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-blue-100 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Sudah Dikirim</p>
+                <p id="statSent" class="text-4xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-blue-600 font-medium mt-1">Selesai</p>
+              </div>
+              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-3 shadow-lg shadow-blue-500/30 text-white">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -118,7 +145,7 @@
     </main>
 
     {{-- Toast Notification --}}
-    <div id="toast" class="hidden fixed top-4 right-4 z-50 transform transition-all duration-300 ease-out">
+    <div id="toast" class="hidden fixed top-24 right-4 z-[100] transform transition-all duration-300 ease-out">
       <div class="bg-white rounded-lg shadow-2xl p-4 flex items-center gap-3 min-w-[320px] max-w-md border-l-4" id="toastContent">
         <div id="toastIcon" class="shrink-0"></div>
         <div class="flex-1">
@@ -207,6 +234,50 @@
         </form>
       </div>
     </div>
+  </div>
+
+  {{-- Preview Modal --}}
+  <div id="previewModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[130] p-4 transition-all duration-300">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col mx-auto transform transition-all scale-100">
+          <div class="p-4 border-b flex items-center justify-between bg-gray-50 rounded-t-2xl">
+              <div>
+                  <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                      <span id="previewTitle">Preview Dokumen</span>
+                  </h3>
+              </div>
+              <div class="flex items-center gap-2">
+                  <a id="downloadBtn" href="#" target="_blank" class="p-2 text-gray-500 hover:text-emerald-600 hover:bg-white rounded-lg transition" title="Download / Buka di Tab Baru">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </a>
+                  <button onclick="closePreviewModal()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-white rounded-lg transition" title="Tutup">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+              </div>
+          </div>
+          <div class="flex-1 bg-gray-100 relative p-0 overflow-hidden rounded-b-2xl">
+              <div id="previewLoading" class="absolute inset-0 flex items-center justify-center bg-white z-10">
+                  <div class="flex flex-col items-center gap-3">
+                      <svg class="animate-spin w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      <p class="text-sm text-gray-500 font-medium">Memuat dokumen...</p>
+                  </div>
+              </div>
+              <iframe id="previewFrame" class="w-full h-full border-0" onload="document.getElementById('previewLoading').classList.add('hidden')"></iframe>
+              <div id="previewError" class="absolute inset-0 flex items-center justify-center bg-white hidden z-20">
+                  <div class="text-center p-8 max-w-md">
+                      <div class="bg-amber-100 text-amber-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                      </div>
+                      <h4 class="text-lg font-bold text-gray-900 mb-2">Tidak dapat menampilkan preview</h4>
+                      <p class="text-gray-600 mb-6">Format file ini mungkin tidak didukung untuk preview langsung oleh browser anda.</p>
+                      <a id="downloadFallback" href="#" target="_blank" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
+                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                          Download File
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
   </div>
 
   <script>
@@ -369,6 +440,21 @@
         const response = await fetch('/api/surat-keluar');
         const data = await response.json();
         allRowsData = data;
+        
+        // Calculate Statistics
+        const total = data.length;
+        // Assume 'Draft' is pending, everything else is sent/processed
+        const pending = data.filter(item => item.status === 'Draft' || !item.status).length;
+        const sent = data.filter(item => item.status && item.status !== 'Draft').length;
+
+        const statTotal = document.getElementById('statTotal');
+        const statPending = document.getElementById('statPending');
+        const statSent = document.getElementById('statSent');
+
+        if(statTotal) statTotal.textContent = total;
+        if(statPending) statPending.textContent = pending;
+        if(statSent) statSent.textContent = sent;
+
         renderTable();
       } catch (error) {
         console.error('Error:', error);
@@ -392,10 +478,10 @@
         // Create file link HTML
         let fileHtml = '<span class="text-gray-400">-</span>';
         if (item.file_url) {
-          fileHtml = `<a href="${item.file_url}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          fileHtml = `<button onclick="previewFile(${item.id})" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             <span class="text-sm">Lihat</span>
-          </a>`;
+          </button>`;
         }
         
         row.innerHTML = `
@@ -483,7 +569,12 @@
       filePreview.classList.add('hidden');
 
       if (isEdit && rowId) {
-        const item = allRowsData.find(d => d.id === rowId);
+        // Use loose equality (==) because dataset.id is string while data.id might be number
+        const item = allRowsData.find(d => d.id == rowId);
+        if(!item) {
+            console.error('Item not found:', rowId);
+            return;
+        }
         modalTitle.textContent = 'Edit Surat Keluar';
         formNomorSurat.value = item.nomor_surat;
         formTanggal.value = item.tanggal_keluar;
@@ -690,6 +781,63 @@
       printWindow.document.write(htmlContent);
       printWindow.document.close();
       setTimeout(() => printWindow.print(), 250);
+    });
+
+    function previewFile(id) {
+        const item = allRowsData.find(d => d.id == id);
+        if (item && item.file_url) {
+            const ext = item.file_url.split('.').pop().toLowerCase();
+            showPreviewModal(item.file_url, item.perihal, ext);
+        }
+    }
+
+    function showPreviewModal(url, title, extension) {
+        const modal = document.getElementById('previewModal');
+        const frame = document.getElementById('previewFrame');
+        const titleEl = document.getElementById('previewTitle');
+        const loading = document.getElementById('previewLoading');
+        const error = document.getElementById('previewError');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadFallback = document.getElementById('downloadFallback');
+
+        // Hide main nav/header if needed
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = 'none';
+
+        titleEl.textContent = title;
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+        
+        frame.src = url;
+        downloadBtn.href = url;
+        downloadFallback.href = url;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        const previewable = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'txt'];
+        if (extension && !previewable.includes(extension)) {
+            loading.classList.add('hidden');
+            error.classList.remove('hidden');
+        }
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('previewModal');
+        const frame = document.getElementById('previewFrame');
+        
+        // Restore navbar
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = '';
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        frame.src = ''; 
+    }
+
+    // Close preview on outside click
+    document.getElementById('previewModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closePreviewModal();
     });
 
     loadData();
