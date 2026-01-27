@@ -143,6 +143,9 @@
         const titleEl = document.getElementById('headerPreviewTitle');
         const loading = document.getElementById('headerPreviewLoading');
         const error = document.getElementById('headerPreviewError');
+        const errorIcon = error.querySelector('div.bg-amber-100'); // Container icon
+        const errorTitle = error.querySelector('h4');
+        const errorText = error.querySelector('p');
         const downloadBtn = document.getElementById('headerDownloadBtn');
         const downloadFallback = document.getElementById('headerDownloadFallback');
 
@@ -160,20 +163,35 @@
         frame.src = url;
         
         // Update download links
-        // If url is a preview route, we might want the download route for the button?
-        // But usually the preview url (if inline) can be saved.
-        // For better UX, we could pass downloadUrl separately, but using preview url is fine for now.
-        downloadBtn.href = url.replace('/preview', '/download'); 
-        downloadFallback.href = url.replace('/preview', '/download');
+        const downloadUrl = url.replace('/preview', '/download');
+        downloadBtn.href = downloadUrl;
+        downloadFallback.href = downloadUrl;
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
         const previewable = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'txt'];
-        // If extension is provided check it, otherwise assume supported or let iframe try
-        if (extension && !previewable.includes(extension.toLowerCase())) {
+        const office = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+        const ext = extension.toLowerCase();
+
+        // Check format
+        if (!previewable.includes(ext)) {
             loading.classList.add('hidden');
             error.classList.remove('hidden');
+            
+            if (office.includes(ext)) {
+                // Friendly UI for Office Files
+                if(errorIcon) errorIcon.className = 'bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4';
+                if(errorIcon) errorIcon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
+                errorTitle.textContent = 'Preview tidak tersedia untuk format ini';
+                errorText.textContent = 'File ini adalah dokumen Office (Word/Excel). Silakan download untuk membukanya.';
+            } else {
+                // Generic Error
+                if(errorIcon) errorIcon.className = 'bg-amber-100 text-amber-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4';
+                if(errorIcon) errorIcon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                errorTitle.textContent = 'Tidak dapat menampilkan preview';
+                errorText.textContent = 'Format file ini mungkin tidak didukung untuk preview langsung oleh browser anda.';
+            }
         }
     }
 
