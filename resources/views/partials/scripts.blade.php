@@ -135,4 +135,64 @@
         setInterval(fetchBalasanCount, 5000);
         fetchBalasanCount();
     }
+
+    // Global Preview Modal Logic (reused from Header)
+    window.showDocumentPreview = function(url, title, extension = 'pdf') {
+        const modal = document.getElementById('headerPreviewModal');
+        const frame = document.getElementById('headerPreviewFrame');
+        const titleEl = document.getElementById('headerPreviewTitle');
+        const loading = document.getElementById('headerPreviewLoading');
+        const error = document.getElementById('headerPreviewError');
+        const downloadBtn = document.getElementById('headerDownloadBtn');
+        const downloadFallback = document.getElementById('headerDownloadFallback');
+
+        if (!modal) return;
+
+        // Hide Navbar for immersive view
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = 'none';
+
+        titleEl.textContent = title;
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+        
+        // Reset src
+        frame.src = url;
+        
+        // Update download links
+        // If url is a preview route, we might want the download route for the button?
+        // But usually the preview url (if inline) can be saved.
+        // For better UX, we could pass downloadUrl separately, but using preview url is fine for now.
+        downloadBtn.href = url.replace('/preview', '/download'); 
+        downloadFallback.href = url.replace('/preview', '/download');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        const previewable = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'txt'];
+        // If extension is provided check it, otherwise assume supported or let iframe try
+        if (extension && !previewable.includes(extension.toLowerCase())) {
+            loading.classList.add('hidden');
+            error.classList.remove('hidden');
+        }
+    }
+
+    window.closeDocumentPreview = function() {
+        const modal = document.getElementById('headerPreviewModal');
+        const frame = document.getElementById('headerPreviewFrame');
+        
+        // Show Navbar
+        const navbar = document.querySelector('header');
+        if (navbar) navbar.style.display = '';
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        frame.src = ''; 
+    }
+
+    // Close modal on click outside
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('headerPreviewModal');
+        if (modal && e.target === modal) closeDocumentPreview();
+    });
 </script>

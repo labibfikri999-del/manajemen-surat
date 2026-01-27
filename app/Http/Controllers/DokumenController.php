@@ -641,6 +641,20 @@ class DokumenController extends Controller
     }
 
     /**
+     * Preview dokumen
+     */
+    public function preview(string $id)
+    {
+        $dokumen = Dokumen::findOrFail($id);
+
+        if (! Storage::disk('public')->exists($dokumen->file_path)) {
+            abort(404);
+        }
+
+        return response()->file(Storage::disk('public')->path($dokumen->file_path));
+    }
+
+    /**
      * Show form for automatic letter generation
      */
     public function createSurat()

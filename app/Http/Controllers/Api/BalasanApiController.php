@@ -15,8 +15,11 @@ class BalasanApiController extends Controller
     {
         $user = Auth::user();
         $count = DB::table('balasan_read_status')
-            ->where('user_id', $user->id)
-            ->where('terbaca', false)
+            ->join('dokumens', 'balasan_read_status.dokumen_id', '=', 'dokumens.id')
+            ->where('balasan_read_status.user_id', $user->id)
+            ->where('balasan_read_status.terbaca', false)
+            ->whereNotNull('dokumens.balasan_file')
+            ->where('dokumens.balasan_file', '!=', '')
             ->count();
 
         return response()->json(['count' => $count]);

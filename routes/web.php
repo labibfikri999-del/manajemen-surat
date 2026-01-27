@@ -284,6 +284,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
     // Dokumen API
     Route::apiResource('dokumen', DokumenController::class);
     Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
+    Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
     Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
     Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
 });
