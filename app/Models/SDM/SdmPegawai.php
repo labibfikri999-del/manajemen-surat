@@ -20,4 +20,24 @@ class SdmPegawai extends Model
     {
         return $this->hasMany(SdmAttendance::class);
     }
+
+    public function pendidikans()
+    {
+        return $this->hasMany(SdmPendidikan::class, 'sdm_pegawai_id');
+    }
+
+    public function keluargas()
+    {
+        return $this->hasMany(SdmKeluarga::class, 'sdm_pegawai_id');
+    }
+
+    public function riwayatJabatans()
+    {
+        return $this->hasMany(SdmRiwayatJabatan::class, 'sdm_pegawai_id')->orderBy('tgl_mulai', 'desc');
+    }
+
+    public function riwayatPangkats()
+    {
+        return $this->hasMany(SdmRiwayatPangkat::class, 'sdm_pegawai_id')->orderBy('tmt', 'desc');
+    }
 }

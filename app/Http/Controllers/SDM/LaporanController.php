@@ -5,8 +5,6 @@ namespace App\Http\Controllers\SDM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SDM\SdmPegawai;
-use App\Models\SDM\SdmAttendance;
-use App\Models\SDM\SdmPayroll;
 use DB;
 use Carbon\Carbon;
 
@@ -17,49 +15,74 @@ class LaporanController extends Controller
         return view('sdm.laporan.index');
     }
 
-    public function absensi(Request $request)
+
+    public function dataKaryawan(Request $request)
     {
-        $month = (int) ($request->month ?? date('m'));
-        $year = (int) ($request->year ?? date('Y'));
+        $query = SdmPegawai::query();
+        
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        } else {
+            $query->where('status', 'active');
+        }
 
-        // Aggregate attendance status per employee for the selected month
-        $attendanceData = SdmPegawai::where('status', 'active')
-            ->with(['attendances' => function($q) use ($month, $year) {
-                $q->whereMonth('date', $month)->whereYear('date', $year);
-            }])
-            ->get()
-            ->map(function($pegawai) {
-                return [
-                    'name' => $pegawai->name,
-                    'role' => $pegawai->role,
-                    'hadir' => $pegawai->attendances->where('status', 'Hadir')->count(),
-                    'telat' => $pegawai->attendances->where('status', 'Telat')->count(),
-                    'ijin' => $pegawai->attendances->where('status', 'Ijin')->count(),
-                    'sakit' => $pegawai->attendances->where('status', 'Sakit')->count(),
-                    'total' => $pegawai->attendances->count(),
-                ];
-            });
-
-        return view('sdm.laporan.absensi', compact('attendanceData', 'month', 'year'));
+        $pegawais = $query->orderBy('name')->get();
+        return view('sdm.laporan.data-karyawan', compact('pegawais'));
     }
 
-    public function gaji(Request $request)
+    public function rekapJabatan()
     {
-        $month = (int) ($request->month ?? date('m'));
-        $year = (int) ($request->year ?? date('Y'));
+        $jabatans = \App\Models\SDM\RiwayatJabatan::with(['pegawai', 'masterJabatan'])
+            ->where('is_active', 1)
+            ->get()
+            ->groupBy('masterJabatan.nama_jabatan');
+            
+        return view('sdm.laporan.rekap-jabatan', compact('jabatans'));
+    }
 
-        $payrolls = SdmPayroll::where('month', $month)
-            ->where('year', $year)
-            ->with('pegawai')
+    public function rekapGolongan()
+    {
+        $golongans = \App\Models\SDM\RiwayatPangkat::with('pegawai')
+            ->where('is_active', 1)
+            ->get()
+            ->groupBy(function($item) {
+                return $item->golongan . '/' . $item->ruang;
+            });
+            
+        return view('sdm.laporan.rekap-golongan', compact('golongans'));
+    }
+
+    public function masaKerja()
+    {
+        $pegawais = SdmPegawai::where('status', 'active')
+            ->get()
+            ->map(function($pegawai) {
+                $joinDate = \Carbon\Carbon::parse($pegawai->join_date);
+                $pegawai->masa_kerja_tahun = $joinDate->diffInYears(now());
+                $pegawai->masa_kerja_bulan = $joinDate->diffInMonths(now()) % 12;
+                return $pegawai;
+            })
+            ->sortByDesc('masa_kerja_tahun');
+            
+        return view('sdm.laporan.masa-kerja', compact('pegawais'));
+    }
+
+    public function pendidikan()
+    {
+        $pendidikans = \App\Models\SDM\SdmPendidikan::with('pegawai')
+            ->orderBy('jenjang')
+            ->get()
+            ->groupBy('jenjang');
+            
+        return view('sdm.laporan.pendidikan', compact('pendidikans'));
+    }
+
+    public function keluarga()
+    {
+        $keluargas = \App\Models\SDM\SdmKeluarga::with('pegawai')
+            ->orderBy('sdm_pegawai_id')
             ->get();
-
-        $summary = [
-            'total_expenditure' => $payrolls->sum('net_salary'),
-            'total_basic' => $payrolls->sum('basic_salary'),
-            'total_allowances' => $payrolls->sum('allowances'),
-            'count' => $payrolls->count()
-        ];
-
-        return view('sdm.laporan.gaji', compact('payrolls', 'summary', 'month', 'year'));
+            
+        return view('sdm.laporan.keluarga', compact('keluargas'));
     }
 }

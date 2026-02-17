@@ -321,9 +321,9 @@
 
           <div id="fieldTelegramContainer" class="hidden">
             <label class="block text-sm font-medium text-gray-700 mb-2">ID Telegram</label>
-            <input type="text" id="formTelegram" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Contoh: 123456789">
+            <input type="text" id="formTelegram" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Contoh: 12345678, 87654321">
             <p class="text-xs text-gray-500 mt-1">
-              Wajib untuk Sekjen & Staff agar menerima notifikasi. 
+              Pisahkan dengan koma (,) untuk mengirim ke lebih dari satu orang.
               <br>Cara dapat ID: Chat ke Bot <b>@YarsiSuratBot</b> (nama samaran), ketik <code>/start</code>.
             </p>
           </div>

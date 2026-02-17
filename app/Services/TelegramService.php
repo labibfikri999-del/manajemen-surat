@@ -31,26 +31,31 @@ class TelegramService
             return false;
         }
 
-        try {
-            $response = Http::post($this->apiUrl, [
-                'chat_id' => $chatId,
-                'text' => $message,
-                'parse_mode' => $parseMode,
-            ]);
+        // Split chat IDs by comma to support multiple recipients
+        $chatIds = array_map('trim', explode(',', $chatId));
+        $successCount = 0;
 
-            if ($response->successful()) {
-                Log::info("Telegram message sent to {$chatId}");
+        foreach ($chatIds as $id) {
+            if (empty($id)) continue;
 
-                return true;
-            } else {
-                Log::error('Failed to send Telegram message: '.$response->body());
+            try {
+                $response = Http::post($this->apiUrl, [
+                    'chat_id' => $id,
+                    'text' => $message,
+                    'parse_mode' => $parseMode,
+                ]);
 
-                return false;
+                if ($response->successful()) {
+                    Log::info("Telegram message sent to {$id}");
+                    $successCount++;
+                } else {
+                    Log::error("Failed to send Telegram message to {$id}: ".$response->body());
+                }
+            } catch (\Exception $e) {
+                Log::error("Telegram Service Error for {$id}: ".$e->getMessage());
             }
-        } catch (\Exception $e) {
-            Log::error('Telegram Service Error: '.$e->getMessage());
-
-            return false;
         }
+
+        return $successCount > 0;
     }
 }

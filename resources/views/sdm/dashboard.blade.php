@@ -1,230 +1,255 @@
 @extends('sdm.layouts.app')
 
 @section('content')
-<div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Dashboard SDM</h1>
-            <p class="text-slate-500">Overview performa sumber daya manusia hari ini.</p>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard SDM</h1>
+            <p class="text-sm text-slate-500 mt-1">Ringkasan statistik dan manajemen kepegawaian.</p>
         </div>
-        <div class="flex items-center gap-3">
-            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium text-slate-600 shadow-sm border border-slate-100 flex items-center gap-2">
-                <span class="relative flex h-2.5 w-2.5">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                Live Update
-            </span>
-            <a href="{{ route('sdm.pegawai.create') }}" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-cyan-200 transition-all active:scale-95 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Pegawai Baru
-            </a>
+        <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span class="text-sm font-medium text-slate-600">{{ \Carbon\Carbon::now()->format('d F Y') }}</span>
         </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Total Pegawai -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div class="absolute right-0 top-0 w-32 h-32 bg-cyan-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-            <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-cyan-100 flex items-center justify-center text-cyan-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    </div>
-                    <span class="text-slate-500 text-sm font-medium">Total Pegawai</span>
+    <!-- Stats Grid (Top Row) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Karyawan -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Karyawan</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['total_pegawai'] }}</h3>
                 </div>
-                <h2 class="text-3xl font-bold text-slate-800">{{ $stats['total_pegawai'] }} <span class="text-sm font-medium text-slate-400">Orang</span></h2>
-                <div class="mt-2 flex items-center text-xs text-emerald-600 font-bold bg-emerald-50 inline-block px-2 py-1 rounded-lg">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                    +2 bulan ini
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>
             </div>
         </div>
 
-        <!-- Kehadiran -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-            <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <span class="text-slate-500 text-sm font-medium">Hadir Hari Ini</span>
+        <!-- Laki-laki -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Laki-laki</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['laki_laki'] }}</h3>
                 </div>
-                <h2 class="text-3xl font-bold text-slate-800">{{ $stats['hadir_hari_ini'] }} <span class="text-sm font-medium text-slate-400">Orang</span></h2>
-                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? ($stats['hadir_hari_ini'] / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                <div class="p-3 bg-blue-50 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </div>
             </div>
         </div>
 
-        <!-- Cuti & Ijin -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div class="absolute right-0 top-0 w-32 h-32 bg-amber-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-            <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <span class="text-slate-500 text-sm font-medium">Sedang Cuti</span>
+        <!-- Perempuan -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+             <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Perempuan</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['perempuan'] }}</h3>
                 </div>
-                <h2 class="text-3xl font-bold text-slate-800">{{ $stats['cuti'] }} <span class="text-sm font-medium text-slate-400">Orang</span></h2>
-                <p class="text-xs text-slate-400 mt-2">{{ $stats['sakit'] }} Sakit • {{ $stats['cuti'] }} Cuti Tahunan</p>
+                <div class="p-3 bg-pink-50 rounded-lg">
+                    <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
             </div>
         </div>
 
-        <!-- Status Kontrak -->
-         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div class="absolute right-0 top-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-            <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <span class="text-slate-500 text-sm font-medium">Action Needed</span>
+        <!-- NIDN -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Memiliki NIDN</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['nidn'] }}</h3>
                 </div>
-                <h2 class="text-3xl font-bold text-slate-800">{{ count($alerts) }} <span class="text-sm font-medium text-slate-400">Alerts</span></h2>
-                <p class="text-xs text-red-500 mt-2 font-semibold">Perlu penanganan segera</p>
+                <div class="p-3 bg-emerald-50 rounded-lg">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Dashboard Areas (Shift & Chart) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Left Column: Shift Monitor & Alerts (2/3 width) -->
-        <div class="lg:col-span-2 space-y-8">
+        <!-- Left Column (Stats & Charts) -->
+        <div class="lg:col-span-2 space-y-6">
             
-            <!-- 1. Jadwal Shift Hari Ini -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Tim Jaga Hari Ini</h3>
-                        <p class="text-slate-500 text-sm">Monitoring staff medis real-time</p>
-                    </div>
-                    <a href="{{ route('sdm.jadwal.index') }}" class="text-cyan-600 text-sm font-bold hover:underline">Lihat Semua Jadwal</a>
+            <!-- Statistik Pendidikan -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800">Tingkat Pendidikan</h3>
+                    <span class="text-xs font-semibold px-2 py-1 bg-slate-200 text-slate-600 rounded">updated</span>
                 </div>
-
-                <div class="space-y-4">
-                    @foreach($shifts as $shift)
-                    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-cyan-200 transition-colors">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center text-lg font-bold text-slate-600 shadow-sm">
-                                {{ $shift->img }}
-                            </div>
+                
+                <div class="p-6">
+                    <div class="space-y-5">
+                       <!-- S3 & S2 -->
+                       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                                <h4 class="font-bold text-slate-800">{{ $shift->name }}</h4>
-                                <p class="text-xs text-slate-500">{{ $shift->role }}</p>
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-sm font-medium text-slate-700">Doktor (S3)</span>
+                                    <span class="text-sm font-bold text-slate-900">{{ $stats['pendidikan']['S3'] ?? 0 }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? (($stats['pendidikan']['S3'] ?? 0) / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $shift->status == 'On Duty' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
-                                @if($shift->status == 'On Duty') <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> @endif
-                                {{ $shift->shift }}
+                             <div>
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-sm font-medium text-slate-700">Magister (S2)</span>
+                                    <span class="text-sm font-bold text-slate-900">{{ $stats['pendidikan']['S2'] ?? 0 }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? (($stats['pendidikan']['S2'] ?? 0) / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                                </div>
                             </div>
-                        </div>
+                       </div>
+
+                       <!-- S1 -->
+                       <div>
+                            <div class="flex justify-between items-end mb-1">
+                                <span class="text-sm font-medium text-slate-700">Sarjana (S1)</span>
+                                <span class="text-sm font-bold text-slate-900">{{ $stats['pendidikan']['S1'] ?? 0 }}</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-indigo-400 h-2 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? (($stats['pendidikan']['S1'] ?? 0) / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                            </div>
+                       </div>
+
+                       <!-- Diploma -->
+                        <div>
+                            <div class="flex justify-between items-end mb-1">
+                                <span class="text-sm font-medium text-slate-700">Diploma (D1-D4)</span>
+                                <span class="text-sm font-bold text-slate-900">{{ ($stats['pendidikan']['D3'] ?? 0) + ($stats['pendidikan']['D4'] ?? 0) }}</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-indigo-300 h-2 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? ((($stats['pendidikan']['D3'] ?? 0) + ($stats['pendidikan']['D4'] ?? 0)) / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                            </div>
+                       </div>
+                       
+                        <!-- SMA/Lainnya -->
+                       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-sm font-medium text-slate-700">SMA/SMK</span>
+                                    <span class="text-sm font-bold text-slate-900">{{ $stats['pendidikan']['SMA/SMK'] ?? 0 }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-slate-400 h-2 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? (($stats['pendidikan']['SMA/SMK'] ?? 0) / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                                </div>
+                            </div>
+                             <div>
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-sm font-medium text-slate-700">Lainnya</span>
+                                    <span class="text-sm font-bold text-slate-900">{{ $stats['pendidikan']['Lainnya'] ?? 0 }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-slate-300 h-2 rounded-full" style="width: {{ $stats['total_pegawai'] > 0 ? (($stats['pendidikan']['Lainnya'] ?? 0) / $stats['total_pegawai']) * 100 : 0 }}%"></div>
+                                </div>
+                            </div>
+                       </div>
                     </div>
-                    @endforeach
                 </div>
             </div>
 
-            <!-- 2. Action Center / Alerts -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-4">Pemberitahuan Penting</h3>
-                <div class="space-y-3">
-                    @foreach($alerts as $alert)
-                        <div class="flex items-start gap-4 p-4 rounded-xl {{ $alert->type == 'critical' ? 'bg-red-50 border-red-100 text-red-700' : ($alert->type == 'warning' ? 'bg-amber-50 border-amber-100 text-amber-700' : 'bg-blue-50 border-blue-100 text-blue-700') }} border">
-                            <div class="mt-0.5">
-                                @if($alert->type == 'critical')
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                @else
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                @endif
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-bold text-sm">{{ $alert->message }}</p>
-                                <p class="text-xs opacity-80 mt-1">Harap ditindaklanjuti segera.</p>
-                            </div>
-                            <button class="text-xs font-bold underline opacity-80 hover:opacity-100">Cek Detail</button>
-                        </div>
-                    @endforeach
+            <!-- Status Kepegawaian -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                     <div class="p-3 bg-emerald-50 rounded-full order-last ml-auto">
+                        <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                     </div>
+                     <div>
+                        <p class="text-sm font-medium text-slate-500">Pegawai Tetap</p>
+                        <h4 class="text-3xl font-bold text-slate-900">{{ $stats['status_kepegawaian']['Tetap'] ?? 0 }}</h4>
+                        <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded mt-2 inline-block">Aktif</span>
+                     </div>
+                </div>
+                 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                     <div class="p-3 bg-amber-50 rounded-full order-last ml-auto">
+                        <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                     </div>
+                     <div>
+                        <p class="text-sm font-medium text-slate-500">Pegawai Kontrak</p>
+                        <h4 class="text-3xl font-bold text-slate-900">{{ $stats['status_kepegawaian']['Kontrak'] ?? 0 }}</h4>
+                         <span class="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded mt-2 inline-block">Berjangka</span>
+                     </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- Right Column: Analytics & Quick Actions (1/3 width) -->
-        <div class="space-y-8">
+        <!-- Right Column (Actions & Lists) -->
+        <div class="space-y-6">
             
-            <!-- Employee Composition Chart -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-2">Komposisi Pegawai</h3>
-                <p class="text-xs text-slate-500 mb-6">Distribusi status kepegawaian</p>
-                
-                <div class="relative h-48">
-                    <canvas id="employeeChart"></canvas>
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                <h3 class="font-bold text-slate-800 mb-4">Aksi Cepat</h3>
+                <div class="grid grid-cols-2 gap-3">
+                     <a href="{{ route('sdm.pegawai.create') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors group">
+                        <svg class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                        <span class="text-xs font-bold">Pegawai Baru</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
+                        <svg class="w-6 h-6 mb-2 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path></svg>
+                        <span class="text-xs font-medium">Pendidikan</span>
+                    </a>
+                     <a href="#" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
+                        <svg class="w-6 h-6 mb-2 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <span class="text-xs font-medium">Keluarga</span>
+                    </a>
+                     <a href="#" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
+                        <svg class="w-6 h-6 mb-2 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span class="text-xs font-medium">Jabatan</span>
+                    </a>
                 </div>
             </div>
 
-            <!-- Quick Actions Grid -->
-            <div class="bg-gradient-to-br from-cyan-500 to-sky-600 rounded-3xl p-6 text-white shadow-xl shadow-cyan-200">
-                <h3 class="text-lg font-bold mb-6">Akses Cepat</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <a href="{{ route('sdm.absen.index') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        <span class="text-xs font-bold">Input Absen</span>
-                    </a>
-                    <a href="{{ route('sdm.gaji.index') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <span class="text-xs font-bold">Slip Gaji</span>
-                    </a>
-                    <a href="{{ route('sdm.jadwal.index') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span class="text-xs font-bold">Jadwal</span>
-                    </a>
-                    <a href="{{ route('sdm.settings') }}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <span class="text-xs font-bold">Setting</span>
-                    </a>
-</div>
+            <!-- Jabatan List -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800">Jabatan Terisi</h3>
+                    <a href="#" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Lihat Semua</a>
+                </div>
+                <div class="divide-y divide-slate-50">
+                    @forelse($stats['jabatan']->take(5) as $jab)
+                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">{{ $jab->jabatan }}</p>
+                            <span class="text-[10px] text-slate-500 uppercase tracking-wider">{{ $jab->role }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                             <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="bg-indigo-500 h-1.5 rounded-full" style="width: {{ ($jab->total / $stats['total_pegawai']) * 100 }}%"></div>
+                            </div>
+                            <span class="text-xs font-bold text-indigo-600 w-4 text-right">{{ $jab->total }}</span>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="p-6 text-center text-slate-400 text-sm">Belum ada data jabatan</div>
+                    @endforelse
+                </div>
+            </div>
 
-<script>
-    // Initialize Chart.js
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('employeeChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pegawai Tetap', 'Kontrak', 'Magang'],
-                datasets: [{
-                    data: [85, 45, 12],
-                    backgroundColor: [
-                        '#06b6d4', // Cyan 500
-                        '#fbbf24', // Amber 400
-                        '#cbd5e1'  // Slate 300
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    }
-                },
-                cutout: '70%',
-            }
-        });
-    });
-</script>
+             <!-- Summary Card -->
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 text-white shadow-lg">
+                <h3 class="font-bold text-lg mb-1">Ringkasan</h3>
+                <p class="text-slate-400 text-xs mb-4">Statistik cepat performa SDM.</p>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm border-b border-white/10 pb-2">
+                        <span class="text-slate-300">Total Jabatan</span>
+                        <span class="font-bold">{{ count($stats['jabatan']) }} posisi</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm border-b border-white/10 pb-2">
+                        <span class="text-slate-300">Rasio Pria:Wanita</span>
+                        <span class="font-bold">{{ $stats['total_pegawai'] > 0 ? round(($stats['laki_laki']/$stats['total_pegawai'])*100) : 0 }}:{{ $stats['total_pegawai'] > 0 ? round(($stats['perempuan']/$stats['total_pegawai'])*100) : 0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 @endsection

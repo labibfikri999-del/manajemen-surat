@@ -80,28 +80,54 @@
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manajemen</p>
                 </div>
 
-                <!-- Pegawai -->
+                <!-- Data Karyawan -->
                 <a href="{{ route('sdm.pegawai.index') }}" class="{{ request()->routeIs('sdm.pegawai.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span x-show="sidebarOpen" class="ml-3">Data Pegawai</span>
+                    <span x-show="sidebarOpen" class="ml-3">Data Karyawan</span>
                 </a>
 
-                <!-- Jadwal Shift (Critical for Hospital) -->
-                <a href="{{ route('sdm.jadwal.index') }}" class="{{ request()->routeIs('sdm.jadwal.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
-                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span x-show="sidebarOpen" class="ml-3">Jadwal Shift</span>
-                </a>
-
-                <!-- Absensi -->
-                <a href="{{ route('sdm.absen.index') }}" class="{{ request()->routeIs('sdm.absen.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
-                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                    <span x-show="sidebarOpen" class="ml-3">Data Absensi</span>
+                <!-- Pendidikan (New) -->
+                <a href="{{ route('sdm.pendidikan.index') }}" class="{{ request()->routeIs('sdm.pendidikan.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Pendidikan</span>
                 </a>
 
                 <!-- Payroll -->
-                <a href="{{ route('sdm.gaji.index') }}" class="{{ request()->routeIs('sdm.gaji.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
-                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span x-show="sidebarOpen" class="ml-3">Penggajian</span>
+                <a href="{{ route('sdm.payroll.index') }}" class="{{ request()->routeIs('sdm.payroll.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 0 0118 0z"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Payroll</span>
+                </a>
+
+                <!-- Jabatan Dropdown -->
+                <div x-data="{ open: {{ request()->routeIs('sdm.master-jabatan.*') || request()->routeIs('sdm.riwayat-jabatan.*') || request()->routeIs('sdm.riwayat-pangkat.*') ? 'true' : 'false' }} }">
+                    <button @click="sidebarOpen ? open = !open : null" class="w-full text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 flex items-center justify-between px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <span x-show="sidebarOpen" class="ml-3">Jabatan</span>
+                        </div>
+                        <svg x-show="sidebarOpen" :class="{'rotate-180': open}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Submenu -->
+                    <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="bg-slate-50 border-l-4 border-cyan-100 ml-6 mr-4 my-1 rounded-r-lg overflow-hidden">
+                        <a href="{{ route('sdm.riwayat-jabatan.index') }}" class="{{ request()->routeIs('sdm.riwayat-jabatan.*') ? 'text-cyan-600 bg-cyan-50 border-cyan-500' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} block px-4 py-2.5 text-sm transition-colors border-l-2 border-transparent hover:border-cyan-200">
+                            Riwayat Jabatan
+                        </a>
+                        <a href="{{ route('sdm.riwayat-pangkat.index') }}" class="{{ request()->routeIs('sdm.riwayat-pangkat.*') ? 'text-cyan-600 bg-cyan-50 border-cyan-500' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} block px-4 py-2.5 text-sm transition-colors border-l-2 border-transparent hover:border-cyan-200">
+                            Riwayat Pangkat
+                        </a>
+                        <a href="{{ route('sdm.monitoring-pangkat.index') }}" class="{{ request()->routeIs('sdm.monitoring-pangkat.*') ? 'text-cyan-600 bg-cyan-50 border-cyan-500' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} block px-4 py-2.5 text-sm transition-colors border-l-2 border-transparent hover:border-cyan-200">
+                            Monitoring Kenaikan
+                        </a>
+                        <a href="{{ route('sdm.master-jabatan.index') }}" class="{{ request()->routeIs('sdm.master-jabatan.*') ? 'text-cyan-600 bg-cyan-50 border-cyan-500' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} block px-4 py-2.5 text-sm transition-colors border-l-2 border-transparent hover:border-cyan-200">
+                            Master Jabatan
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Keluarga (New) -->
+                <a href="{{ route('sdm.keluarga.index') }}" class="{{ request()->routeIs('sdm.keluarga.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Keluarga</span>
                 </a>
                 
                 <div class="px-6 pt-6 pb-2" x-show="sidebarOpen">
@@ -112,6 +138,12 @@
                 <a href="{{ route('sdm.laporan.index') }}" class="{{ request()->routeIs('sdm.laporan.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Laporan</span>
+                </a>
+
+                <!-- Pengaturan -->
+                <a href="{{ route('sdm.settings.index') }}" class="{{ request()->routeIs('sdm.settings.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span x-show="sidebarOpen" class="ml-3">Pengaturan</span>
                 </a>
                 
                 <!-- Logout -->

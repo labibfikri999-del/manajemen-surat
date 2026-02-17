@@ -4,8 +4,9 @@ namespace App\Models\SDM;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SdmPayroll extends Model
+class SdmRiwayatJabatan extends Model
 {
+    protected $table = 'sdm_riwayat_jabatans';
     protected $guarded = ['id'];
 
     public function pegawai()
@@ -13,8 +14,8 @@ class SdmPayroll extends Model
         return $this->belongsTo(SdmPegawai::class, 'sdm_pegawai_id');
     }
 
-    public function details()
+    public function masterJabatan()
     {
-        return $this->hasMany(SdmPayrollDetail::class, 'sdm_payroll_id');
+        return $this->belongsTo(SdmMasterJabatan::class, 'sdm_master_jabatan_id');
     }
 }

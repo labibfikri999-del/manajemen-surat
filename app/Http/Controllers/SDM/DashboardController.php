@@ -9,7 +9,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Shift Hari Ini
+        // 1. Shift Hari Ini (Existing Logic)
         $shifts = \App\Models\SDM\SdmShift::whereDate('date', \Carbon\Carbon::today())
             ->with('pegawai')
             ->get()
@@ -23,27 +23,50 @@ class DashboardController extends Controller
                 ];
             });
 
-        // 2. Statistik Cepat
+        // 2. Statistik SDM (Updated for New Design)
+        $totalPegawai = \App\Models\SDM\SdmPegawai::where('status', 'active')->count();
+        $lakiLaki = \App\Models\SDM\SdmPegawai::where('status', 'active')->where('jenis_kelamin', 'L')->count();
+        $perempuan = \App\Models\SDM\SdmPegawai::where('status', 'active')->where('jenis_kelamin', 'P')->count();
+        $nidn = \App\Models\SDM\SdmPegawai::where('status', 'active')->whereNotNull('nidn')->where('nidn', '!=', '')->count();
+
+        // Statistik Pendidikan
+        $pendidikan = \App\Models\SDM\SdmPegawai::where('status', 'active')
+            ->select('pendidikan_terakhir', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('pendidikan_terakhir')
+            ->pluck('total', 'pendidikan_terakhir')->toArray();
+        
+        // Jabatan Aktif (Limit to top 5 for simplicity or specific logic)
+        $jabatan = \App\Models\SDM\SdmPegawai::where('status', 'active')
+            ->whereNotNull('jabatan')
+            ->select('jabatan', 'role', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('jabatan', 'role')
+            ->orderBy('total', 'desc')
+            ->take(5)
+            ->get();
+
+        // Status Kepegawaian (Tetap, Kontrak, etc)
+        $statusKepegawaian = \App\Models\SDM\SdmPegawai::where('status', 'active')
+            ->select('status_kepegawaian', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('status_kepegawaian')
+            ->pluck('total', 'status_kepegawaian')->toArray();
+
         $stats = [
-            'total_pegawai' => \App\Models\SDM\SdmPegawai::where('status', 'active')->count(),
-            'hadir_hari_ini' => \App\Models\SDM\SdmAttendance::whereDate('date', \Carbon\Carbon::today())->where('status', 'Hadir')->count(),
-            'cuti' => \App\Models\SDM\SdmLeave::whereDate('start_date', '<=', \Carbon\Carbon::today())
-                        ->whereDate('end_date', '>=', \Carbon\Carbon::today())
-                        ->where('type', 'Cuti Tahunan')
-                        ->count(),
-            'sakit' => \App\Models\SDM\SdmLeave::whereDate('start_date', '<=', \Carbon\Carbon::today())
-                        ->whereDate('end_date', '>=', \Carbon\Carbon::today())
-                        ->where('type', 'Sakit')
-                        ->count(),
+            'total_pegawai' => $totalPegawai,
+            'laki_laki' => $lakiLaki,
+            'perempuan' => $perempuan,
+            'nidn' => $nidn,
+            'pendidikan' => $pendidikan,
+            'jabatan' => $jabatan,
+            'status_kepegawaian' => $statusKepegawaian,
         ];
         
-        // 3. Action Items (alerts)
+        // 3. Action Items (alerts) - Keep existing logic
         $alerts = collect();
 
         // Expiring STRs
         $expiringStrs = \App\Models\SDM\SdmStr::where('expiry_date', '<', \Carbon\Carbon::now()->addDays(30))
-                        ->with('pegawai')
-                        ->get();
+            ->with('pegawai')
+            ->get();
         foreach($expiringStrs as $str) {
             $alerts->push((object)[
                 'message' => $str->type . ' ' . $str->pegawai->name . ' expired dalam ' . $str->expiry_date->diffInDays(\Carbon\Carbon::now()) . ' hari',

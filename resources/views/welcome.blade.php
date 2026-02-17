@@ -186,19 +186,7 @@
                 </span>
             </a>
 
-            <!-- Card 4: Pegawai (New) -->
-            <a href="{{ route('pegawai.login') }}" class="glass-panel rounded-3xl p-6 relative overflow-hidden group card-hover text-center border-2 border-transparent hover:border-fuchsia-200 flex flex-col justify-center items-center">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white mb-4 shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0c0 .884-.95 2-2.122 2H8.878c-1.173 0-2.122-1.116-2.122-2"></path></svg>
-                </div>
-                <h2 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">Pegawai</h2>
-                <p class="text-slate-500 text-xs mb-4 text-balance">Portal Layanan Staff</p>
-                
-                <span class="relative overflow-hidden inline-block px-5 py-1.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-purple-200">
-                    <span class="relative z-10">Akses Masuk →</span>
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shine_1.5s_infinite] z-0"></div>
-                </span>
-            </a>
+
 
             <!-- Card 5: Aset (Existing) -->
             <a href="{{ route('aset.login') }}" class="glass-panel rounded-3xl p-6 relative overflow-hidden group card-hover text-center border-2 border-transparent hover:border-lime-200 flex flex-col justify-center items-center">
