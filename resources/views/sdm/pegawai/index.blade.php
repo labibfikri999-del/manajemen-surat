@@ -111,7 +111,7 @@
 
                         <!-- NIK/NIP -->
                         <td class="px-6 py-4 align-middle">
-                            <span class="font-mono text-sm font-semibold text-slate-700 bg-slate-100 px-2 py-1 rounded">{{ $pegawai->nidn ?? $pegawai->nip }}</span>
+                            <span class="font-mono text-sm font-semibold text-slate-700 bg-slate-100 px-2 py-1 rounded">{{ $pegawai->nip }}</span>
                         </td>
 
                         <!-- Nama -->
@@ -244,11 +244,11 @@
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                 <h3 class="text-lg leading-6 font-medium text-slate-900" id="modal-title">Import Data Pegawai</h3>
                                 <div class="mt-2">
-                                    <p class="text-sm text-slate-500 mb-4">Upload file CSV berisi data pegawai. Silakan gunakan fitur "Export Excel" untuk mendapatkan template format yang sesuai, lalu Save As CSV.</p>
+                                    <p class="text-sm text-slate-500 mb-4">Upload file Excel (.xls) hasil export atau CSV. Pastikan format kolom sesuai dengan template.</p>
                                     
                                     <div class="mt-4">
-                                        <label class="block text-sm font-bold text-slate-700 mb-2">Pilih File CSV</label>
-                                        <input type="file" name="file" accept=".csv" required class="block w-full text-sm text-slate-500
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Pilih File</label>
+                                        <input type="file" name="file" accept=".csv, .xls" required class="block w-full text-sm text-slate-500
                                           file:mr-4 file:py-2 file:px-4
                                           file:rounded-full file:border-0
                                           file:text-sm file:font-semibold
@@ -257,7 +257,7 @@
                                         "/>
                                     </div>
                                     <div class="mt-2 text-xs text-slate-400">
-                                        <p>Tips: Pastikan header kolom sesuai dengan hasil export.</p>
+                                        <p>Tips: Gunakan fitur "Export Excel" untuk mendapatkan template dengan header berwarna.</p>
                                     </div>
                                 </div>
                             </div>

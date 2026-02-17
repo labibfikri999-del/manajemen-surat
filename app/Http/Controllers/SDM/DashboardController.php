@@ -27,8 +27,7 @@ class DashboardController extends Controller
         $totalPegawai = \App\Models\SDM\SdmPegawai::where('status', 'active')->count();
         $lakiLaki = \App\Models\SDM\SdmPegawai::where('status', 'active')->where('jenis_kelamin', 'L')->count();
         $perempuan = \App\Models\SDM\SdmPegawai::where('status', 'active')->where('jenis_kelamin', 'P')->count();
-        $nidn = \App\Models\SDM\SdmPegawai::where('status', 'active')->whereNotNull('nidn')->where('nidn', '!=', '')->count();
-
+        
         // Statistik Pendidikan
         $pendidikan = \App\Models\SDM\SdmPegawai::where('status', 'active')
             ->select('pendidikan_terakhir', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
@@ -54,7 +53,6 @@ class DashboardController extends Controller
             'total_pegawai' => $totalPegawai,
             'laki_laki' => $lakiLaki,
             'perempuan' => $perempuan,
-            'nidn' => $nidn,
             'pendidikan' => $pendidikan,
             'jabatan' => $jabatan,
             'status_kepegawaian' => $statusKepegawaian,

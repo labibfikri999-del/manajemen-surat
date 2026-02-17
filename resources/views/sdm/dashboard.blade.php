@@ -56,18 +56,7 @@
             </div>
         </div>
 
-        <!-- NIDN -->
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-slate-500">Memiliki NIDN</p>
-                    <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['nidn'] }}</h3>
-                </div>
-                <div class="p-3 bg-emerald-50 rounded-lg">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <!-- Main Content Area -->
@@ -191,15 +180,15 @@
                         <svg class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                         <span class="text-xs font-bold">Pegawai Baru</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
+                    <a href="{{ route('sdm.pendidikan.index') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
                         <svg class="w-6 h-6 mb-2 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path></svg>
                         <span class="text-xs font-medium">Pendidikan</span>
                     </a>
-                     <a href="#" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
+                     <a href="{{ route('sdm.keluarga.index') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
                         <svg class="w-6 h-6 mb-2 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         <span class="text-xs font-medium">Keluarga</span>
                     </a>
-                     <a href="#" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
+                     <a href="{{ route('sdm.riwayat-jabatan.index') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors group">
                         <svg class="w-6 h-6 mb-2 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         <span class="text-xs font-medium">Jabatan</span>
                     </a>
@@ -210,7 +199,7 @@
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <h3 class="font-bold text-slate-800">Jabatan Terisi</h3>
-                    <a href="#" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Lihat Semua</a>
+                    <a href="{{ route('sdm.riwayat-jabatan.index', ['status' => 'active']) }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Lihat Semua</a>
                 </div>
                 <div class="divide-y divide-slate-50">
                     @forelse($stats['jabatan']->take(5) as $jab)

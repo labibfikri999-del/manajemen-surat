@@ -50,15 +50,11 @@
                 <!-- Right Column: Form Fields -->
                 <div class="w-full md:w-3/4 space-y-6">
                     <!-- Row 1 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">NIK <span class="text-red-500">*</span></label>
-                            <input type="text" name="nip" value="{{ old('nip', $pegawai->nip) }}" class="w-full rounded-lg border-slate-300 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500 shadow-sm placeholder:text-slate-400" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">NIDN (Opsional)</label>
-                            <input type="text" name="nidn" value="{{ old('nidn', $pegawai->nidn) }}" class="w-full rounded-lg border-slate-300 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500 shadow-sm placeholder:text-slate-400">
-                        </div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">NIP <span class="text-red-500">*</span></label>
+                        <input type="text" name="nip" value="{{ old('nip', $pegawai->nip) }}" class="w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 transition-colors" required>
+                    </div>
                     </div>
 
                     <!-- Row 2 -->

@@ -54,10 +54,6 @@
                             <label class="block text-sm font-bold text-slate-700 mb-2">NIK <span class="text-red-500">*</span></label>
                             <input type="text" name="nip" class="w-full rounded-lg border-slate-300 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500 shadow-sm placeholder:text-slate-400" placeholder="Contoh: 1234567890" required>
                         </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">NIDN (Opsional)</label>
-                            <input type="text" name="nidn" class="w-full rounded-lg border-slate-300 text-slate-700 focus:border-cyan-500 focus:ring-cyan-500 shadow-sm placeholder:text-slate-400" placeholder="Nomor Induk Dosen Nasional">
-                        </div>
                     </div>
 
                     <!-- Row 2 -->

@@ -62,7 +62,6 @@ class PegawaiController extends Controller
         $pegawai = SdmPegawai::create([
             'name' => $request->name,
             'nip' => $request->nip,
-            'nidn' => $request->nidn,
             'role' => $request->role,
             'join_date' => $request->join_date,
             'status' => $request->status ?? 'active',
@@ -127,7 +126,6 @@ class PegawaiController extends Controller
         $data = [
             'name' => $request->name,
             'nip' => $request->nip,
-            'nidn' => $request->nidn,
             'role' => $request->role,
             'join_date' => $request->join_date,
             'status' => $request->status,
@@ -168,60 +166,52 @@ class PegawaiController extends Controller
 
         return redirect()->route('sdm.pegawai.index')->with('success', 'Pegawai berhasil dihapus.');
     }
+
     public function export()
     {
-        $fileName = 'data-pegawai-' . date('Y-m-d') . '.csv';
+        $pegawais = SdmPegawai::all();
+        $fileName = 'data-pegawai-' . date('Y-m-d') . '.xlsx';
 
-        $headers = array(
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        );
+        // Headers
+        $header = [
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Nama</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>NIP</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Jabatan</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Status Kepegawaian</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Status Aktif</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Tanggal Masuk</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Jenis Kelamin</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Email</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Telepon</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Alamat</b></style>'
+        ];
 
-        $columns = array('Nama', 'NIP', 'NIDN', 'Role', 'Status Kepegawaian', 'Status', 'Tanggal Masuk', 'Jenis Kelamin', 'Email', 'Telepon', 'Alamat');
+        $data = [$header];
 
-        $callback = function() use ($columns) {
-            $file = fopen('php://output', 'w');
-            
-            // Add BOM for Excel to recognize UTF-8
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Use semicolon as delimiter for Excel friendliness in Indonesia
-            fputcsv($file, $columns, ';');
+        foreach ($pegawais as $pegawai) {
+            $data[] = [
+                $pegawai->name,
+                (string)$pegawai->nip, // Force string
+                $pegawai->role,
+                $pegawai->status_kepegawaian,
+                $pegawai->status,
+                $pegawai->join_date,
+                $pegawai->jenis_kelamin,
+                $pegawai->email,
+                (string)$pegawai->phone,
+                $pegawai->alamat_lengkap
+            ];
+        }
 
-            $pegawais = SdmPegawai::all();
-
-            foreach ($pegawais as $pegawai) {
-                // Sanitize fields to prevent formulas or line breaks breaking CSV
-                $row = [
-                    'Nama' => $pegawai->name,
-                    'NIP' => $pegawai->nip,
-                    'NIDN' => $pegawai->nidn,
-                    'Role' => $pegawai->role,
-                    'Status Kepegawaian' => $pegawai->status_kepegawaian,
-                    'Status' => $pegawai->status,
-                    'Tanggal Masuk' => $pegawai->join_date,
-                    'Jenis Kelamin' => $pegawai->jenis_kelamin,
-                    'Email' => $pegawai->email,
-                    'Telepon' => $pegawai->phone,
-                    'Alamat' => preg_replace("/\r\n|\r|\n/", " ", $pegawai->alamat_lengkap) // Remove newlines
-                ];
-
-                fputcsv($file, array_values($row), ';');
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        $xlsx = \Shuchkin\SimpleXLSXGen::fromArray($data);
+        $xlsx->downloadAs($fileName);
+        exit;
     }
 
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt|max:2048',
+            'file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240',
         ]);
 
         $file = $request->file('file');
@@ -232,65 +222,93 @@ class PegawaiController extends Controller
         }
 
         $header = null;
-        $data = array();
-        
-        // Define expected headers mapping (CSV Header => DB Column)
-        $map = [
-            'Nama' => 'name',
-            'NIP' => 'nip',
-            'NIDN' => 'nidn',
-            'Role' => 'role',
-            'Status Kepegawaian' => 'status_kepegawaian',
-            'Status' => 'status',
-            'Tanggal Masuk' => 'join_date',
-            'Jenis Kelamin' => 'jenis_kelamin',
-            'Email' => 'email',
-            'Telepon' => 'phone',
-            'Alamat' => 'alamat_lengkap'
-        ];
+        $data = [];
 
-        // Attempt to detect delimiter (Comma or Semicolon)
-        $delimiter = ',';
-        $handle = fopen($filename, 'r');
-        if ($handle) {
-            $firstLine = fgets($handle);
-            if (substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
-                $delimiter = ';';
-            }
-            rewind($handle);
+        // 1. Try SimpleXLSX for Excel files
+        if ($xlsx = \Shuchkin\SimpleXLSX::parse($filename)) {
+            $rows = $xlsx->rows();
             
-            // Skip BOM if present
-            $bom = fread($handle, 3);
-            if ($bom !== chr(0xEF).chr(0xBB).chr(0xBF)) {
-                rewind($handle);
-            }
-
-            while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
-                if (!$header) {
-                    $header = $row;
-                    // Trim headers
-                    $header = array_map('trim', $header);
-                    
-                    // Validate Headers
-                    $requiredHeaders = ['Nama', 'NIP']; // Minimal required
-                    $missing = array_diff($requiredHeaders, $header);
-                    
-                    if (!empty($missing)) {
-                        fclose($handle);
-                        return back()->with('error', 'Format file tidak sesuai! Kolom berikut tidak ditemukan: ' . implode(', ', $missing) . '. Silakan Export data terlebih dahulu untuk mendapatkan template yang benar.');
+            if (count($rows) > 0) {
+                // Get Header from first row
+                $header = array_map('trim', $rows[0]);
+                
+                // Get Data
+                for ($i = 1; $i < count($rows); $i++) {
+                    if (count($header) === count($rows[$i])) {
+                        $data[] = array_combine($header, $rows[$i]);
                     }
-                } else {
-                    if (count($header) != count($row)) {
-                        continue;
-                    }
-                    $data[] = array_combine($header, $row);
                 }
             }
-            fclose($handle);
+        } 
+        // 2. Fallback to CSV
+        else {
+             $delimiter = ',';
+            $handle = fopen($filename, 'r');
+            if ($handle) {
+                $firstLine = fgets($handle);
+                if (substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
+                    $delimiter = ';';
+                }
+                rewind($handle);
+                
+                // Skip BOM if present
+                $bom = fread($handle, 3);
+                if ($bom !== chr(0xEF).chr(0xBB).chr(0xBF)) {
+                    rewind($handle);
+                }
+
+                while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
+                    if (!$header) {
+                        $header = array_map('trim', $row);
+                    } else {
+                        if (count($header) != count($row)) {
+                             // Handle case where row length doesn't match header
+                             // Basic fix: Pad or Trim
+                             if (count($row) < count($header)) {
+                                 $row = array_pad($row, count($header), null);
+                             } else {
+                                 $row = array_slice($row, 0, count($header));
+                             }
+                        }
+                        $data[] = array_combine($header, $row);
+                    }
+                }
+                fclose($handle);
+            }
         }
 
         if (empty($data)) {
-            return back()->with('error', 'File kosong atau tidak ada data yang terbaca.');
+            return back()->with('error', 'File kosong atau format tidak dikenali. Harap gunakan file .xlsx hasil export atau .csv.');
+        }
+
+        // Validate Headers
+        // Define map for normalization
+        $map = [
+            'Nama' => 'Nama', 
+            '<b>Nama</b>' => 'Nama', // Handle potential HTML tag in header from old template
+            'NIP' => 'NIP',
+            '<b>NIP</b>' => 'NIP'
+        ];
+        
+        // Clean headers from data if they contain HTML tags (SimpleXLSX might return raw strings)
+        $cleanData = [];
+        foreach ($data as $row) {
+            $cleanRow = [];
+            foreach ($row as $key => $value) {
+                $cleanKey = strip_tags($key);
+                $cleanRow[$cleanKey] = $value;
+            }
+            $cleanData[] = $cleanRow;
+        }
+        $data = $cleanData;
+        
+        // Check required 'NIP' and 'Nama'
+        // Get keys from first row of data
+        $firstRowKeys = array_keys($data[0] ?? []);
+        $missing = array_diff(['Nama', 'NIP'], $firstRowKeys);
+
+        if (!empty($missing)) {
+             return back()->with('error', 'Format file tidak sesuai! Kolom berikut tidak ditemukan: ' . implode(', ', $missing) . '. Silakan Export data terlebih dahulu.');
         }
 
         $count = 0;
@@ -301,13 +319,12 @@ class PegawaiController extends Controller
                 if (empty($row['Nama']) || empty($row['NIP'])) continue;
 
                 SdmPegawai::updateOrCreate(
-                    ['nip' => $row['NIP']], // Use NIP as unique key
+                    ['nip' => $row['NIP']], 
                     [
                         'name' => $row['Nama'],
-                        'nidn' => $row['NIDN'] ?? null,
-                        'role' => $row['Role'] ?? 'staff',
+                        'role' => $row['Jabatan'] ?? ($row['Role'] ?? 'staff'),
                         'status_kepegawaian' => $row['Status Kepegawaian'] ?? 'Tetap',
-                        'status' => $row['Status'] ?? 'active',
+                        'status' => $row['Status Aktif'] ?? ($row['Status'] ?? 'active'),
                         'join_date' => (!empty($row['Tanggal Masuk']) && strtotime($row['Tanggal Masuk'])) ? date('Y-m-d', strtotime($row['Tanggal Masuk'])) : now(),
                         'jenis_kelamin' => $row['Jenis Kelamin'] ?? null,
                         'email' => $row['Email'] ?? null,

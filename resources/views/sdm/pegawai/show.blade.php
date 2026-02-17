@@ -48,10 +48,6 @@
                             <p class="font-mono font-semibold text-slate-700 text-sm">{{ $pegawai->nip }}</p>
                         </div>
                         <div>
-                            <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">NIDN</p>
-                            <p class="font-mono font-semibold text-slate-700 text-sm">{{ $pegawai->nidn ?? '-' }}</p>
-                        </div>
-                        <div>
                             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">Masa Kerja</p>
                             @if($pegawai->join_date)
                                 @php

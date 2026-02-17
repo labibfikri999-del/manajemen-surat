@@ -25,9 +25,6 @@ class SdmDummySeeder extends Seeder
             $gender = $faker->randomElement(['L', 'P']);
             $pendidikan = $faker->randomElement($pendidikanlist);
             
-            // Logic NIDN: usually for academic/lecturer, but let's say 20% have it
-            $nidn = ($faker->boolean(20)) ? $faker->numerify('##########') : null;
-
             SdmPegawai::create([
                 'name' => $faker->name($gender == 'L' ? 'male' : 'female'),
                 'nip' => $faker->unique()->numerify('19##########'),
@@ -38,7 +35,6 @@ class SdmDummySeeder extends Seeder
                 'email' => $faker->unique()->safeEmail,
                 
                 // New Fields
-                'nidn' => $nidn,
                 'jenis_kelamin' => $gender,
                 'pendidikan_terakhir' => $pendidikan,
                 'status_kepegawaian' => $faker->randomElement($statuslist),
