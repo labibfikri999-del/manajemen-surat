@@ -167,6 +167,45 @@ class PegawaiController extends Controller
         return redirect()->route('sdm.pegawai.index')->with('success', 'Pegawai berhasil dihapus.');
     }
 
+    public function downloadTemplate()
+    {
+        $fileName = 'template-import-pegawai.xlsx';
+
+        // Headers
+        $header = [
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Nama</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>NIP</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Role</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Status Kepegawaian</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Status Aktif</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Tanggal Masuk</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Jenis Kelamin</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Email</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Telepon</b></style>',
+            '<style bgcolor="#4f46e5" color="#ffffff"><b>Alamat</b></style>'
+        ];
+
+        // Example Data
+        $example = [
+            'John Doe',
+            '1234567890',
+            'staff',
+            'Tetap',
+            'active',
+            date('Y-m-d'),
+            'L',
+            'john@example.com',
+            '081234567890',
+            'Jl. Contoh No. 1'
+        ];
+
+        $data = [$header, $example];
+
+        $xlsx = \Shuchkin\SimpleXLSXGen::fromArray($data);
+        $xlsx->downloadAs($fileName);
+        exit;
+    }
+
     public function export()
     {
         $pegawais = SdmPegawai::all();
@@ -292,53 +331,87 @@ class PegawaiController extends Controller
         
         // Clean headers from data if they contain HTML tags (SimpleXLSX might return raw strings)
         $cleanData = [];
-        foreach ($data as $row) {
+        foreach ($data as $inputRow) {
             $cleanRow = [];
-            foreach ($row as $key => $value) {
+            foreach ($inputRow as $key => $value) {
                 $cleanKey = strip_tags($key);
                 $cleanRow[$cleanKey] = $value;
             }
             $cleanData[] = $cleanRow;
         }
-        $data = $cleanData;
-        
-        // Check required 'NIP' and 'Nama'
-        // Get keys from first row of data
-        $firstRowKeys = array_keys($data[0] ?? []);
-        $missing = array_diff(['Nama', 'NIP'], $firstRowKeys);
 
-        if (!empty($missing)) {
-             return back()->with('error', 'Format file tidak sesuai! Kolom berikut tidak ditemukan: ' . implode(', ', $missing) . '. Silakan Export data terlebih dahulu.');
+        // Validate Headers Check
+        $firstRowKeys = array_keys($cleanData[0] ?? []);
+        // Check minimal required column
+        if (!in_array('Nama', $firstRowKeys) || !in_array('NIP', $firstRowKeys)) {
+             return back()->with('error', 'Format file tidak sesuai! Kolom "Nama" dan "NIP" wajib ada. Silakan gunakan template yang disediakan.');
         }
 
-        $count = 0;
-        \Illuminate\Support\Facades\DB::beginTransaction();
-        try {
-            foreach ($data as $row) {
-                // Ensure required fields
-                if (empty($row['Nama']) || empty($row['NIP'])) continue;
+        $successCount = 0;
+        $errors = [];
 
-                SdmPegawai::updateOrCreate(
-                    ['nip' => $row['NIP']], 
+        foreach ($cleanData as $index => $row) {
+            $rowNumber = $index + 2; // +2 because index starts at 0 and header is row 1
+            
+            // Skip empty rows
+            if (empty($row['Nama']) && empty($row['NIP'])) continue;
+
+            // Normalize Data
+            $input = [
+                'name' => $row['Nama'] ?? null,
+                'nip' => $row['NIP'] ?? null,
+                'role' => isset($row['Role']) ? strtolower($row['Role']) : 'staff',
+                'join_date' => isset($row['Tanggal Masuk']) ? date('Y-m-d', strtotime($row['Tanggal Masuk'])) : date('Y-m-d'),
+                'status' => isset($row['Status Aktif']) ? strtolower($row['Status Aktif']) : 'active',
+                'status_kepegawaian' => $row['Status Kepegawaian'] ?? 'Tetap',
+                'jenis_kelamin' => isset($row['Jenis Kelamin']) ? strtoupper($row['Jenis Kelamin']) : 'L',
+                'email' => $row['Email'] ?? null,
+                'phone' => $row['Telepon'] ?? null,
+                'alamat_lengkap' => $row['Alamat'] ?? null,
+            ];
+
+            // Manual Validation for this row
+            $validator = \Illuminate\Support\Facades\Validator::make($input, [
+                'name' => 'required',
+                'nip' => 'required', // We handle uniqueness check manually for updateOrCreate logic or strict insert
+                // 'email' => 'nullable|email',
+            ]);
+
+            if ($validator->fails()) {
+                $errors[] = "Baris {$rowNumber}: " . implode(', ', $validator->errors()->all());
+                continue;
+            }
+
+            try {
+                // Update or Create based on NIP
+                $pegawai = SdmPegawai::updateOrCreate(
+                    ['nip' => $input['nip']],
                     [
-                        'name' => $row['Nama'],
-                        'role' => $row['Jabatan'] ?? ($row['Role'] ?? 'staff'),
-                        'status_kepegawaian' => $row['Status Kepegawaian'] ?? 'Tetap',
-                        'status' => $row['Status Aktif'] ?? ($row['Status'] ?? 'active'),
-                        'join_date' => (!empty($row['Tanggal Masuk']) && strtotime($row['Tanggal Masuk'])) ? date('Y-m-d', strtotime($row['Tanggal Masuk'])) : now(),
-                        'jenis_kelamin' => $row['Jenis Kelamin'] ?? null,
-                        'email' => $row['Email'] ?? null,
-                        'phone' => $row['Telepon'] ?? null,
-                        'alamat_lengkap' => $row['Alamat'] ?? null,
+                        'name' => $input['name'],
+                        'role' => $input['role'],
+                        'join_date' => $input['join_date'],
+                        'status' => $input['status'],
+                        'status_kepegawaian' => $input['status_kepegawaian'],
+                        'jenis_kelamin' => $input['jenis_kelamin'],
+                        'email' => $input['email'],
+                        'phone' => $input['phone'],
+                        'alamat_lengkap' => $input['alamat_lengkap'],
                     ]
                 );
-                $count++;
+                $successCount++;
+            } catch (\Exception $e) {
+                $errors[] = "Baris {$rowNumber}: Gagal menyimpan data ({$input['name']}) - " . $e->getMessage();
             }
-            \Illuminate\Support\Facades\DB::commit();
-            return redirect()->route('sdm.pegawai.index')->with('success', "$count data pegawai berhasil diimport.");
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollback();
-            return back()->with('error', 'Terjadi kesalahan saat import data: ' . $e->getMessage());
+        }
+
+        if ($successCount > 0) {
+            $message = "Berhasil memproses {$successCount} data pegawai.";
+            if (count($errors) > 0) {
+                return back()->with('warning', $message)->with('import_errors', $errors);
+            }
+            return back()->with('success', $message);
+        } else {
+            return back()->with('error', 'Tidak ada data yang berhasil diimport.')->with('import_errors', $errors);
         }
     }
 }

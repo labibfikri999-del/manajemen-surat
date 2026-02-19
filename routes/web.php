@@ -125,6 +125,7 @@ Route::middleware('auth')->group(function () {
         
         // Pegawai
         Route::get('/pegawai/export', [App\Http\Controllers\SDM\PegawaiController::class, 'export'])->name('pegawai.export');
+        Route::get('/pegawai/template', [App\Http\Controllers\SDM\PegawaiController::class, 'downloadTemplate'])->name('pegawai.template');
         Route::post('/pegawai/import', [App\Http\Controllers\SDM\PegawaiController::class, 'import'])->name('pegawai.import');
         Route::get('/pegawai', [App\Http\Controllers\SDM\PegawaiController::class, 'index'])->name('pegawai.index');
         Route::get('/pegawai/create', [App\Http\Controllers\SDM\PegawaiController::class, 'create'])->name('pegawai.create');
@@ -135,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/pegawai/{id}', [App\Http\Controllers\SDM\PegawaiController::class, 'destroy'])->name('pegawai.destroy');
         
         // Pendidikan
+        Route::get('pendidikan/{id}/download', [App\Http\Controllers\SDM\PendidikanController::class, 'download'])->name('pendidikan.download');
         Route::resource('pendidikan', App\Http\Controllers\SDM\PendidikanController::class);
 
         // Jabatan
@@ -144,7 +146,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('riwayat-pangkat', App\Http\Controllers\SDM\RiwayatPangkatController::class);
 
         // Keluarga
+        Route::get('keluarga/{id}/download', [App\Http\Controllers\SDM\KeluargaController::class, 'download'])->name('keluarga.download');
         Route::resource('keluarga', App\Http\Controllers\SDM\KeluargaController::class);
+
+        // Dokumen
+        Route::post('/dokumen', [App\Http\Controllers\SDM\DocumentController::class, 'store'])->name('dokumen.store');
+        Route::get('/dokumen/{id}/download', [App\Http\Controllers\SDM\DocumentController::class, 'download'])->name('dokumen.download');
+        Route::delete('/dokumen/{id}', [App\Http\Controllers\SDM\DocumentController::class, 'destroy'])->name('dokumen.destroy');
         
         // Laporan
         Route::get('/laporan', [App\Http\Controllers\SDM\LaporanController::class, 'index'])->name('laporan.index');

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\SDM\SdmKeluarga;
 use App\Models\SDM\SdmPegawai;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class KeluargaController extends Controller
 {
@@ -55,8 +56,8 @@ class KeluargaController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('dokumen')) {
-            $path = $request->file('dokumen')->store('public/dokumen_keluarga');
-            $data['dokumen_path'] = str_replace('public/', '', $path);
+            $path = $request->file('dokumen')->store('dokumen_keluarga', 'local');
+            $data['dokumen_path'] = $path;
         }
 
         SdmKeluarga::create($data);
@@ -88,8 +89,8 @@ class KeluargaController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('dokumen')) {
-            $path = $request->file('dokumen')->store('public/dokumen_keluarga');
-            $data['dokumen_path'] = str_replace('public/', '', $path);
+            $path = $request->file('dokumen')->store('dokumen_keluarga', 'local');
+            $data['dokumen_path'] = $path;
         }
 
         $keluarga->update($data);
@@ -97,9 +98,33 @@ class KeluargaController extends Controller
         return redirect()->route('sdm.keluarga.index')->with('success', 'Data keluarga berhasil diperbarui.');
     }
 
+    public function download($id)
+    {
+        $keluarga = SdmKeluarga::findOrFail($id);
+        
+        // Cek disk 'local'
+        if (Storage::disk('local')->exists($keluarga->dokumen_path)) {
+             return Storage::disk('local')->download($keluarga->dokumen_path);
+        }
+        
+        // Fallback cek disk 'public' (untuk file lama)
+        if (Storage::disk('public')->exists('dokumen_keluarga/' . $keluarga->dokumen_path)) {
+             return Storage::disk('public')->download('dokumen_keluarga/' . $keluarga->dokumen_path);
+        } elseif (Storage::disk('public')->exists($keluarga->dokumen_path)) { // In case path already includes folder
+             return Storage::disk('public')->download($keluarga->dokumen_path);
+        }
+
+        abort(404, 'File not found');
+    }
+
     public function destroy($id)
     {
         $keluarga = SdmKeluarga::findOrFail($id);
+        
+        if ($keluarga->dokumen_path && Storage::disk('local')->exists($keluarga->dokumen_path)) {
+            Storage::disk('local')->delete($keluarga->dokumen_path);
+        }
+        
         $keluarga->delete();
 
         return redirect()->route('sdm.keluarga.index')->with('success', 'Data keluarga berhasil dihapus.');

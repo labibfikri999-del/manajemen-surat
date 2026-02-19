@@ -40,4 +40,9 @@ class SdmPegawai extends Model
     {
         return $this->hasMany(SdmRiwayatPangkat::class, 'sdm_pegawai_id')->orderBy('tmt', 'desc');
     }
+
+    public function documents()
+    {
+        return $this->hasMany(SdmDocument::class, 'sdm_pegawai_id')->orderBy('created_at', 'desc');
+    }
 }

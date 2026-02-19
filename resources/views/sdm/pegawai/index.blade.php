@@ -35,6 +35,32 @@
     </div>
 
     <!-- Filters Section -->
+    
+    <!-- Import Feedback -->
+    @if(session('import_errors'))
+    <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-amber-700">
+                    {{ session('warning') ?? session('error') ?? 'Terdapat beberapa error saat import:' }}
+                </p>
+                <div class="mt-2 text-sm text-amber-700 max-h-40 overflow-y-auto">
+                    <ul class="list-disc pl-5 space-y-1">
+                        @foreach(session('import_errors') as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
         <form action="{{ route('sdm.pegawai.index') }}" method="GET">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
@@ -247,8 +273,14 @@
                                     <p class="text-sm text-slate-500 mb-4">Upload file Excel (.xls) hasil export atau CSV. Pastikan format kolom sesuai dengan template.</p>
                                     
                                     <div class="mt-4">
-                                        <label class="block text-sm font-bold text-slate-700 mb-2">Pilih File</label>
-                                        <input type="file" name="file" accept=".csv, .xls" required class="block w-full text-sm text-slate-500
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="block text-sm font-bold text-slate-700">Pilih File</label>
+                                            <a href="{{ route('sdm.pegawai.template') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                Download Template
+                                            </a>
+                                        </div>
+                                        <input type="file" name="file" accept=".csv, .xls, .xlsx" required class="block w-full text-sm text-slate-500
                                           file:mr-4 file:py-2 file:px-4
                                           file:rounded-full file:border-0
                                           file:text-sm file:font-semibold

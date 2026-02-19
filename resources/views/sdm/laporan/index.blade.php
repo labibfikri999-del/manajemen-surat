@@ -70,7 +70,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow group overflow-hidden flex flex-col h-full">
             <div class="p-6 flex-1">
                  <div class="w-12 h-12 bg-sky-50 rounded-lg flex items-center justify-center text-sky-600 mb-4 group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                 </div>
                 <h3 class="text-lg font-bold text-slate-800 mb-2">Laporan Masa Kerja</h3>
                 <p class="text-slate-500 text-sm leading-relaxed">Detail masa kerja setiap karyawan, dihitung dari tanggal bergabung hingga saat ini.</p>

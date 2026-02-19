@@ -97,9 +97,14 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     Keluarga
                 </button>
+                </button>
                  <button @click="activeTab = 'jabatan'" :class="activeTab === 'jabatan' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="px-6 py-4 border-b-2 font-bold text-sm transition-colors whitespace-nowrap flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     Jabatan & Pangkat
+                </button>
+                <button @click="activeTab = 'dokumen'" :class="activeTab === 'dokumen' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="px-6 py-4 border-b-2 font-bold text-sm transition-colors whitespace-nowrap flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Dokumen & Arsip
                 </button>
             </div>
 
@@ -295,9 +300,9 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 capitalize">{{ $fam->pekerjaan ?? '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             @if($fam->dokumen_path)
-                                                <a href="{{ Storage::url($fam->dokumen_path) }}" target="_blank" class="inline-flex items-center px-2.5 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
-                                                    <svg class="mr-1.5 h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                    Lihat
+                                                <a href="{{ route('sdm.keluarga.download', $fam->id) }}" class="inline-flex items-center px-2.5 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                                                    <svg class="mr-1.5 h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                    Download
                                                 </a>
                                             @else
                                                 <span class="text-slate-400 text-xs">-</span>
@@ -410,6 +415,130 @@
                         @else
                          <p class="text-slate-400 italic text-sm">Belum ada riwayat pangkat.</p>
                         @endif
+                    </div>
+                </div>
+
+                <!-- TAB: DOKUMEN -->
+                <div x-show="activeTab === 'dokumen'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <h3 class="text-lg font-bold text-slate-800">Arsip Digital (E-Dosier)</h3>
+                        <button @click="$dispatch('open-upload-modal')" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Upload Dokumen
+                        </button>
+                    </div>
+
+                    <!-- Filter Kategori (Optional, for now just list all) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @forelse($pegawai->documents as $doc)
+                            <div class="group relative bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-slate-800 text-sm line-clamp-1" title="{{ $doc->nama_dokumen }}">{{ $doc->nama_dokumen }}</h4>
+                                            <span class="inline-block px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 mt-1">{{ $doc->kategori }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                         <form action="{{ route('sdm.dokumen.destroy', $doc->id) }}" method="POST" onsubmit="return confirm('Hapus dokumen ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-slate-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
+                                    <span>{{ $doc->created_at->format('d M Y') }}</span>
+                                    <a href="{{ route('sdm.dokumen.download', $doc->id) }}" class="font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                                        Download
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </a>
+                                </div>
+                                @if($doc->tgl_kadaluarsa)
+                                    @php
+                                        $exp = \Carbon\Carbon::parse($doc->tgl_kadaluarsa);
+                                        $isExp = $exp->isPast();
+                                        $isNear = $exp->diffInDays(now()) < 30;
+                                    @endphp
+                                    <div class="mt-2 text-[10px] font-bold {{ $isExp ? 'text-rose-600' : ($isNear ? 'text-amber-500' : 'text-emerald-600') }}">
+                                        Exp: {{ $exp->format('d M Y') }}
+                                    </div>
+                                @endif
+                            </div>
+                        @empty
+                            <div class="col-span-full text-center py-12 border-2 border-dashed border-slate-200 rounded-2xl">
+                                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <p class="text-slate-500 font-medium">Belum ada dokumen yang diupload.</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <!-- Upload Modal (Alpine) -->
+                    <div x-data="{ show: false }" @open-upload-modal.window="show = true" @keydown.escape.window="show = false" x-show="show" class="relative z-50 pointer-events-none">
+                        <div x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm pointer-events-auto"></div>
+                        
+                        <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-auto">
+                            <div x-show="show" @click.away="show = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-4" class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                                    <h3 class="font-bold text-lg text-slate-800">Upload Dokumen Baru</h3>
+                                    <button @click="show = false" class="text-slate-400 hover:text-slate-600">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+                                <form action="{{ route('sdm.dokumen.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                                    @csrf
+                                    <input type="hidden" name="sdm_pegawai_id" value="{{ $pegawai->id }}">
+                                    
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-1">Nama Dokumen <span class="text-rose-500">*</span></label>
+                                        <input type="text" name="nama_dokumen" required class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="Contoh: KTP, Ijazah S1, STR">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-1">Kategori <span class="text-rose-500">*</span></label>
+                                        <select name="kategori" required class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                            <option value="Identitas">Identitas (KTP, KK, NPWP)</option>
+                                            <option value="Pendidikan">Pendidikan (Ijazah, Transkrip)</option>
+                                            <option value="Legalitas">Legalitas (SK, Kontrak)</option>
+                                            <option value="Kompetensi">Kompetensi (STR, SIP, Sertifikat)</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-1">File Dokumen <span class="text-rose-500">*</span></label>
+                                        <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition">
+                                        <p class="mt-1 text-xs text-slate-400">PDF, JPG, PNG (Max. 5MB)</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-bold text-slate-700 mb-1">Tgl. Kadaluarsa</label>
+                                            <input type="date" name="tgl_kadaluarsa" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                            <p class="mt-1 text-[10px] text-slate-400">Isi jika dokumen punya masa berlaku (STR/SIP/Kontrak)</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-1">Keterangan</label>
+                                        <textarea name="keterangan" rows="2" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm"></textarea>
+                                    </div>
+
+                                    <div class="pt-2 flex justify-end gap-3">
+                                        <button type="button" @click="show = false" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition">Batal</button>
+                                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Simpan Dokumen</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                     </div>
                 </div>
 

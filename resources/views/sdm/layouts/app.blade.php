@@ -94,7 +94,7 @@
 
                 <!-- Payroll -->
                 <a href="{{ route('sdm.payroll.index') }}" class="{{ request()->routeIs('sdm.payroll.*') ? 'nav-item-active' : 'text-slate-500 hover:text-cyan-600 hover:bg-cyan-50' }} flex items-center px-6 py-3.5 text-sm font-medium transition-all duration-200 group">
-                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                     <span x-show="sidebarOpen" class="ml-3">Payroll</span>
                 </a>
 

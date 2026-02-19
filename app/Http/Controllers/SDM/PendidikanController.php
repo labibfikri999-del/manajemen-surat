@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SDM\SdmPendidikan;
 use App\Models\SDM\SdmPegawai;
+use Illuminate\Support\Facades\Storage;
 
 class PendidikanController extends Controller
 {
@@ -50,8 +51,8 @@ class PendidikanController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('dokumen')) {
-            $path = $request->file('dokumen')->store('public/dokumen_pendidikan');
-            $data['dokumen_path'] = str_replace('public/', '', $path);
+            $path = $request->file('dokumen')->store('dokumen_pendidikan', 'local');
+            $data['dokumen_path'] = $path;
         }
 
         SdmPendidikan::create($data);
@@ -82,13 +83,32 @@ class PendidikanController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('dokumen')) {
-            $path = $request->file('dokumen')->store('public/dokumen_pendidikan');
-            $data['dokumen_path'] = str_replace('public/', '', $path);
+            $path = $request->file('dokumen')->store('dokumen_pendidikan', 'local');
+            $data['dokumen_path'] = $path;
         }
 
         $pendidikan->update($data);
 
         return redirect()->route('sdm.pendidikan.index')->with('success', 'Riwayat pendidikan berhasil diperbarui.');
+    }
+
+    public function download($id)
+    {
+        $pendidikan = SdmPendidikan::findOrFail($id);
+        
+        // Cek disk 'local'
+        if (Storage::disk('local')->exists($pendidikan->dokumen_path)) {
+             return Storage::disk('local')->download($pendidikan->dokumen_path);
+        }
+        
+        // Fallback cek disk 'public'
+        if (Storage::disk('public')->exists('dokumen_pendidikan/' . $pendidikan->dokumen_path)) {
+             return Storage::disk('public')->download('dokumen_pendidikan/' . $pendidikan->dokumen_path);
+        } elseif (Storage::disk('public')->exists($pendidikan->dokumen_path)) {
+             return Storage::disk('public')->download($pendidikan->dokumen_path);
+        }
+
+        abort(404, 'File not found');
     }
 
     public function destroy($id)
