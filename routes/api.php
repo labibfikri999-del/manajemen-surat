@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\BalasanApiController;
+use App\Http\Controllers\SuratKeluarController;
+use App\Http\Controllers\SuratMasukController;
 use App\Models\Dokumen;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -206,6 +208,13 @@ Route::middleware('web')->group(function () {
     Route::get('/balasan/unread-count', [BalasanApiController::class, 'unreadCount']);
     Route::get('/balasan/unread-list', [BalasanApiController::class, 'unreadList']);
     Route::post('/balasan/mark-read/{id}', [BalasanApiController::class, 'markRead']);
+
+    Route::apiResource('surat-masuk', SuratMasukController::class);
+    Route::get('surat-masuk/export/excel', [SuratMasukController::class, 'export']); // Export route
+    Route::get('surat-masuk/{id}/download', [SuratMasukController::class, 'download']);
+    Route::apiResource('surat-keluar', SuratKeluarController::class);
+    Route::get('surat-keluar/export/excel', [SuratKeluarController::class, 'export']); // Export route
+    Route::get('surat-keluar/{id}/download', [SuratKeluarController::class, 'download']);
 
     Route::get('/dokumen/{id}/download-balasan', [App\Http\Controllers\DokumenController::class, 'downloadBalasan']);
 

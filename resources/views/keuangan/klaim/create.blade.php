@@ -7,7 +7,7 @@
             <h1 class="text-xl font-bold text-slate-800">Buat Klaim Baru</h1>
         </div>
         
-        <form action="{{ route('keuangan.klaim.store') }}" method="POST" class="p-6 space-y-6">
+        <form action="{{ route('keuangan.klaim.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -37,6 +37,12 @@
                     <option value="Pending">Pending (Menunggu pembayaran)</option>
                     <option value="Paid">Paid (Sudah dibayar)</option>
                 </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Dokumen Pendukung (Kwitansi/Surat)</label>
+                <input type="file" name="attachment" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all">
+                <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG, PDF, DOC, XLSX, ZIP. Max: 10MB</p>
             </div>
 
             <script>

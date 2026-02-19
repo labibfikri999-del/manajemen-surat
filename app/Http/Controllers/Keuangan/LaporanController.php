@@ -37,9 +37,21 @@ class LaporanController extends Controller
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
 
-        // Calculate "Kas" (Cash) based on all transactions up to end of selected period
-        // For Balance Sheet, we need cumulative balance
+        // 1. Fetch Accounts from Database
+        $accounts = \App\Models\Keuangan\FinAccount::all();
+
+        // 2. Calculate "Kas & Setara Kas" dynamically from Transactions (Revenue - Expenses)
+        // Adjust the base "Kas" balance with current month's flow if needed, 
+        // OR just use the transactions flow + initial balance. 
+        // For simplicity in this audit, let's assume 'Kas & Setara Kas' in FinAccount is the starting balance 
+        // and we add year-to-date performance.
+        
+        $kasAccount = $accounts->where('name', 'Kas & Setara Kas')->first();
         $date = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        // Calculate Net Income YTD (Year to Date) to adjust Equity/Cash
+        // In a real system, you'd close the books monthly.
+        // Here we'll simulate: Cash = Initial + (Income - Expense)
         
         $totalPemasukan = FinTransaction::where('type', 'pemasukan')
             ->where('transaction_date', '<=', $date)
@@ -48,45 +60,35 @@ class LaporanController extends Controller
         $totalPengeluaran = FinTransaction::where('type', 'pengeluaran')
             ->where('transaction_date', '<=', $date)
             ->sum('amount');
-
-        $kas = $totalPemasukan - $totalPengeluaran;
-
-        // Static/Placeholder Data for other Asset/Liability components (as per plan)
-        // In a real app, these would come from other tables or general ledger
+            
+        $netIncomeYTD = $totalPemasukan - $totalPengeluaran;
+        
+        // 3. Organize Data for View
         $assets = [
-            'lancar' => [
-                'Kas & Setara Kas' => $kas,
-                'Piutang Usaha' => 1200000000,
-                'Persediaan' => 450000000,
-            ],
-            'tetap' => [
-                'Bangunan & Gedung' => 12000000000,
-                'Peralatan Medis' => 8500000000,
-                'Kendaraan' => 850000000,
-                'Akumulasi Penyusutan' => -1500000000 // Negative value
-            ]
+            'lancar' => $accounts->where('type', 'asset_current')->pluck('balance', 'name')->toArray(),
+            'tetap' => $accounts->where('type', 'asset_fixed')->pluck('balance', 'name')->toArray(),
         ];
+        
+        // Override Kas with Dynamic Calculation if desired, or just add Net Income to it
+        // Let's assume the seeded 'Kas' is the opening balance.
+        if(isset($assets['lancar']['Kas & Setara Kas'])) {
+            $assets['lancar']['Kas & Setara Kas'] += $netIncomeYTD;
+        }
 
         $liabilities = [
-            'pendek' => [
-                'Utang Usaha' => 350000000,
-                'Utang Gaji' => 450000000,
-            ],
-            'panjang' => [
-                'Utang Bank' => 4500000000,
-                'Kewajiban Lain' => 850000000
-            ]
+            'pendek' => $accounts->where('type', 'liability_short')->pluck('balance', 'name')->toArray(),
+            'panjang' => $accounts->where('type', 'liability_long')->pluck('balance', 'name')->toArray(),
         ];
 
-        // Equity = Assets - Liabilities
+        $equity = $accounts->where('type', 'equity')->pluck('balance', 'name')->toArray();
+        
+        // Add Current Year Earnings to Equity
+        $equity['Laba Periode Berjalan'] = $netIncomeYTD;
+
+        // Calculate Totals
         $totalAssets = array_sum($assets['lancar']) + array_sum($assets['tetap']);
         $totalLiabilities = array_sum($liabilities['pendek']) + array_sum($liabilities['panjang']);
-        $totalEquity = $totalAssets - $totalLiabilities;
-
-        $equity = [
-            'Modal Yayasan' => 12000000000,
-            'Laba Ditahan' => $totalEquity - 12000000000 // Plug figure to balance
-        ];
+        $totalEquity = array_sum($equity);
 
         return view('keuangan.neraca', compact('assets', 'liabilities', 'equity', 'month', 'year', 'totalAssets', 'totalLiabilities', 'totalEquity'));
     }

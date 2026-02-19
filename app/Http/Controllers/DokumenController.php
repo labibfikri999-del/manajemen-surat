@@ -101,7 +101,7 @@ class DokumenController extends Controller
             'tujuan_instansi_id' => 'nullable|exists:instansis,id',
             'email_eksternal' => 'nullable|email', // Validasi email eksternal
             'kategori_arsip' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK', // Opsi arsip langsung
-            'file' => 'required|file|mimes:doc,docx,pdf|max:10240', // Word/PDF, Max 10MB
+            'file' => 'required|file|mimes:doc,docx,pdf,xlsx,zip,rar|max:10240', // Word/PDF/Excel/Zip, Max 10MB
         ]);
 
         // Upload file

@@ -14,34 +14,52 @@ class InventoryController extends Controller
     {
         $query = Aset::query();
 
-        if ($request->has('search')) {
+        // Search
+        if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('category', 'like', "%{$search}%");
+                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%");
             });
         }
 
+        // Filter by Category
         if ($request->has('category') && $request->category != '') {
             $query->where('category', $request->category);
         }
 
+        // Filter by Condition
         if ($request->has('condition') && $request->condition != '') {
             $query->where('condition', $request->condition);
         }
 
-        $asets = $query->orderBy('created_at', 'desc')->paginate(12);
+        // Sorting
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Allow sorting by valid columns only
+        if (in_array($sortField, ['name', 'code', 'price', 'purchase_date', 'created_at'])) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
 
-        // Stats
+        $asets = $query->paginate(10)->withQueryString();
+
+        // Stats for the view
         $stats = [
             'total' => Aset::count(),
             'baik' => Aset::where('condition', 'Baik')->count(),
-            'rusak' => Aset::where('condition', '!=', 'Baik')->count(),
+            'rusak' => Aset::whereIn('condition', ['Rusak Ringan', 'Rusak Berat'])->count(),
             'value' => Aset::sum('price'),
         ];
+        
+        // Get unique categories for filter dropdown
+        $categories = Aset::select('category')->distinct()->pluck('category');
 
-        return view('aset.inventory.index', compact('asets', 'stats'));
+        return view('aset.inventory.index', compact('asets', 'stats', 'categories'));
     }
 
     public function create()

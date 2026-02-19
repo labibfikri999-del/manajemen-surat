@@ -15,6 +15,34 @@
         </a>
     </div>
 
+    <!-- Filter & Export -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
+        <form action="{{ route('keuangan.' . $type) }}" method="GET" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <div class="flex items-center gap-2">
+                <input type="date" name="start_date" value="{{ request('start_date') }}" class="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                <span class="text-slate-400">-</span>
+                <input type="date" name="end_date" value="{{ request('end_date') }}" class="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+            </div>
+            <button type="submit" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium transition-colors">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                Filter
+            </button>
+            @if(request('start_date'))
+                <a href="{{ route('keuangan.' . $type) }}" class="px-4 py-2 text-slate-400 hover:text-slate-600 text-sm">Reset</a>
+            @endif
+        </form>
+
+        <form action="{{ route('keuangan.' . $type) }}" method="GET">
+            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+            <input type="hidden" name="export" value="csv">
+            <button type="submit" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export CSV
+            </button>
+        </form>
+    </div>
+
     <!-- Stats Card -->
     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
         <div class="relative z-10 flex items-center gap-4">
@@ -28,8 +56,16 @@
                 </svg>
             </div>
             <div>
-                <p class="text-sm text-slate-500 font-medium">Total {{ $title }} Bulan Ini</p>
-                <h2 class="text-2xl font-bold text-slate-800">Rp {{ number_format($total, 0, ',', '.') }}</h2>
+                <p class="text-sm text-slate-500 font-medium">
+                    @if(request('start_date'))
+                        Total ({{ \Carbon\Carbon::parse(request('start_date'))->format('d M') }} - {{ \Carbon\Carbon::parse(request('end_date'))->format('d M Y') }})
+                    @else
+                        Total {{ $title }} Bulan Ini
+                    @endif
+                </p>
+                <h2 class="text-2xl font-bold text-slate-800">
+                    Rp {{ number_format(request('start_date') ? $filteredTotal : $total, 0, ',', '.') }}
+                </h2>
             </div>
         </div>
         <!-- Decoration -->

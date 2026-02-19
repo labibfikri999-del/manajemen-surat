@@ -22,6 +22,7 @@
                         <th class="p-6 font-bold">Tanggal Pengajuan</th>
                         <th class="p-6 font-bold text-right">Nilai Klaim</th>
                         <th class="p-6 font-bold text-center">Status</th>
+                        <th class="p-6 font-bold text-center">Bukti</th>
                         <th class="p-6 font-bold text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -50,6 +51,15 @@
                             <span class="px-3 py-1 rounded-full text-xs font-bold {{ $statusClass }}">
                                 {{ $claim->status }}
                             </span>
+                        </td>
+                        <td class="p-6 text-center">
+                            @if($claim->attachment)
+                                <a href="{{ asset('storage/' . $claim->attachment) }}" target="_blank" class="text-blue-600 hover:text-blue-700 font-bold text-xs underline">
+                                    Lihat File
+                                </a>
+                            @else
+                                <span class="text-slate-300 text-xs">-</span>
+                            @endif
                         </td>
                         <td class="p-6 text-center">
                             <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

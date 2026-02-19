@@ -97,7 +97,7 @@
              <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Bukti Transaksi (Struk/Invoice)</label>
                 <input type="file" name="attachment" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-all">
-                <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG, PDF. Max: 2MB</p>
+                <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG, PDF, DOC, XLSX, ZIP. Max: 10MB</p>
             </div>
 
             <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">

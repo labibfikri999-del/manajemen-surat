@@ -6,7 +6,7 @@
         <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold text-slate-800">Edit Transaksi</h1>
-                <p class="text-slate-500 text-sm">Perbarui detail transaksi.</p>
+                <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG, PDF, DOC, XLSX, ZIP. Max: 10MB</p>
             </div>
             <a href="{{ route('keuangan.dashboard') }}" class="text-slate-400 hover:text-slate-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>

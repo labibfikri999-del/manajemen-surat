@@ -25,7 +25,7 @@ class TransactionController extends Controller
             'category' => 'required|string',
             'description' => 'nullable|string',
             'transaction_date' => 'required|date',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx,zip,rar|max:10240'
         ]);
 
         $path = null;
@@ -46,40 +46,77 @@ class TransactionController extends Controller
         return redirect()->route('keuangan.dashboard')->with('success', 'Transaksi berhasil dicatat!');
     }
 
-    public function pemasukan()
+    public function pemasukan(Request $request)
     {
-        $transactions = \App\Models\Keuangan\FinTransaction::where('type', 'pemasukan')
-            ->orderBy('transaction_date', 'desc')
-            ->paginate(10);
+        return $this->getTransactions($request, 'pemasukan');
+    }
+
+    public function pengeluaran(Request $request)
+    {
+        return $this->getTransactions($request, 'pengeluaran');
+    }
+
+    private function getTransactions(Request $request, $type)
+    {
+        $query = \App\Models\Keuangan\FinTransaction::where('type', $type);
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('transaction_date', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->has('export') && $request->export == 'csv') {
+            return $this->exportCsv($query->get(), $type);
+        }
+
+        $transactions = $query->orderBy('transaction_date', 'desc')->paginate(10);
             
-        $totalBulanIni = \App\Models\Keuangan\FinTransaction::where('type', 'pemasukan')
+        $totalBulanIni = \App\Models\Keuangan\FinTransaction::where('type', $type)
             ->whereMonth('transaction_date', date('m'))
             ->sum('amount');
+        
+        // Calculate filtered total if filter is active
+        $filteredTotal = $request->filled('start_date') ? $query->sum('amount') : null;
 
         return view('keuangan.transaksi.index', [
-            'title' => 'Pemasukan',
-            'type' => 'pemasukan',
+            'title' => ucfirst($type),
+            'type' => $type,
             'transactions' => $transactions,
-            'total' => $totalBulanIni
+            'total' => $totalBulanIni,
+            'filteredTotal' => $filteredTotal
         ]);
     }
 
-    public function pengeluaran()
+    private function exportCsv($transactions, $type)
     {
-        $transactions = \App\Models\Keuangan\FinTransaction::where('type', 'pengeluaran')
-            ->orderBy('transaction_date', 'desc')
-            ->paginate(10);
+        $fileName = 'laporan_' . $type . '_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
 
-        $totalBulanIni = \App\Models\Keuangan\FinTransaction::where('type', 'pengeluaran')
-            ->whereMonth('transaction_date', date('m'))
-            ->sum('amount');
-            
-        return view('keuangan.transaksi.index', [
-            'title' => 'Pengeluaran',
-            'type' => 'pengeluaran',
-            'transactions' => $transactions,
-            'total' => $totalBulanIni
-        ]);
+        $columns = array('Tanggal', 'Kategori', 'Keterangan', 'Jumlah', 'Lampiran');
+
+        $callback = function() use($transactions, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($transactions as $t) {
+                $row['Tanggal']  = $t->transaction_date;
+                $row['Kategori'] = $t->category;
+                $row['Keterangan'] = $t->description;
+                $row['Jumlah']   = $t->amount;
+                $row['Lampiran'] = $t->attachment ? 'Ada' : 'Tidak';
+
+                fputcsv($file, array($row['Tanggal'], $row['Kategori'], $row['Keterangan'], $row['Jumlah'], $row['Lampiran']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function edit($id)
@@ -100,7 +137,7 @@ class TransactionController extends Controller
             'category' => 'required|string',
             'description' => 'nullable|string',
             'transaction_date' => 'required|date',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx,zip,rar|max:10240'
         ]);
 
         $transaction = \App\Models\Keuangan\FinTransaction::findOrFail($id);

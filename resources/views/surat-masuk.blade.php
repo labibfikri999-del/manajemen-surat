@@ -47,19 +47,25 @@
         </div>
 
         {{-- Actions --}}
-        <div class="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+        <div class="flex flex-col xl:flex-row flex-wrap gap-3 mb-6">
           <button id="btnTambah" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2" aria-label="Tambah Surat Masuk Baru">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Tambah Surat Masuk
           </button>
-          <button id="btnCetak" class="border border-emerald-300 text-emerald-700 px-4 py-2 rounded hover:bg-emerald-50 flex items-center justify-center gap-2" aria-label="Cetak Daftar Surat Masuk">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9m4 0h4m-2-2v2m0 0v2m0-6V9m0 4h.01"/></svg>
-            Cetak Daftar
-          </button>
-          <button id="btnImpor" class="border border-emerald-300 text-emerald-700 px-4 py-2 rounded hover:bg-emerald-50 flex items-center justify-center gap-2" aria-label="Impor File Surat Masuk">
+          
+          <div class="flex items-center gap-2 bg-white p-1 rounded border border-emerald-300">
+             <input type="date" id="startDate" class="px-2 py-1 text-sm border-none focus:ring-0 text-gray-600" title="Dari Tanggal">
+             <span class="text-gray-400">-</span>
+             <input type="date" id="endDate" class="px-2 py-1 text-sm border-none focus:ring-0 text-gray-600" title="Sampai Tanggal">
+             <button id="btnFilter" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200 text-sm font-medium">Filter</button>
+             <button id="btnReset" class="text-gray-400 hover:text-gray-600 px-2" title="Reset Filter">✕</button>
+          </div>
+
+          <button id="btnExport" class="border border-green-500 text-green-600 px-4 py-2 rounded hover:bg-green-50 flex items-center justify-center gap-2" aria-label="Export Excel">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            Impor File
+            Export Excel
           </button>
+
           <input type="text" id="searchInput" placeholder="Cari surat..." class="flex-1 sm:flex-initial sm:ml-auto px-4 py-2 border border-emerald-300 rounded focus:outline-none focus:border-emerald-500" aria-label="Cari surat masuk" />
         </div>
 
@@ -189,9 +195,9 @@
           <div>
             <label class="block text-sm font-medium text-emerald-700 mb-2">File Surat (PDF)</label>
             <div class="relative">
-              <input type="file" id="formFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200">
+              <input type="file" id="formFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xlsx,.xls,.zip,.rar" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200">
             </div>
-            <p class="text-xs text-emerald-500 mt-1">Format: PDF, PNG, JPG, DOC, DOCX (Max 5MB)</p>
+            <p class="text-xs text-emerald-500 mt-1">Format: PDF, PNG, JPG, DOC, DOCX, ZIP/RAR (Max 10MB)</p>
             <div id="filePreview" class="hidden mt-2 p-2 bg-emerald-50 rounded-lg items-center gap-2">
               <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               <span id="fileName" class="text-sm text-emerald-700 truncate"></span>
@@ -522,7 +528,18 @@
     // Load data dari server
     async function loadData() {
       try {
-        const response = await fetch('/api/surat-masuk');
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        // Build URL with params
+        let url = '/api/surat-masuk';
+        const params = new URLSearchParams();
+        if(startDate) params.append('start_date', startDate);
+        if(endDate) params.append('end_date', endDate);
+        
+        if(params.toString()) url += '?' + params.toString();
+
+        const response = await fetch(url);
         const manualData = await response.json();
         
         // Merge with digital docs from controller
@@ -545,6 +562,27 @@
         console.error('Error loading data:', error);
       }
     }
+
+    // Filter & Export Listeners
+    document.getElementById('btnFilter').addEventListener('click', loadData);
+    
+    document.getElementById('btnReset').addEventListener('click', () => {
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        loadData();
+    });
+
+    document.getElementById('btnExport').addEventListener('click', () => {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        let url = '/api/surat-masuk/export/excel';
+        const params = new URLSearchParams();
+        if(startDate) params.append('start_date', startDate);
+        if(endDate) params.append('end_date', endDate);
+        if(params.toString()) url += '?' + params.toString();
+        
+        window.open(url, '_blank');
+    });
 
     function updateCounters() {
         // Calculate counts
@@ -710,8 +748,8 @@
       const file = e.target.files[0];
       if (file) {
         // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          showToast('File Terlalu Besar', 'Ukuran file maksimal 5MB', 'error');
+        if (file.size > 10 * 1024 * 1024) {
+          showToast('File Terlalu Besar', 'Ukuran file maksimal 10MB', 'error');
           this.value = '';
           return;
         }
@@ -943,65 +981,9 @@
       });
     });
 
-    // Button Cetak Daftar
-    const btnCetak = document.getElementById('btnCetak');
-    btnCetak.addEventListener('click', () => {
-      const printWindow = window.open('', '_blank');
-      const htmlContent = `
-        <html>
-          <head>
-            <title>Daftar Surat Masuk</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              h1 { text-align: center; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              th { background-color: #f2f2f2; }
-            </style>
-          </head>
-          <body>
-            <h1>Daftar Surat Masuk</h1>
-            <p>Tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
-            <table>
-              <tr>
-                <th>No.</th>
-                <th>Nomor Surat</th>
-                <th>Tanggal</th>
-                <th>Pengirim</th>
-                <th>Perihal</th>
-              </tr>
-              ${allRowsData.map((item, i) => `
-                <tr>
-                  <td>${i + 1}</td>
-                  <td>${item.nomor_surat}</td>
-                  <td>${item.tanggal_diterima}</td>
-                  <td>${item.pengirim}</td>
-                  <td>${item.perihal}</td>
-                </tr>
-              `).join('')}
-            </table>
-          </body>
-        </html>
-      `;
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
-      setTimeout(() => printWindow.print(), 250);
-    });
-
-    // Button Impor File
-    const btnImpor = document.getElementById('btnImpor');
-    btnImpor.addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.csv,.xlsx';
-      input.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          alert('File ' + file.name + ' dipilih. Fitur import sedang dalam proses.');
-        }
-      });
-      input.click();
-    });
+    // Button Cetak & Impor Removed
+    // const btnCetak = document.getElementById('btnCetak');
+    // const btnImpor = document.getElementById('btnImpor');
 
     document.addEventListener('DOMContentLoaded', () => {
       loadData();

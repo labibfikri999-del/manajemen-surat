@@ -22,9 +22,17 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $this->call(\Database\Seeders\KlasifikasiSeeder::class);
-        $this->call(\Database\Seeders\InstansiSeeder::class);
-        $this->call(\Database\Seeders\UserSeeder::class);
-        // $this->call(\Database\Seeders\SuratMasukSeeder::class);
+        $this->call([
+            AdminSeeder::class,
+            InstansiSeeder::class,
+            UserSeeder::class,
+            KlasifikasiSeeder::class,
+            SuratMasukSeeder::class,
+            SdmSettingsSeeder::class,
+            SdmDummySeeder::class,
+            SdmDashboardSeeder::class,
+            FinanceSeeder::class,
+            FinAccountSeeder::class,
+        ]);
     }
 }

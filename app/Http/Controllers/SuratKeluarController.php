@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class SuratKeluarController extends Controller
 {
     // Get all surat keluar
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $query = SuratKeluar::query();
@@ -21,13 +21,70 @@ class SuratKeluarController extends Controller
         }
         // staff & direktur see all data
 
-        $data = $query->latest()->get()->map(function ($item) {
-            $item->file_url = $item->file ? Storage::url($item->file) : null;
+        // Date Filtering
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_keluar', [$request->start_date, $request->end_date]);
+        }
 
+        // Sorting
+        $query->latest();
+
+        $data = $query->get()->map(function ($item) {
+            $item->file_url = $item->file ? Storage::url($item->file) : null;
             return $item;
         });
 
         return response()->json($data);
+    }
+
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+        $query = SuratKeluar::query();
+        $instansiName = 'YARSI NTB';
+
+        if ($user->role === 'instansi') {
+            $query->where('instansi_id', $user->instansi_id);
+            if ($user->instansi) {
+                $instansiName = strtoupper($user->instansi->nama);
+            }
+        }
+
+        $periode = 'Semua Waktu';
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_keluar', [$request->start_date, $request->end_date]);
+            $periode = $request->start_date . ' s/d ' . $request->end_date;
+        }
+
+        $data = $query->latest()->get();
+
+        $rows = [];
+        // Header Title
+        $rows[] = ['<b><center>LAPORAN SURAT KELUAR</center></b>', null, null, null, null, null];
+        $rows[] = ['<b><center>' . $instansiName . '</center></b>', null, null, null, null, null];
+        $rows[] = ['<center>Periode: ' . $periode . '</center>', null, null, null, null, null];
+        $rows[] = ['']; // Empty row
+
+        // Table Header
+        $rows[] = ['<b><center>NO</center></b>', '<b><center>NOMOR SURAT</center></b>', '<b><center>TANGGAL KELUAR</center></b>', '<b><center>TUJUAN</center></b>', '<b><center>PERIHAL</center></b>', '<b><center>STATUS</center></b>'];
+
+        foreach ($data as $i => $item) {
+            $rows[] = [
+                '<center>' . ($i + 1) . '</center>',
+                $item->nomor_surat,
+                '<center>' . $item->tanggal_keluar . '</center>',
+                $item->tujuan,
+                $item->perihal,
+                '<center>' . $item->status . '</center>',
+            ];
+        }
+
+        $xlsx = \Shuchkin\SimpleXLSXGen::fromArray($rows);
+        $xlsx->mergeCells('A1:F1');
+        $xlsx->mergeCells('A2:F2');
+        $xlsx->mergeCells('A3:F3');
+        $xlsx->downloadAs('Laporan_Surat_Keluar_'.date('Y-m-d_H-i').'.xlsx');
+        exit;
     }
 
     // Store new surat keluar
@@ -38,7 +95,7 @@ class SuratKeluarController extends Controller
             'tanggal_keluar' => 'required|date',
             'tujuan' => 'required|string',
             'perihal' => 'required|string',
-            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx|max:10240',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,zip,rar|max:10240',
         ]);
 
         // Handle file upload
@@ -74,7 +131,7 @@ class SuratKeluarController extends Controller
             'tujuan' => 'required|string',
             'perihal' => 'required|string',
             'status' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx|max:10240',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,zip,rar|max:10240',
         ]);
 
         // Handle file upload

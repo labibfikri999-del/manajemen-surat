@@ -198,6 +198,9 @@ Route::middleware('auth')->group(function () {
         // Klaim Asuransi
         Route::resource('klaim', App\Http\Controllers\Keuangan\ClaimController::class);
 
+        // Budget Management
+        Route::resource('budget', \App\Http\Controllers\Keuangan\BudgetController::class)->only(['index', 'update']);
+
         // Laporan
         Route::get('/laporan/laba-rugi', [App\Http\Controllers\Keuangan\LaporanController::class, 'labaRugi'])->name('laporan.laba-rugi');
     });

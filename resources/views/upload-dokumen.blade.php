@@ -169,9 +169,9 @@
                                     <p class="mt-2 text-sm text-gray-600">Drag & drop file disini, atau</p>
                                     <label class="btn btn-primary mt-2">
                                         <span>Pilih File</span>
-                                        <input type="file" name="file" class="hidden" accept=".doc,.docx,.pdf" required id="fileInput">
+                                        <input type="file" name="file" class="hidden" accept=".doc,.docx,.pdf,.xlsx,.xls,.zip,.rar" required id="fileInput">
                                     </label>
-                                    <p class="mt-2 text-xs text-gray-500">File WORD (.doc, .docx) atau PDF (.pdf) - Maks. 10MB</p>
+                                    <p class="mt-2 text-xs text-gray-500">File: PDF, Word, Excel, ZIP/RAR - Maks. 10MB</p>
                                     <p id="fileName" class="mt-2 text-sm text-emerald-600 font-medium hidden"></p>
                                 </div>
                             </div>
@@ -203,7 +203,7 @@
         fileInput.addEventListener('change', function() {
             if (this.files[0]) {
                 const file = this.files[0];
-                const validExtensions = ['doc', 'docx', 'pdf'];
+                const validExtensions = ['doc', 'docx', 'pdf', 'xlsx', 'xls', 'zip', 'rar'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
                 
                 if (!validExtensions.includes(fileExtension)) {
@@ -233,11 +233,11 @@
             dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
             if (e.dataTransfer.files[0]) {
                 const file = e.dataTransfer.files[0];
-                const validExtensions = ['doc', 'docx', 'pdf'];
+                const validExtensions = ['doc', 'docx', 'pdf', 'xlsx', 'xls', 'zip', 'rar'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
                 
                 if (!validExtensions.includes(fileExtension)) {
-                    alert('❌ Hanya file WORD (.doc, .docx) atau PDF (.pdf) yang diperbolehkan!');
+                    alert('❌ Hanya file PDF, Word, Excel, atau ZIP/RAR yang diperbolehkan!');
                     return;
                 }
                 
