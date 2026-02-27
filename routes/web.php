@@ -114,6 +114,16 @@ Route::middleware('auth')->group(function () {
 
         // Laporan
         Route::get('report', [App\Http\Controllers\Aset\ReportController::class, 'index'])->name('report.index');
+
+        // Static Pages / Placeholders
+        Route::get('unit', [App\Http\Controllers\Aset\PageController::class, 'unit'])->name('unit.index');
+        Route::get('category', [App\Http\Controllers\Aset\PageController::class, 'category'])->name('category.index');
+        Route::get('loan', [App\Http\Controllers\Aset\PageController::class, 'loan'])->name('loan.index');
+        Route::get('damage', [App\Http\Controllers\Aset\PageController::class, 'damage'])->name('damage.index');
+        Route::get('usage', [App\Http\Controllers\Aset\PageController::class, 'usage'])->name('usage.index');
+        Route::get('audit', [App\Http\Controllers\Aset\PageController::class, 'audit'])->name('audit.index');
+        Route::get('scan-qr', [App\Http\Controllers\Aset\PageController::class, 'scanQr'])->name('scan_qr');
+        Route::get('settings', [App\Http\Controllers\Aset\PageController::class, 'settings'])->name('settings');
     });
 
     // Protected Routes SDM

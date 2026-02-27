@@ -4,127 +4,291 @@
 <div class="max-w-7xl mx-auto">
     
     <!-- Welcome Section -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div class="animate-fade-in-up bg-gradient-to-r from-emerald-500 to-teal-400 p-6 rounded-2xl shadow-lg mb-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-white/20">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800">Dashboard Aset</h1>
-            <p class="text-slate-500 mt-1">Selamat datang kembali, {{ Auth::user()->name ?? 'Administrator' }}</p>
+            <h1 class="text-3xl font-bold tracking-tight">Dashboard Sistem Manajemen Aset</h1>
+            <p class="text-emerald-50 mt-1 opacity-90">Selamat datang kembali, {{ Auth::user()->name ?? 'Administrator' }}</p>
         </div>
-        <div class="flex gap-3">
-            <button class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-600 font-medium hover:bg-slate-50 transition-colors shadow-sm">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Unduh Laporan
-                </span>
-            </button>
-            <a href="{{ route('aset.inventory.create') }}" class="px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Tambah Aset
-            </a>
+        <div class="flex gap-3 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-white/20 blur group-hover:bg-white/30 transition-colors"></div>
+            <div class="relative px-4 py-2 bg-white/10 backdrop-blur-md border border-white/30 rounded-xl text-white font-medium flex items-center gap-2 shadow-sm">
+                <svg class="w-5 h-5 animate-pulse text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Dashboard Tersinkronisasi
+            </div>
         </div>
     </div>
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Stat 1: Total Aset -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-3 bg-emerald-50 rounded-xl group-hover:bg-emerald-100 transition-colors text-emerald-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <div class="relative group animate-fade-in-up delay-100">
+            <div class="relative bg-white/90 backdrop-blur-lg p-6 rounded-2xl shadow-sm border border-slate-100 border-t-blue-400 border-t-4 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 text-sm font-semibold tracking-wide uppercase">Total Aset</h3>
+                    <div class="p-2.5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl text-blue-600 shadow-inner">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-end justify-between">
+                    <p class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">{{ number_format($totalAssets ?? 8, 0, ',', '.') }}</p>
+                    <div class="flex flex-col items-end">
+                        <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 mb-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                            +12%
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-medium">Bulan lalu</span>
+                    </div>
                 </div>
             </div>
-            <h3 class="text-slate-500 text-sm font-medium">Total Aset</h3>
-            <p class="text-2xl font-bold text-slate-800 mt-1">{{ number_format($totalAssets, 0, ',', '.') }} <span class="text-xs font-normal text-slate-400">Unit</span></p>
         </div>
 
-        <!-- Stat 2: Total Valuasi -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors text-blue-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <!-- Stat 2: Dalam Perbaikan -->
+        <div class="relative group animate-fade-in-up delay-100" style="animation-delay: 150ms;">
+            <div class="relative bg-white/90 backdrop-blur-lg p-6 rounded-2xl shadow-sm border border-slate-100 border-t-amber-400 border-t-4 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 text-sm font-semibold tracking-wide uppercase">Dlm Perbaikan</h3>
+                    <div class="p-2.5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl text-amber-600 shadow-inner">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-end justify-between">
+                    <p class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">{{ $maintenanceNeeded ?? 2 }}</p>
+                    <div class="flex flex-col items-end">
+                        <span class="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 mb-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                            +5%
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-medium">Bulan lalu</span>
+                    </div>
                 </div>
             </div>
-            <h3 class="text-slate-500 text-sm font-medium">Total Valuasi</h3>
-            <p class="text-2xl font-bold text-slate-800 mt-1">Rp {{ number_format($totalValue, 0, ',', '.') }}</p>
         </div>
 
-        <!-- Stat 3: Perlu Maintenance -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-3 bg-orange-50 rounded-xl group-hover:bg-orange-100 transition-colors text-orange-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <!-- Stat 3: Usia > 5 Tahun -->
+        <div class="relative group animate-fade-in-up delay-200">
+            <div class="relative bg-white/90 backdrop-blur-lg p-6 rounded-2xl shadow-sm border border-slate-100 border-t-purple-400 border-t-4 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 text-sm font-semibold tracking-wide uppercase">Usia > 5 Thn</h3>
+                    <div class="p-2.5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl text-purple-600 shadow-inner">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
                 </div>
-                @if($maintenanceNeeded > 0)
-                <span class="text-red-500 bg-red-50 px-2 py-1 rounded-lg text-xs font-bold">{{ $maintenanceNeeded }} Unit</span>
-                @endif
+                <div class="mt-4 flex items-end justify-between">
+                    <p class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">0</p>
+                    <div class="flex flex-col items-end">
+                        <span class="flex items-center gap-1 text-xs font-bold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200 mb-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                            0%
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-medium">Bulan lalu</span>
+                    </div>
+                </div>
             </div>
-            <h3 class="text-slate-500 text-sm font-medium">Kondisi Rusak</h3>
-            <p class="text-2xl font-bold text-slate-800 mt-1">{{ $maintenanceNeeded > 0 ? 'Perlu Tindakan' : 'Semua Baik' }}</p>
         </div>
 
-        <!-- Stat 4: Peminjaman Bulan Ini -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-3 bg-purple-50 rounded-xl group-hover:bg-purple-100 transition-colors text-purple-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        <!-- Stat 4: Bulan Ini -->
+        <div class="relative group animate-fade-in-up delay-200" style="animation-delay: 250ms;">
+            <div class="relative bg-white/90 backdrop-blur-lg p-6 rounded-2xl shadow-sm border border-slate-100 border-t-emerald-400 border-t-4 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div class="flex justify-between items-start mb-2">
+                     <h3 class="text-slate-500 text-sm font-semibold tracking-wide uppercase">Bulan Ini</h3>
+                    <div class="p-2.5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl text-emerald-600 shadow-inner">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
                 </div>
-                <span class="text-slate-400 text-xs font-medium">Bulan Ini</span>
+                <div class="mt-4 flex items-end justify-between">
+                    <p class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">{{ $activeLoans ?? 0 }}</p>
+                     <div class="flex flex-col items-end">
+                        <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 mb-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                            +23%
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-medium">Bulan lalu</span>
+                    </div>
+                </div>
             </div>
-            <h3 class="text-slate-500 text-sm font-medium">Peminjaman</h3>
-            <p class="text-2xl font-bold text-slate-800 mt-1">{{ $activeLoans }} <span class="text-xs font-normal text-slate-400">Transaksi</span></p>
         </div>
     </div>
 
-    <!-- Charts & Tables Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Main Chart -->
-        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+    <!-- Charts Section 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Distribusi Kategori (Pie Chart) -->
+        <div class="bg-white/90 backdrop-blur-lg p-6 rounded-3xl shadow-sm border border-slate-100 border-t-blue-400 border-t-4 hover:shadow-md transition-all duration-300 animate-fade-in-up delay-300 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-slate-800">Pertumbuhan Aset ({{ date('Y') }})</h3>
-            </div>
-            <div class="h-64 flex items-end justify-between gap-2 px-2">
-                @php $max = max($chartData) > 0 ? max($chartData) : 1; @endphp
-                @foreach($chartData as $index => $data)
-                <div class="w-full bg-emerald-50 rounded-t-lg relative group h-full flex items-end">
-                    <div class="w-full bg-emerald-500 rounded-t-lg transition-all duration-500 hover:bg-emerald-600" style="height: {{ ($data / $max) * 100 }}%"></div>
-                    <!-- Tooltip -->
-                    <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
-                        {{ $data }} Unit
-                    </div>
+                <h3 class="font-bold text-slate-800 text-lg">Distribusi Kategori</h3>
+                <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                    <select class="text-xs bg-transparent border-none focus:ring-0 text-slate-600 font-medium cursor-pointer">
+                        <option>Bulan Ini</option>
+                        <option>Tahun Ini</option>
+                    </select>
                 </div>
-                @endforeach
             </div>
-            <div class="flex justify-between text-xs text-slate-400 mt-4 px-1">
-                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>Mei</span><span>Jun</span>
-                <span>Jul</span><span>Agu</span><span>Sep</span><span>Okt</span><span>Nov</span><span>Des</span>
+            <div class="relative h-64 flex justify-center items-center">
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="mt-6 flex flex-wrap justify-center gap-4 text-xs font-semibold text-slate-600">
+                <span class="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100"><div class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500"></div> Elektronik</span>
+                <span class="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100"><div class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500"></div> Furniture</span>
+                <span class="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100"><div class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500"></div> Aksesoris</span>
             </div>
         </div>
 
-        <!-- Recent Activities -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 class="font-bold text-slate-800 mb-6">Aktivitas Terbaru</h3>
-            <div class="space-y-6">
-                @forelse($recentActivities as $activity)
-                <div class="flex gap-4">
-                    <div class="w-2 h-2 mt-2 rounded-full bg-{{ $activity['color'] ?? 'emerald' }}-500 ring-4 ring-{{ $activity['color'] ?? 'emerald' }}-50"></div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-800">{{ $activity['title'] }}</p>
-                        <p class="text-xs text-slate-500 mt-0.5">{{ $activity['description'] }}</p>
-                        <p class="text-[10px] text-slate-400 mt-1">{{ \Carbon\Carbon::parse($activity['time'])->diffForHumans() }}</p>
-                    </div>
+        <!-- Status Kondisi (Bar Chart) -->
+        <div class="bg-white/90 backdrop-blur-lg p-6 rounded-3xl shadow-sm border border-slate-100 border-t-emerald-400 border-t-4 hover:shadow-md transition-all duration-300 animate-fade-in-up delay-300 group relative overflow-hidden" style="animation-delay: 350ms;">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-slate-800 text-lg">Status Kondisi</h3>
+                <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                    <select class="text-xs bg-transparent border-none focus:ring-0 text-slate-600 font-medium cursor-pointer">
+                        <option>Semua Unit</option>
+                    </select>
                 </div>
-                @empty
-                <div class="text-center text-slate-400 py-4">
-                    <p>Belum ada aktivitas.</p>
-                </div>
-                @endforelse
             </div>
-            
-            <a href="#" class="block w-full text-center mt-8 py-2 text-sm text-emerald-600 font-medium hover:bg-emerald-50 rounded-xl transition-colors">
-                Lihat Semua Aktivitas
-            </a>
+            <div class="relative h-[280px]">
+                <canvas id="conditionChart"></canvas>
+            </div>
         </div>
-
     </div>
+
+    <!-- Charts Section 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Detail Kondisi (1 Column) -->
+        <div class="lg:col-span-1 bg-white/90 backdrop-blur-lg p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 flex flex-col animate-fade-in-up delay-300" style="animation-delay: 400ms;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-slate-800 text-lg">Kesehatan Aset</h3>
+                <a href="#" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">Detail</a>
+            </div>
+            <div class="space-y-4 flex-1">
+                <div class="relative overflow-hidden p-5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-200">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
+                    <div class="relative z-10 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg leading-tight">Sangat Baik</p>
+                                <p class="text-emerald-50 text-sm opacity-90">8 aset berfungsi penuh</p>
+                            </div>
+                        </div>
+                        <div class="font-extrabold text-2xl tracking-tighter">100<span class="text-lg opacity-75">%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tren Perolehan Aset (Line Chart - 2 Columns) -->
+        <div class="lg:col-span-2 bg-white/90 backdrop-blur-lg p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 animate-fade-in-up delay-300" style="animation-delay: 450ms;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-slate-800 text-lg">Tren Akuisisi Aset</h3>
+                <span class="text-xs font-medium text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">5 Tahun Terakhir</span>
+            </div>
+            <div class="relative h-48 w-full">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<!-- Chart.js Initialization -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Pie Chart (Distribusi Kategori)
+    const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCategory, {
+        type: 'doughnut',
+        data: {
+            labels: ['Elektronik', 'Furniture', 'Aksesoris', 'Alat Kesehatan'],
+            datasets: [{
+                data: [40, 30, 20, 10],
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#f87171'],
+                borderWidth: 0,
+                cutout: '50%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Bar Chart (Status Kondisi)
+    const ctxCondition = document.getElementById('conditionChart').getContext('2d');
+    new Chart(ctxCondition, {
+        type: 'bar',
+        data: {
+            labels: ['Baik'],
+            datasets: [{
+                label: 'Jumlah Aset',
+                data: [8],
+                backgroundColor: '#10b981',
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: '#f1f5f9' },
+                    border: { display: false }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Line Chart (Tren Perolehan)
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: ['2020', '2021', '2022', '2023', '2024'],
+            datasets: [{
+                label: 'Aset Baru',
+                data: [2, 3, 5, 4, 8],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 2 },
+                    grid: { color: '#f1f5f9' },
+                    border: { display: false }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
 @endsection

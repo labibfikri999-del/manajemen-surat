@@ -61,7 +61,7 @@ class RiwayatJabatanController extends Controller
             'tgl_mulai' => 'required|date',
             'tgl_selesai' => 'nullable|date|after_or_equal:tgl_mulai',
             'is_active' => 'boolean',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $data = $request->all();
@@ -101,7 +101,7 @@ class RiwayatJabatanController extends Controller
             'tgl_mulai' => 'required|date',
             'tgl_selesai' => 'nullable|date|after_or_equal:tgl_mulai',
             'is_active' => 'boolean',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $data = $request->all();

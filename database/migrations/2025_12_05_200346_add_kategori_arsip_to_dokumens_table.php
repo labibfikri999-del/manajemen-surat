@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('dokumens', function (Blueprint $table) {
-            $table->enum('kategori_arsip', ['UMUM', 'SDM', 'ASSET', 'HUKUM', 'KEUANGAN'])->nullable()->after('status');
+            if (config('database.default') !== 'sqlite') {
+                $table->enum('kategori_arsip', ['UMUM', 'SDM', 'ASSET', 'HUKUM', 'KEUANGAN', 'SURAT_KELUAR', 'SK'])->nullable()->after('status');
+            } else {
+                $table->string('kategori_arsip')->nullable()->after('status');
+            }
             $table->boolean('is_archived')->default(false)->after('kategori_arsip');
             $table->timestamp('tanggal_arsip')->nullable()->after('is_archived');
         });

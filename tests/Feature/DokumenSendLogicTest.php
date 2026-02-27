@@ -12,11 +12,7 @@ use Tests\TestCase;
 
 class DokumenSendLogicTest extends TestCase
 {
-    // use RefreshDatabase; // Commented out to avoid wiping local dev db if not configured for testing. usage depends on env.
-    // Instead of RefreshDatabase, I will manually cleanup or rely on valid IDs.
-    // Actually, for a reliable test, I should use transactions or factories.
-    // Given the environment, I'll rely on creating unique data and maybe ignoring cleanup for now, or use DatabaseTransactions if available.
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -30,7 +26,10 @@ class DokumenSendLogicTest extends TestCase
         // 1. Setup User (Staff)
         $staff = User::where('role', 'staff')->first();
         if (!$staff) {
-            $staff = User::factory()->create(['role' => 'staff']);
+            $staff = User::factory()->create([
+                'role' => 'staff',
+                'username' => 'teststaff' . uniqid(),
+            ]);
         }
 
         // 2. Setup Instansi
@@ -62,6 +61,12 @@ class DokumenSendLogicTest extends TestCase
     public function staff_sending_to_email_marks_as_selesai()
     {
         $staff = User::where('role', 'staff')->first();
+        if (!$staff) {
+            $staff = User::factory()->create([
+                'role' => 'staff',
+                'username' => 'teststaff' . uniqid(),
+            ]);
+        }
 
         // 3. Act
         $response = $this->actingAs($staff)->postJson('/api/dokumen', [
@@ -81,6 +86,12 @@ class DokumenSendLogicTest extends TestCase
     public function staff_upload_without_destination_marks_as_disetujui()
     {
         $staff = User::where('role', 'staff')->first();
+        if (!$staff) {
+            $staff = User::factory()->create([
+                'role' => 'staff',
+                'username' => 'teststaff' . uniqid(),
+            ]);
+        }
 
         // 3. Act
         $response = $this->actingAs($staff)->postJson('/api/dokumen', [

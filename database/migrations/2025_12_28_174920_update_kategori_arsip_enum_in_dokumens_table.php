@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('dokumens', function (Blueprint $table) {
-            DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM', 'SDM', 'ASSET', 'HUKUM', 'KEUANGAN', 'SURAT_KELUAR', 'SK') NULL");
+            if (config('database.default') !== 'sqlite') {
+                DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM', 'SDM', 'ASSET', 'HUKUM', 'KEUANGAN', 'SURAT_KELUAR', 'SK') NULL");
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('dokumens', function (Blueprint $table) {
-            DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM', 'SDM', 'ASSET', 'HUKUM', 'KEUANGAN') NULL");
+            if (config('database.default') !== 'sqlite') {
+                DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM', 'SDM', 'ASSET', 'HUKUM', 'KEUANGAN') NULL");
+            }
         });
     }
 };

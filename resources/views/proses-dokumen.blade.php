@@ -318,7 +318,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                             </svg>
                             <span class="text-sm text-gray-600" id="fileReplacementLabel">Pilih File</span>
-                            <input type="file" name="file_balasan" id="fileBalasanInput" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                            <input type="file" name="file_balasan" id="fileBalasanInput" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt">
                         </label>
                         <p class="text-xs text-gray-500 mt-1" id="fileReplacementName"></p>
                         <p class="text-xs text-gray-500 mt-1" id="fileBalasanName"></p>

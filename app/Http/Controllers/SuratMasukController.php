@@ -94,7 +94,7 @@ class SuratMasukController extends Controller
             'tanggal_diterima' => 'required|date',
             'pengirim' => 'required|string',
             'perihal' => 'required|string',
-            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,zip,rar|max:10240',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         // Handle file upload
@@ -126,7 +126,7 @@ class SuratMasukController extends Controller
             'tanggal_diterima' => 'required|date',
             'pengirim' => 'required|string',
             'perihal' => 'required|string',
-            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,zip,rar|max:10240',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         // Handle file upload

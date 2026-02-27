@@ -169,7 +169,7 @@
                                     <p class="mt-2 text-sm text-gray-600">Drag & drop file disini, atau</p>
                                     <label class="btn btn-primary mt-2">
                                         <span>Pilih File</span>
-                                        <input type="file" name="file" class="hidden" accept=".doc,.docx,.pdf,.xlsx,.xls,.zip,.rar" required id="fileInput">
+                                        <input type="file" name="file" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt" required id="fileInput">
                                     </label>
                                     <p class="mt-2 text-xs text-gray-500">File: PDF, Word, Excel, ZIP/RAR - Maks. 10MB</p>
                                     <p id="fileName" class="mt-2 text-sm text-emerald-600 font-medium hidden"></p>

@@ -56,7 +56,7 @@ class RiwayatPangkatController extends Controller
             'ruang' => 'required',
             'tmt' => 'required|date',
             'is_active' => 'boolean',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $data = $request->all();
@@ -89,7 +89,7 @@ class RiwayatPangkatController extends Controller
             'ruang' => 'required',
             'tmt' => 'required|date',
             'is_active' => 'boolean',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $data = $request->all();

@@ -49,7 +49,7 @@ class KeluargaController extends Controller
             'hubungan' => 'required|string',
             'tgl_lahir' => 'required|date',
             'pekerjaan' => 'nullable|string|max:255',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -82,7 +82,7 @@ class KeluargaController extends Controller
             'hubungan' => 'required|string',
             'tgl_lahir' => 'required|date',
             'pekerjaan' => 'nullable|string|max:255',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
             'keterangan' => 'nullable|string',
         ]);
 

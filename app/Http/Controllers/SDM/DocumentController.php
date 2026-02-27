@@ -16,7 +16,7 @@ class DocumentController extends Controller
             'sdm_pegawai_id' => 'required|exists:sdm_pegawais,id',
             'nama_dokumen' => 'required|string|max:255',
             'kategori' => 'required|in:Identitas,Pendidikan,Legalitas,Kompetensi,Lainnya',
-            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // Max 5MB
+            'file' => 'required|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240', // Max 10MB
             'tgl_kadaluarsa' => 'nullable|date',
             'keterangan' => 'nullable|string',
         ]);

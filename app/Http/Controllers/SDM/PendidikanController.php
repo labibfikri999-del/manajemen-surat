@@ -45,7 +45,7 @@ class PendidikanController extends Controller
             'institusi' => 'required',
             'jurusan' => 'nullable',
             'tahun_lulus' => 'required|numeric|digits:4',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $data = $request->all();
@@ -77,7 +77,7 @@ class PendidikanController extends Controller
             'institusi' => 'required',
             'jurusan' => 'nullable',
             'tahun_lulus' => 'required|numeric|digits:4',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'dokumen' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $data = $request->all();

@@ -44,7 +44,7 @@ class SuratApiController extends Controller
             'pengirim' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
             'klasifikasi_id' => 'nullable|exists:klasifikasi,id',
-            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
         if ($v->fails()) {
             return response()->json(['errors' => $v->errors()], 422);
@@ -76,7 +76,7 @@ class SuratApiController extends Controller
             'pengirim' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
             'klasifikasi_id' => 'nullable|exists:klasifikasi,id',
-            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
         if ($v->fails()) {
             return response()->json(['errors' => $v->errors()], 422);

@@ -91,7 +91,7 @@
                             <p class="mb-2 text-sm text-slate-500"><span class="font-semibold">Klik untuk ganti upload</span></p>
                             <p class="text-xs text-slate-500">PDF, JPG, PNG (Max 2MB)</p>
                         </div>
-                        <input id="dropzone-file" name="dokumen" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                        <input id="dropzone-file" name="dokumen" type="file" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt" />
                     </label>
                 </div> 
                 @error('dokumen')

@@ -44,7 +44,7 @@ class ArsipDigitalController extends Controller
             'judul' => 'required|string',
             'kategori_arsip' => 'nullable|string',
             'deskripsi' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,xls,ppt,pptx|max:10240',
+            'file' => 'required|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $file = $request->file('file');
@@ -91,7 +91,7 @@ class ArsipDigitalController extends Controller
             'nama_dokumen' => 'required|string',
             'kategori' => 'nullable|string',
             'deskripsi' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xlsx,xls,ppt,pptx|max:10240',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $updateData = [

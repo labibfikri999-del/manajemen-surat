@@ -512,7 +512,7 @@
 
                                     <div>
                                         <label class="block text-sm font-bold text-slate-700 mb-1">File Dokumen <span class="text-rose-500">*</span></label>
-                                        <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition">
+                                        <input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition">
                                         <p class="mt-1 text-xs text-slate-400">PDF, JPG, PNG (Max. 5MB)</p>
                                     </div>
 

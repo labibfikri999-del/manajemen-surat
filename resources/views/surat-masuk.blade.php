@@ -195,7 +195,7 @@
           <div>
             <label class="block text-sm font-medium text-emerald-700 mb-2">File Surat (PDF)</label>
             <div class="relative">
-              <input type="file" id="formFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xlsx,.xls,.zip,.rar" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200">
+              <input type="file" id="formFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200">
             </div>
             <p class="text-xs text-emerald-500 mt-1">Format: PDF, PNG, JPG, DOC, DOCX, ZIP/RAR (Max 10MB)</p>
             <div id="filePreview" class="hidden mt-2 p-2 bg-emerald-50 rounded-lg items-center gap-2">
