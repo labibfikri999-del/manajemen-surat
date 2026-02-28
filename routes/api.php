@@ -253,12 +253,4 @@ Route::middleware('web')->group(function () {
 
         return response()->json(['count' => 0]);
     });
-
-    // Chatbot AI dengan proteksi Spam (Rate Limit: Maksimal 5 pesan per menit per IP)
-    Route::middleware('throttle:5,1')->group(function () {
-        Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 'sendMessage']);
-    });
-    
-    // Route reset tidak perlu dilimit ketat, agar user selalu bisa reset saat error
-    Route::post('/chatbot/reset', [\App\Http\Controllers\ChatbotController::class, 'resetSession']);
 });

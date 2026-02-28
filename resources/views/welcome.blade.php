@@ -405,7 +405,7 @@
                 showTyping();
 
                 try {
-                    const response = await fetch('/api/chatbot/send', {
+                    const response = await fetch('/chatbot/send', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -454,7 +454,7 @@
                 
                 try {
                     cReset.classList.add('animate-spin');
-                    await fetch('/api/chatbot/reset', { method: 'POST' });
+                    await fetch('/chatbot/reset', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
                     // Clear messages except the first welcome one
                     const welcomeMsg = msgsContainer.firstElementChild.outerHTML;
                     msgsContainer.innerHTML = welcomeMsg;
