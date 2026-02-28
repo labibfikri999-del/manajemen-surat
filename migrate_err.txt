@@ -1,0 +1,27 @@
+
+
+   INFO  Running migrations.  
+
+  2026_02_28_151017_add_instansi_id_to_disposisis_table  17.07ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42S22]: Column not found: 1054 Unknown column 'penerima_id' in 'disposisis' (Connection: mysql, SQL: alter table `disposisis` add `instansi_id` bigint unsigned null after `penerima_id`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:824
+    820▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    821▕                 );
+    822▕             }
+    823▕ 
+  ➜ 824▕             throw new QueryException(
+    825▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕             );
+    827▕         }
+    828▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOException::("SQLSTATE[42S22]: Column not found: 1054 Unknown column 'penerima_id' in 'disposisis'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOStatement::execute()
+

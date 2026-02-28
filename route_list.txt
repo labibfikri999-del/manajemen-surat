@@ -1,0 +1,13 @@
+﻿
+
+  GET|HEAD        api/surat-masuk surat-masuk.index ΓÇ║ SuratMasukConΓÇª
+  POST            api/surat-masuk surat-masuk.store ΓÇ║ SuratMasukConΓÇª
+  GET|HEAD        api/surat-masuk/export/excel SΓÇª
+  GET|HEAD        api/surat-masuk/{id}/audits SuΓÇª
+  GET|HEAD        api/surat-masuk/{id}/download SuΓÇª
+  GET|HEAD        api/surat-masuk/{surat_masuk} surat-masuk.show ΓÇª
+  PUT|PATCH       api/surat-masuk/{surat_masuk} surat-masuk.update ΓÇ║ ΓÇª
+  DELETE          api/surat-masuk/{surat_masuk} surat-masuk.destroy ΓÇ║ SΓÇª
+
+    Showing [8] routes
+

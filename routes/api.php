@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BalasanApiController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
+use App\Http\Controllers\DokumenController;
 use App\Models\Dokumen;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -212,9 +213,20 @@ Route::middleware('web')->group(function () {
     Route::apiResource('surat-masuk', SuratMasukController::class);
     Route::get('surat-masuk/export/excel', [SuratMasukController::class, 'export']); // Export route
     Route::get('surat-masuk/{id}/download', [SuratMasukController::class, 'download']);
+    Route::get('surat-masuk/{id}/audits', [SuratMasukController::class, 'audits']);
+    
+    // Surat Keluar routes
+    Route::get('surat-keluar/generate-nomor', [SuratKeluarController::class, 'generateNomor']);
     Route::apiResource('surat-keluar', SuratKeluarController::class);
     Route::get('surat-keluar/export/excel', [SuratKeluarController::class, 'export']); // Export route
     Route::get('surat-keluar/{id}/download', [SuratKeluarController::class, 'download']);
+    Route::get('surat-keluar/{id}/audits', [SuratKeluarController::class, 'audits']);
+
+    Route::apiResource('dokumen', DokumenController::class);
+    Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
+    Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
+    Route::get('dokumen/{id}/audits', [DokumenController::class, 'audits'])->name('dokumen.audits');
+    Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
 
     Route::get('/dokumen/{id}/download-balasan', [App\Http\Controllers\DokumenController::class, 'downloadBalasan']);
 
@@ -241,4 +253,12 @@ Route::middleware('web')->group(function () {
 
         return response()->json(['count' => 0]);
     });
+
+    // Chatbot AI dengan proteksi Spam (Rate Limit: Maksimal 5 pesan per menit per IP)
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 'sendMessage']);
+    });
+    
+    // Route reset tidak perlu dilimit ketat, agar user selalu bisa reset saat error
+    Route::post('/chatbot/reset', [\App\Http\Controllers\ChatbotController::class, 'resetSession']);
 });

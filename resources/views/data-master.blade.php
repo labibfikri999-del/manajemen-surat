@@ -1,4 +1,3 @@
-{{-- resources/views/data-master.blade.php --}}
 @php
     $user = auth()->user();
     $role = $user->role ?? 'guest';

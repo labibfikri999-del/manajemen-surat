@@ -212,4 +212,9 @@ class PageController extends Controller
     {
         return view('surat-keluar');
     }
+
+    public function disposisi()
+    {
+        return view('disposisi');
+    }
 }

@@ -13,7 +13,7 @@ class SuratMasukController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = SuratMasuk::query();
+        $query = SuratMasuk::with('lampirans');
 
         // Role-based filtering
         if ($user->role === 'instansi') {
@@ -91,10 +91,12 @@ class SuratMasukController extends Controller
     {
         $validated = $request->validate([
             'nomor_surat' => 'required|string|unique:surat_masuk',
-            'tanggal_diterima' => 'required|date',
+            'tanggal_diterima' => 'required|date|before_or_equal:today',
             'pengirim' => 'required|string',
             'perihal' => 'required|string',
+            'status' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
+            'lampirans.*' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         // Handle file upload
@@ -110,10 +112,28 @@ class SuratMasukController extends Controller
             $validated['instansi_id'] = $request->user()->instansi_id;
         }
 
+        if (!isset($validated['status'])) {
+            $validated['status'] = 'Belum Diproses';
+        }
+
         $surat = SuratMasuk::create($validated);
         $surat->file_url = $surat->file ? Storage::url($surat->file) : null;
 
-        return response()->json($surat, 201);
+        // Handle Multiple Attachments (Lampirans)
+        if ($request->hasFile('lampirans')) {
+            foreach ($request->file('lampirans') as $lampiran) {
+                $lampFilename = time().'_'.$lampiran->getClientOriginalName();
+                $lampPath = $lampiran->storeAs('surat-masuk-lampiran', $lampFilename, 'public');
+                $surat->lampirans()->create([
+                    'file_path' => $lampPath,
+                    'file_name' => $lampiran->getClientOriginalName(),
+                    'file_type' => $lampiran->getClientOriginalExtension(),
+                    'file_size' => $lampiran->getSize(),
+                ]);
+            }
+        }
+
+        return response()->json($surat->load('lampirans'), 201);
     }
 
     // Update surat masuk
@@ -123,10 +143,12 @@ class SuratMasukController extends Controller
 
         $validated = $request->validate([
             'nomor_surat' => 'required|string|unique:surat_masuk,nomor_surat,'.$id,
-            'tanggal_diterima' => 'required|date',
+            'tanggal_diterima' => 'required|date|before_or_equal:today',
             'pengirim' => 'required|string',
             'perihal' => 'required|string',
+            'status' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
+            'lampirans.*' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         // Handle file upload
@@ -145,7 +167,21 @@ class SuratMasukController extends Controller
         $surat->update($validated);
         $surat->file_url = $surat->file ? Storage::url($surat->file) : null;
 
-        return response()->json($surat);
+        // Handle Multiple Attachments (Lampirans)
+        if ($request->hasFile('lampirans')) {
+            foreach ($request->file('lampirans') as $lampiran) {
+                $lampFilename = time().'_'.$lampiran->getClientOriginalName();
+                $lampPath = $lampiran->storeAs('surat-masuk-lampiran', $lampFilename, 'public');
+                $surat->lampirans()->create([
+                    'file_path' => $lampPath,
+                    'file_name' => $lampiran->getClientOriginalName(),
+                    'file_type' => $lampiran->getClientOriginalExtension(),
+                    'file_size' => $lampiran->getSize(),
+                ]);
+            }
+        }
+
+        return response()->json($surat->load('lampirans'));
     }
 
     // Delete surat masuk
@@ -156,6 +192,13 @@ class SuratMasukController extends Controller
         // Delete file if exists
         if ($surat->file && Storage::disk('public')->exists($surat->file)) {
             Storage::disk('public')->delete($surat->file);
+        }
+
+        // Delete lampirans files
+        foreach ($surat->lampirans as $lampiran) {
+            if (Storage::disk('public')->exists($lampiran->file_path)) {
+                Storage::disk('public')->delete($lampiran->file_path);
+            }
         }
 
         $surat->delete();
@@ -172,8 +215,19 @@ class SuratMasukController extends Controller
             return response()->json(['message' => 'File not found'], 404);
         }
 
+        // Log audit
+        $surat->logAudit('downloaded', null, ['file' => $surat->file]);
+
         $path = Storage::disk('public')->path($surat->file);
 
         return response()->download($path);
+    }
+
+    // Get audit history
+    public function audits($id)
+    {
+        $surat = SuratMasuk::findOrFail($id);
+        $audits = $surat->audits()->with('user:id,name')->get();
+        return response()->json($audits);
     }
 }

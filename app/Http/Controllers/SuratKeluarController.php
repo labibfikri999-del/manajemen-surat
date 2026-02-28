@@ -13,7 +13,7 @@ class SuratKeluarController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = SuratKeluar::query();
+        $query = SuratKeluar::with('lampirans');
 
         // Role-based filtering
         if ($user->role === 'instansi') {
@@ -30,7 +30,13 @@ class SuratKeluarController extends Controller
         $query->latest();
 
         $data = $query->get()->map(function ($item) {
-            $item->file_url = $item->file ? Storage::url($item->file) : null;
+            if ($item->file) {
+                $item->file_url = Storage::url($item->file);
+            } elseif ($item->konten) {
+                $item->file_url = url('/api/surat-keluar/' . $item->id . '/download');
+            } else {
+                $item->file_url = null;
+            }
             return $item;
         });
 
@@ -92,10 +98,12 @@ class SuratKeluarController extends Controller
     {
         $validated = $request->validate([
             'nomor_surat' => 'required|string',
-            'tanggal_keluar' => 'required|date',
+            'tanggal_keluar' => 'required|date|before_or_equal:today',
             'tujuan' => 'required|string',
             'perihal' => 'required|string',
+            'konten' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
+            'lampirans.*' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         // Handle file upload
@@ -115,9 +123,30 @@ class SuratKeluarController extends Controller
         }
 
         $surat = SuratKeluar::create($validated);
-        $surat->file_url = $surat->file ? Storage::url($surat->file) : null;
+        
+        if ($surat->file) {
+            $surat->file_url = Storage::url($surat->file);
+        } elseif ($surat->konten) {
+            $surat->file_url = url('/api/surat-keluar/' . $surat->id . '/download');
+        } else {
+            $surat->file_url = null;
+        }
 
-        return response()->json($surat, 201);
+        // Handle Multiple Attachments (Lampirans)
+        if ($request->hasFile('lampirans')) {
+            foreach ($request->file('lampirans') as $lampiran) {
+                $lampFilename = time().'_'.$lampiran->getClientOriginalName();
+                $lampPath = $lampiran->storeAs('surat-keluar-lampiran', $lampFilename, 'public');
+                $surat->lampirans()->create([
+                    'file_path' => $lampPath,
+                    'file_name' => $lampiran->getClientOriginalName(),
+                    'file_type' => $lampiran->getClientOriginalExtension(),
+                    'file_size' => $lampiran->getSize(),
+                ]);
+            }
+        }
+
+        return response()->json($surat->load('lampirans'), 201);
     }
 
     // Update surat keluar
@@ -127,11 +156,13 @@ class SuratKeluarController extends Controller
 
         $validated = $request->validate([
             'nomor_surat' => 'required|string',
-            'tanggal_keluar' => 'required|date',
+            'tanggal_keluar' => 'required|date|before_or_equal:today',
             'tujuan' => 'required|string',
             'perihal' => 'required|string',
             'status' => 'nullable|string',
+            'konten' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
+            'lampirans.*' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         // Handle file upload
@@ -148,9 +179,30 @@ class SuratKeluarController extends Controller
         }
 
         $surat->update($validated);
-        $surat->file_url = $surat->file ? Storage::url($surat->file) : null;
 
-        return response()->json($surat);
+        if ($surat->file) {
+            $surat->file_url = Storage::url($surat->file);
+        } elseif ($surat->konten) {
+            $surat->file_url = url('/api/surat-keluar/' . $surat->id . '/download');
+        } else {
+            $surat->file_url = null;
+        }
+
+        // Handle Multiple Attachments (Lampirans)
+        if ($request->hasFile('lampirans')) {
+            foreach ($request->file('lampirans') as $lampiran) {
+                $lampFilename = time().'_'.$lampiran->getClientOriginalName();
+                $lampPath = $lampiran->storeAs('surat-keluar-lampiran', $lampFilename, 'public');
+                $surat->lampirans()->create([
+                    'file_path' => $lampPath,
+                    'file_name' => $lampiran->getClientOriginalName(),
+                    'file_type' => $lampiran->getClientOriginalExtension(),
+                    'file_size' => $lampiran->getSize(),
+                ]);
+            }
+        }
+
+        return response()->json($surat->load('lampirans'));
     }
 
     // Delete surat keluar
@@ -163,6 +215,13 @@ class SuratKeluarController extends Controller
             Storage::disk('public')->delete($surat->file);
         }
 
+        // Delete lampirans files
+        foreach ($surat->lampirans as $lampiran) {
+            if (Storage::disk('public')->exists($lampiran->file_path)) {
+                Storage::disk('public')->delete($lampiran->file_path);
+            }
+        }
+
         $surat->delete();
 
         return response()->json(['message' => 'Deleted successfully']);
@@ -173,12 +232,74 @@ class SuratKeluarController extends Controller
     {
         $surat = SuratKeluar::findOrFail($id);
 
-        if (! $surat->file || ! Storage::disk('public')->exists($surat->file)) {
-            return response()->json(['message' => 'File not found'], 404);
+        if (! $surat->file && ! $surat->konten) {
+            return response()->json(['message' => 'File or content not found'], 404);
         }
 
-        $path = Storage::disk('public')->path($surat->file);
+        // Log audit
+        $surat->logAudit('downloaded', null, ['file' => $surat->file, 'konten' => $surat->konten ? 'Generated PDF' : null]);
 
-        return response()->download($path);
+        // If file exists, download the file directly
+        if ($surat->file && Storage::disk('public')->exists($surat->file)) {
+            $path = Storage::disk('public')->path($surat->file);
+            return response()->download($path);
+        }
+
+        // If no file but konten exists, generate PDF on the fly
+        if ($surat->konten) {
+            $instansiName = Auth::user()->instansi ? Auth::user()->instansi->nama : 'SISTEM MANAJEMEN SURAT';
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.surat-keluar', [
+                'surat' => $surat,
+                'instansi_name' => $instansiName
+            ]);
+            
+            return $pdf->stream('Surat_Keluar_' . str_replace('/', '_', $surat->nomor_surat) . '.pdf');
+        }
+        
+        return response()->json(['message' => 'File not found'], 404);
+    }
+
+    // Get audit history
+    public function audits($id)
+    {
+        $surat = SuratKeluar::findOrFail($id);
+        $audits = $surat->audits()->with('user:id,name')->get();
+        return response()->json($audits);
+    }
+
+    // Auto-generate Nomor Surat Keluar
+    public function generateNomor()
+    {
+        $user = Auth::user();
+        
+        $kodeInstansi = 'UMUM';
+        if ($user->role === 'instansi' && $user->instansi) {
+            $kodeInstansi = strtoupper($user->instansi->kode);
+        }
+
+        $year = date('Y');
+        $month = date('n'); // 1 to 12
+        $romawiBulan = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+        $romawi = $romawiBulan[$month - 1];
+
+        // Format: [NomorUrut]/[KodeInstansi]/[RomawiBulan]/[Tahun]
+        // Contoh prefix pencarian: %/YARSI/II/2026
+        $searchPrefix = "/{$kodeInstansi}/{$romawi}/{$year}";
+        
+        $lastSurat = SuratKeluar::where('nomor_surat', 'like', "%{$searchPrefix}")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $urutan = 1;
+        if ($lastSurat) {
+            $parts = explode('/', $lastSurat->nomor_surat);
+            if (count($parts) > 0) {
+                $urutan = intval($parts[0]) + 1;
+            }
+        }
+
+        $nomorBaru = sprintf("%03d%s", $urutan, $searchPrefix);
+
+        return response()->json(['nomor_surat' => $nomorBaru]);
     }
 }

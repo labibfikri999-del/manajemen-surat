@@ -604,6 +604,16 @@ class DokumenController extends Controller
     }
 
     /**
+     * Get audit history
+     */
+    public function audits(string $id)
+    {
+        $dokumen = Dokumen::findOrFail($id);
+        $audits = $dokumen->audits()->with('user:id,name')->get();
+        return response()->json($audits);
+    }
+
+    /**
      * Download dokumen
      */
     public function download(string $id)

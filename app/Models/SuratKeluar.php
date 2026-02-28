@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsAudit;
 
 class SuratKeluar extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsAudit;
 
     protected $table = 'surat_keluar';
 
@@ -17,6 +18,7 @@ class SuratKeluar extends Model
         'tanggal_keluar',
         'tujuan',
         'perihal',
+        'konten',
         'file',
         'status',
         'klasifikasi_id',
@@ -33,6 +35,11 @@ class SuratKeluar extends Model
 
     public function instansi()
     {
-        return $this->belongsTo(Instansi::class, 'instansi_id');
+        return $this->belongsTo(Instansi::class);
+    }
+
+    public function lampirans()
+    {
+        return $this->morphMany(SuratLampiran::class, 'suratable');
     }
 }
