@@ -208,11 +208,30 @@
                                                     Proses
                                                 </button>
                                             @elseif($dok->status === 'diproses')
-                                                <button onclick="showSelesaiModal({{ $dok->id }}, '{{ $dok->judul }}')" 
+                                                <button onclick="showSelesaiModal({{ $dok->id }}, '{{ addslashes($dok->judul) }}')" 
                                                         class="px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                     Selesai
                                                 </button>
+                                            @elseif($dok->status === 'selesai' && $dok->instansi_id)
+                                                <div class="flex flex-col items-center gap-1 relative">
+                                                    <button onclick="showRevisiModal({{ $dok->id }}, '{{ addslashes($dok->judul) }}')" 
+                                                            title="Kirim Revisi ke Unit"
+                                                            class="px-3 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition flex items-center gap-1 w-full justify-center shadow-lg shadow-orange-500/20">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                        Kirim Revisi
+                                                    </button>
+                                                    @php
+                                                        // Fallback ke tanggal_validasi atau updated_at atau created_at
+                                                        $waktuSelesai = $dok->updated_at ?? ($dok->tanggal_validasi ?? $dok->created_at);
+                                                        // Calculate expiry time (2 hours after finished)
+                                                        $expiryTime = $waktuSelesai ? $waktuSelesai->copy()->addHours(2)->timestamp * 1000 : 0;
+                                                    @endphp
+                                                    <div class="text-[10px] font-bold text-red-500 flex items-center gap-1 bg-red-50 px-2 py-0.5 rounded-full border border-red-100" title="Batas waktu revisi (2 Jam)">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        <span class="countdown-timer" data-expiry="{{ $expiryTime }}">Menghitung...</span>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
@@ -297,12 +316,19 @@
                                 </div>
                                 <span class="font-medium text-gray-700">Hukum</span>
                             </label>
-                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition col-span-2">
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition">
                                 <input type="radio" name="kategori_arsip" value="KEUANGAN" class="sr-only" required>
                                 <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
                                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <span class="font-medium text-gray-700">Keuangan</span>
+                            </label>
+                            <label class="kategori-option flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-400 transition" title="Pilih ini jika dokumen bersifat sementara dan tidak perlu masuk ke halaman Arsip Digital.">
+                                <input type="radio" name="kategori_arsip" value="TIDAK_DIARSIPKAN" class="sr-only" required>
+                                <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-500 hover:text-gray-700">Tidak Diarsipkan</span>
                             </label>
                         </div>
                     </div>
@@ -332,6 +358,54 @@
                 <div class="p-6 border-t bg-gray-50 flex gap-3 justify-end rounded-b-xl">
                     <button type="button" onclick="closeSelesaiModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition" id="submitSelesaiBtn">Selesai & Arsipkan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal Revisi --}}
+    <div id="revisiModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[100] p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div class="p-6 border-b flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 border-l-4 border-orange-500 pl-2">Kirim Revisi Balasan</h3>
+                    <p id="revisiDocTitle" class="text-sm text-gray-500 mt-1 font-medium"></p>
+                </div>
+                <div class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-xs font-bold animate-pulse">
+                    WAKTU TERBATAS
+                </div>
+            </div>
+            <form id="revisiForm">
+                @csrf
+                <input type="hidden" id="revisiDocumenId" name="dokumenId">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="text-red-500">*</span> File Balasan Baru
+                        </label>
+                        <p class="text-xs text-gray-500 mb-2">File ini akan menimpa file balasan sebelumnya di sisi Unit Usaha.</p>
+                        <label class="flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-orange-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors bg-gray-50 group">
+                            <div class="p-3 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform mb-3">
+                                <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-semibold text-orange-700" id="fileRevisiLabel">Pilih File Baru</span>
+                            <span class="text-xs text-gray-400 mt-1">PDF, Word, Excel, Zip</span>
+                            <input type="file" name="file_balasan" id="fileRevisiInput" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar" required>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-2 font-medium text-orange-600 text-center" id="fileRevisiName"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="text-red-500">*</span> Catatan Revisi
+                        </label>
+                        <textarea name="catatan_revisi" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Jelaskan alasan revisi agar jelas bagi Unit Usaha penerima..." required></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t bg-gray-50 flex gap-3 justify-end rounded-b-xl">
+                    <button type="button" onclick="closeRevisiModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium shadow-lg shadow-orange-600/30" id="submitRevisiBtn">Kirim Revisi Sekarang</button>
                 </div>
             </form>
         </div>
@@ -491,7 +565,11 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    showToast('✓ Dokumen berhasil ditandai selesai & diarsipkan', 'success');
+                    if (kategoriArsip.value === 'TIDAK_DIARSIPKAN') {
+                         showToast('✓ Dokumen diselesaikan tanpa diarsipkan', 'success');
+                    } else {
+                         showToast('✓ Dokumen berhasil ditandai selesai & diarsipkan', 'success');
+                    }
                     closeSelesaiModal();
                     setTimeout(() => location.reload(), 1000);
                 } else {
@@ -507,9 +585,141 @@
             }
         });
 
+        // --- Revisi Timer Logic ---
+        function startCountdowns() {
+            const timers = document.querySelectorAll('.countdown-timer');
+            
+            setInterval(() => {
+                const now = new Date().getTime();
+                
+                timers.forEach(timer => {
+                    const expiry = parseInt(timer.getAttribute('data-expiry'));
+                    
+                    if (!expiry || isNaN(expiry)) {
+                        timer.textContent = "Waktu habis";
+                        return;
+                    }
+                    
+                    const distance = expiry - now;
+                    
+                    if (distance <= 0) {
+                        timer.textContent = "Waktu Habis";
+                        timer.parentElement.classList.replace('text-red-500', 'text-gray-400');
+                        timer.parentElement.classList.replace('bg-red-50', 'bg-gray-100');
+                        timer.parentElement.classList.replace('border-red-100', 'border-gray-200');
+                        
+                        // Disable the button since time is up
+                        const container = timer.closest('.relative');
+                        if (container) {
+                            const btn = container.querySelector('button');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.classList.replace('bg-orange-500', 'bg-gray-400');
+                                btn.classList.replace('hover:bg-orange-600', 'hover:bg-gray-400');
+                                btn.classList.remove('shadow-orange-500/20');
+                                btn.title = "Waktu revisi 2 jam telah habis";
+                            }
+                        }
+                        return;
+                    }
+                    
+                    // Time calculations for hours, minutes and seconds
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    
+                    timer.textContent = `${hours}j ${minutes}m ${seconds}s`;
+                });
+            }, 1000);
+        }
+        
+        // Start timers on load
+        document.addEventListener('DOMContentLoaded', startCountdowns);
+
+        // Revisi Logic
+        function showRevisiModal(id, title) {
+            document.getElementById('revisiDocTitle').textContent = title;
+            document.getElementById('revisiDocumenId').value = id;
+            document.getElementById('revisiModal').classList.remove('hidden');
+            document.getElementById('revisiModal').classList.add('flex');
+        }
+
+        function closeRevisiModal() {
+            document.getElementById('revisiModal').classList.add('hidden');
+            document.getElementById('revisiModal').classList.remove('flex');
+            document.getElementById('revisiForm').reset();
+            document.getElementById('fileRevisiLabel').textContent = 'Pilih File Baru';
+            document.getElementById('fileRevisiName').textContent = '';
+        }
+
+        const fileRevisiInput = document.getElementById('fileRevisiInput');
+        const fileRevisiLabel = document.getElementById('fileRevisiLabel');
+        const fileRevisiName = document.getElementById('fileRevisiName');
+        fileRevisiInput.addEventListener('change', function() {
+            if (this.files[0]) {
+                const file = this.files[0];
+                fileRevisiLabel.textContent = '✓ File Siap Diupload';
+                fileRevisiName.textContent = '📄 ' + file.name;
+            } else {
+                fileRevisiLabel.textContent = 'Pilih File Baru';
+                fileRevisiName.textContent = '';
+            }
+        });
+
+        document.getElementById('revisiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const documenId = document.getElementById('revisiDocumenId').value;
+            const button = document.getElementById('submitRevisiBtn');
+            const catatan = document.querySelector('#revisiForm textarea[name="catatan_revisi"]').value;
+            const fileRevisi = fileRevisiInput.files[0];
+            
+            if (!fileRevisi) {
+                showToast('❌ Harap upload file versi revisi', 'error');
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerHTML = '<svg class="animate-spin inline-block w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Mengupload...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('catatan_revisi', catatan);
+                formData.append('file_balasan', fileRevisi);
+                
+                const response = await fetch(`/api/dokumen/${documenId}/revisi`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast('✓ File Revisi berhasil dikirim ke Unit', 'success');
+                    closeRevisiModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('❌ Error: ' + (data.error || data.message || 'Gagal mengirim revisi'), 'error');
+                    button.disabled = false;
+                    button.textContent = 'Upload Revisi';
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+                button.disabled = false;
+                button.textContent = 'Upload Revisi';
+            }
+        });
+
         // Close modals when clicking outside
         document.getElementById('prosesModal').addEventListener('click', function(e) {
             if (e.target === this) closeProsesModal();
+        });
+        document.getElementById('revisiModal').addEventListener('click', function(e) {
+            if (e.target === this) closeRevisiModal();
         });
 
         // Folder Navigation Logic

@@ -61,7 +61,13 @@ class PageController extends Controller
     public function prosesDokumen()
     {
         $dokumens = Dokumen::with(['instansi', 'user', 'validator'])
-            ->whereIn('status', ['disetujui', 'diproses'])
+            ->where(function($q) {
+                $q->whereIn('status', ['disetujui', 'diproses'])
+                  ->orWhere(function($subQ) {
+                      $subQ->where('status', 'selesai')
+                           ->where('updated_at', '>=', now()->subHours(2));
+                  });
+            })
             ->orderBy('tanggal_validasi', 'desc')
             ->get();
 

@@ -530,7 +530,7 @@ class DokumenController extends Controller
 
         // Jika status selesai, wajib pilih kategori dan file balasan opsional
         if ($request->status === 'selesai') {
-            $rules['kategori_arsip'] = 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN';
+            $rules['kategori_arsip'] = 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,TIDAK_DIARSIPKAN';
             $rules['file_balasan'] = 'nullable|file|max:10240'; // Max 10MB
         }
 
@@ -554,8 +554,15 @@ class DokumenController extends Controller
         } elseif ($request->status === 'selesai') {
             $updateData['tanggal_selesai'] = now();
             $updateData['kategori_arsip'] = $request->kategori_arsip;
-            $updateData['is_archived'] = true;
-            $updateData['tanggal_arsip'] = now();
+
+            // Only archive if category is not "TIDAK_DIARSIPKAN"
+            if ($request->kategori_arsip !== 'TIDAK_DIARSIPKAN') {
+                $updateData['is_archived'] = true;
+                $updateData['tanggal_arsip'] = now();
+            } else {
+                $updateData['is_archived'] = false;
+                $updateData['tanggal_arsip'] = null;
+            }
 
             // Handle file balasan upload
             if ($request->hasFile('file_balasan')) {
@@ -762,5 +769,97 @@ class DokumenController extends Controller
         return response($content)
             ->header('Content-Type', 'application/msword')
             ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+    }
+
+    /**
+     * Revisi Dokumen yg sudah selesai
+     */
+    public function revisi(Request $request, string $id)
+    {
+        $user = Auth::user();
+
+        if (! $user->isStaff()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'file_balasan' => 'required|file|max:10240', // Max 10MB
+            'catatan_revisi' => 'required|string',
+        ]);
+
+        $dokumen = Dokumen::findOrFail($id);
+
+        if ($dokumen->status !== 'selesai') {
+            return response()->json(['error' => 'Dokumen belum berstatus selesai'], 400);
+        }
+
+        // 1. Update balasan_file
+        $file = $request->file('file_balasan');
+        $folderCode = $dokumen->instansi ? $dokumen->instansi->kode : 'INTERNAL';
+        $filePath = $file->store('dokumen/'.$folderCode.'/balasan', 'public');
+        
+        // Hapus file lama jika ada (opsional, better for storage)
+        if ($dokumen->balasan_file && Storage::disk('public')->exists($dokumen->balasan_file)) {
+            Storage::disk('public')->delete($dokumen->balasan_file);
+        }
+
+        $oldCatatan = $dokumen->catatan_proses ? $dokumen->catatan_proses . "\n\n" : "";
+        $newCatatan = $oldCatatan . "[Revisi: " . date('Y-m-d H:i') . "] " . $request->catatan_revisi;
+
+        $dokumen->update([
+            'balasan_file' => $filePath,
+            'catatan_proses' => $newCatatan
+        ]);
+
+        // 2. Set status terbaca balasan ke false untuk alert
+        DB::table('balasan_read_status')->updateOrInsert([
+            'dokumen_id' => $dokumen->id,
+            'user_id' => $dokumen->user_id,
+        ], [
+            'terbaca' => false,
+            'updated_at' => now(),
+        ]);
+
+        // 3. Update SuratMasuk yg berkaitan di Instansi
+        if ($dokumen->instansi_id) {
+            $suratMasuk = SuratMasuk::where('nomor_surat', 'BALASAN/'.$dokumen->nomor_dokumen)->first();
+            if ($suratMasuk) {
+                // Hapus surat masuk lama dari storage jika bukan file yg sama dgn $dokumen->balasan_file
+                if ($suratMasuk->file && $suratMasuk->file !== $dokumen->balasan_file && Storage::disk('public')->exists($suratMasuk->file)) {
+                    Storage::disk('public')->delete($suratMasuk->file);
+                }
+
+                $perihalTitle = $suratMasuk->perihal;
+                if (!str_contains($perihalTitle, '[REVISI]')) {
+                    $perihalTitle = '[REVISI] ' . $perihalTitle;
+                }
+
+                $suratMasuk->update([
+                    'file' => $filePath,
+                    'perihal' => $perihalTitle
+                ]);
+            }
+
+            // 4. Notifikasi Telegram (Revisi)
+            $targetUsers = User::where('instansi_id', $dokumen->instansi_id)->whereNotNull('telegram_chat_id')->get();
+            foreach ($targetUsers as $tUser) {
+                $msg = "*UPDATE DOKUMEN REVISI* 🔄\n".
+                       "Pusat baru saja merevisi balasan untuk dokumen:\n".
+                       "Judul: _{$dokumen->judul}_\n".
+                       "Catatan: _{$request->catatan_revisi}_\n\n".
+                       "Silakan cek file terbaru di menu Surat Masuk.\n".
+                       '[Login Aplikasi]('.url('/login').')';
+                try {
+                    $this->telegram->sendMessage($tUser->telegram_chat_id, $msg);
+                } catch (\Exception $e) {
+                    Log::error('Telegram error to Unit for Revisi: '.$e->getMessage());
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'Dokumen balasan berhasil direvisi dan diteruskan ke instansi.',
+            'dokumen' => $dokumen->load(['instansi']),
+        ]);
     }
 }

@@ -239,15 +239,6 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-emerald-700 mb-2">Isi Surat <span class="text-red-500">*</span></label>
-            <div class="flex border-b border-gray-200 mb-4">
-                <button type="button" id="tabUpload" class="px-4 py-2 border-b-2 border-emerald-600 text-emerald-600 font-medium text-sm focus:outline-none transition-colors">Upload File</button>
-                <button type="button" id="tabBuilder" class="px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-emerald-600 font-medium text-sm focus:outline-none transition-colors">Tulis Langsung (PDF)</button>
-            </div>
-            
-            <input type="hidden" id="formInputMethod" value="upload">
-
-            <!-- UPLOAD PANEL -->
             <div id="panelUpload" class="block">
                 <div class="relative">
                   <input type="file" id="formFile" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200">
@@ -262,10 +253,7 @@
                 </div>
             </div>
 
-            <!-- BUILDER PANEL -->
-            <div id="panelBuilder" class="hidden">
-                 <textarea id="formKonten" name="konten" placeholder="Ketik isi surat di sini..."></textarea>
-            </div>
+
           </div>
           
           <div class="flex gap-3 pt-4">
@@ -495,7 +483,6 @@
     // CRUD Functionality
     const btnTambah = document.getElementById('btnTambah');
     const tableBody = document.getElementById('tableBody');
-    const searchInput = document.getElementById('searchInput');
     let allRowsData = [];
 
     async function loadData() {
@@ -643,64 +630,7 @@
     let isEditMode = false;
     let editingRowId = null;
 
-    const formKonten = document.getElementById('formKonten');
 
-    // Builder Tabs Logic
-    const tabUpload = document.getElementById('tabUpload');
-    const tabBuilder = document.getElementById('tabBuilder');
-    const panelUpload = document.getElementById('panelUpload');
-    const panelBuilder = document.getElementById('panelBuilder');
-    const formInputMethod = document.getElementById('formInputMethod');
-
-    function switchTab(method) {
-        formInputMethod.value = method;
-        if(method === 'upload') {
-            tabUpload.classList.replace('border-transparent', 'border-emerald-600');
-            tabUpload.classList.replace('text-gray-500', 'text-emerald-600');
-            
-            tabBuilder.classList.replace('border-emerald-600', 'border-transparent');
-            tabBuilder.classList.replace('text-emerald-600', 'text-gray-500');
-            
-            panelUpload.classList.remove('hidden');
-            panelBuilder.classList.add('hidden');
-        } else {
-            tabBuilder.classList.replace('border-transparent', 'border-emerald-600');
-            tabBuilder.classList.replace('text-gray-500', 'text-emerald-600');
-            
-            tabUpload.classList.replace('border-emerald-600', 'border-transparent');
-            tabUpload.classList.replace('text-emerald-600', 'text-gray-500');
-            
-            panelBuilder.classList.remove('hidden');
-            panelUpload.classList.add('hidden');
-        }
-    }
-
-    tabUpload.addEventListener('click', () => switchTab('upload'));
-    tabBuilder.addEventListener('click', () => switchTab('builder'));
-
-    // CKEditor Instance
-    let editorInstance;
-    
-    function initEditor() {
-        if (typeof CKEDITOR !== 'undefined' && !editorInstance) {
-            editorInstance = CKEDITOR.replace('formKonten', {
-                height: 300,
-                toolbar: [
-                    { name: 'document', items: [ 'Source', '-', 'NewPage', 'Preview', '-', 'Templates' ] },
-                    { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-                    '/',
-                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
-                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
-                    { name: 'links', items: [ 'Link', 'Unlink' ] },
-                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
-                    '/',
-                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
-                    { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-                    { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
-                ]
-            });
-        }
-    }
 
     // File upload preview handling
     formFile.addEventListener('change', function(e) {
@@ -762,17 +692,7 @@
             console.error('Item not found:', rowId);
             return;
         }
-        if (item.konten) {
-          switchTab('builder');
-          if (editorInstance) {
-              editorInstance.setData(item.konten);
-          }
-        } else {
-          switchTab('upload');
-          if (editorInstance) {
-              editorInstance.setData('');
-          }
-        }
+
 
         modalTitle.textContent = 'Edit Surat Keluar';
         formNomorSurat.value = item.nomor_surat;
@@ -785,10 +705,7 @@
         formTanggal.value = new Date().toISOString().slice(0, 10);
         formTujuan.value = '';
         formPerihal.value = '';
-        if (editorInstance) {
-            editorInstance.setData('');
-        }
-        switchTab('upload');
+
       }
 
       modalBackdrop.classList.remove('hidden');
@@ -831,19 +748,12 @@
       formData.append('tujuan', formTujuan.value);
       formData.append('perihal', formPerihal.value);
       
-      if (formInputMethod.value === 'builder') {
-          if (editorInstance) {
-              formData.append('konten', editorInstance.getData());
-          }
-      } else {
-          // Add multiple files if selected
+      // Add multiple files if selected
           if (formFile.files.length > 0) {
             for(let i=0; i<formFile.files.length; i++){
                 formData.append('lampirans[]', formFile.files[i]);
             }
           }
-      }
-
       try {
         if (isEditMode && editingRowId) {
           // Edit mode - use POST with _method=PUT for FormData
@@ -940,12 +850,7 @@
       }
     }
 
-    searchInput.addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase();
-      document.querySelectorAll('#tableBody tr').forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
-    });
+
 
     // Auto Generate Nomor Surat
     const btnGenerateNomor = document.getElementById('btnGenerateNomor');
@@ -1124,7 +1029,7 @@
 
     loadData();
   </script>
-  <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js" onload="initEditor()"></script>
+
   @include('partials.scripts')
 </body>
 </html>

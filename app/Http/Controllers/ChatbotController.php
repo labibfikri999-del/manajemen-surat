@@ -39,7 +39,6 @@ class ChatbotController extends Controller
             
             // Catat riwayat chat ke file log Laravel (Saran 2: History Tracking)
             $ipAddress = $request->ip();
-            Log::info("CHATBOT: [IP: {$ipAddress}] [Thread: {$threadId}] - Pertanyaan: {$rawUserMessage}");
 
             // 1. Add Message to Thread
             OpenAI::threads()->messages()->create($threadId, [

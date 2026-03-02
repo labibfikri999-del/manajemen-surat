@@ -157,7 +157,7 @@
                   <th class="px-4 py-3 text-xs font-semibold tracking-wider">Jenis</th>
                   <th class="px-4 py-3 text-xs font-semibold tracking-wider w-24">Status</th>
                   <th class="px-4 py-3 text-xs font-semibold tracking-wider w-24">Sifat</th>
-                  <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center w-32">Aksi</th>
+                  <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center w-48">Aksi</th>
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-emerald-50 text-sm">
@@ -395,7 +395,6 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
              }).then(() => {
-                 console.log('Document marked as read');
                  // Badge already updated optimistically
              }).catch(err => console.error('Failed to mark read', err));
         }
@@ -739,7 +738,7 @@
             const title = item.perihal || item.nomor_surat;
             lampiransHtml += `
             <button onclick="previewFileUrl('${mainFileUrl}', '${title}')"
-                    class="p-1.5 bg-blue-50 text-blue-600 rounded-lg shadow-sm hover:bg-blue-100 transition-all duration-200 text-xs flex items-center justify-center w-full gap-1 mb-1 font-medium"
+                    class="p-1.5 bg-blue-50 text-blue-600 rounded-lg shadow-sm hover:bg-blue-100 transition-all duration-200 text-xs flex items-center justify-center gap-1 font-medium whitespace-nowrap"
                     title="Lihat File Utama">
                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> 
                Utama
@@ -751,7 +750,7 @@
                 const lpUrl = l.file_path.startsWith('http') ? l.file_path : '/storage/' + l.file_path;
                 lampiransHtml += `
                 <button onclick="previewFileUrl('${lpUrl}', '${l.file_name}')"
-                        class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg shadow-sm hover:bg-indigo-100 transition-all duration-200 text-xs flex items-center justify-center w-full gap-1 mb-1 font-medium"
+                        class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg shadow-sm hover:bg-indigo-100 transition-all duration-200 text-xs flex items-center justify-center gap-1 font-medium whitespace-nowrap"
                         title="Lihat ${l.file_name}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                   Lmp. ${idx + 1}
@@ -759,7 +758,7 @@
             });
         }
         
-        let viewFilesBtn = lampiransHtml ? `<div class="flex flex-col items-center w-full min-w-[70px]">${lampiransHtml}</div>` : `
+        let viewFilesBtn = lampiransHtml ? `<div class="flex items-center gap-1">${lampiransHtml}</div>` : `
             <button disabled class="p-1.5 bg-gray-50 text-gray-300 rounded-lg border border-gray-100 cursor-not-allowed">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
             </button>
@@ -781,7 +780,7 @@
             </button>` : '';
 
         const actionButtons = `
-            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+            <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
                ${editBtn}
                <div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
                ${viewFilesBtn}

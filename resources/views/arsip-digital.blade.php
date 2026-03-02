@@ -555,7 +555,6 @@
         
         // Debug: Log first document to see structure
         if (dokumens.length > 0) {
-          console.log('Sample document data:', dokumens[0]);
         }
         
         docCount.textContent = dokumens.length + ' dokumen';
@@ -591,8 +590,6 @@
         const fileExt = filePath.split('.').pop();
         const fileUrl = dok.file_url || (filePath ? '/storage/' + filePath : '#');
         const downloadUrl = '/api/arsip-digital/' + dok.id + '/download';
-        
-        console.log('Rendering doc:', {id: dok.id, nama_dokumen: dok.nama_dokumen, namaDoc: namaDoc});
         
         return `<tr id="row-${dok.id}" class="hover:bg-gray-50">
           <td class="px-6 py-4 whitespace-nowrap">
@@ -690,8 +687,8 @@
     // Delete arsip digital document
     async function deleteArsipDocument(id, namaDoc) {
       const confirmed = await showConfirm(
-        'Konfirmasi Hapus',
-        'Apakah Anda yakin ingin menghapus dokumen "' + namaDoc + '"? Data yang dihapus tidak dapat dikembalikan.'
+        'Keluarkan dari Arsip Digital?',
+        'Apakah Anda yakin ingin mengeluarkan dokumen "' + namaDoc + '" dari folder ini? Dokumen fisik tidak akan terhapus dari sistem dan tetap dapat dilihat oleh Instansi pengirim.'
       );
       
       if (!confirmed) return;
@@ -706,18 +703,20 @@
         });
         
         if (response.ok) {
-          showToast('✓ Berhasil', 'Dokumen berhasil dihapus dari arsip', 'success');
+          showToast('✓ Berhasil', 'Dokumen berhasil dikeluarkan dari arsip', 'success');
           
           // Optimistic UI update: Remove row immediately
           const row = document.getElementById('row-' + id);
           if (row) row.remove();
           
-          // Update local data for filtering
-          currentFolderDocuments = currentFolderDocuments.filter(d => d.id != id);
+          // Update local data for filtering safely
+          if (typeof currentFolderDocuments !== 'undefined') {
+              currentFolderDocuments = currentFolderDocuments.filter(d => d.id != id);
+          }
           
           // Reload current folder (background refresh)
-          if (currentFolder) {
-            openFolder(currentFolder);
+          if (typeof currentFolder !== 'undefined' && currentFolder) {
+            if (typeof openFolder === 'function') openFolder(currentFolder);
           }
           // Update stats
           loadFolderCounts();

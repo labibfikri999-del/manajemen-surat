@@ -160,9 +160,9 @@
     async function loadStatistics() {
       try {
         const [suratMasuk, suratKeluar, arsipDigital, penggunaAktif] = await Promise.all([
-          fetch('/api/surat-masuk').then(r => r.json()),
-          fetch('/api/surat-keluar').then(r => r.json()),
-          fetch('/api/arsip-digital').then(r => r.json()),
+          fetch('/api/surat-masuk/count').then(r => r.json()),
+          fetch('/api/surat-keluar/count').then(r => r.json()),
+          fetch('/api/arsip-digital/count').then(r => r.json()),
           fetch('/api/pengguna-aktif').then(r => r.json()).catch(() => ({ count: 9 })) // Fallback
         ]);
 

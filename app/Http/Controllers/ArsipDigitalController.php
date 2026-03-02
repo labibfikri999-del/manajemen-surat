@@ -133,21 +133,18 @@ class ArsipDigitalController extends Controller
         return response()->json($arsip);
     }
 
-    // Delete file
+    // Remove from Arsip Digital (Un-archive) instead of hard delete
     public function destroy($id)
     {
         $dokumen = Dokumen::findOrFail($id);
 
-        // Soft delete or hard delete? Usually hard delete for arsip cleanup if requested
-        // But Dokumen might be referenced elsewhere.
-        // For now, let's just set is_archived = false? No, user wants to delete.
-        // Let's do delete() which will be consistent.
-
-        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
-            Storage::disk('public')->delete($dokumen->file_path);
-        }
-
-        $dokumen->delete();
+        // Instead of hard-deleting the document (which removes it from the Unit Usaha's history as well),
+        // we just mark it as not archived.
+        $dokumen->update([
+            'is_archived' => false,
+            'kategori_arsip' => 'TIDAK_DIARSIPKAN',
+            'tanggal_arsip' => null
+        ]);
 
         return response()->json(['message' => 'File deleted successfully']);
     }

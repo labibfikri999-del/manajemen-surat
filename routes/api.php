@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('web')->group(function () {
 
     // Surat Masuk = Dokumen dengan jenis 'surat_masuk' atau null (legacy)
-    Route::get('/surat-masuk', function () {
+    Route::get('/surat-masuk/count', function () {
         $user = auth()->user();
         $count = 0;
         if ($user && $user->instansi_id) {
@@ -46,7 +46,7 @@ Route::middleware('web')->group(function () {
     });
 
     // Surat Keluar = Dokumen dengan jenis 'surat_keluar'
-    Route::get('/surat-keluar', function () {
+    Route::get('/surat-keluar/count', function () {
         $user = auth()->user();
         $count = 0;
         if ($user && $user->instansi_id) {
@@ -63,7 +63,7 @@ Route::middleware('web')->group(function () {
     });
 
     // Arsip Digital = Dokumen dengan is_archived = true
-    Route::get('/arsip-digital', function () {
+    Route::get('/arsip-digital/count', function () {
         $user = auth()->user();
         $count = 0;
         if ($user && $user->instansi_id) {
@@ -227,6 +227,7 @@ Route::middleware('web')->group(function () {
     Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
     Route::get('dokumen/{id}/audits', [DokumenController::class, 'audits'])->name('dokumen.audits');
     Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
+    Route::post('dokumen/{id}/revisi', [DokumenController::class, 'revisi']);
 
     Route::get('/dokumen/{id}/download-balasan', [App\Http\Controllers\DokumenController::class, 'downloadBalasan']);
 
