@@ -188,7 +188,7 @@
                                         
                                         <div class="flex gap-2">
                                             @if($dok->file_path)
-                                                <button onclick="showDocumentPreview('{{ route('dokumen.preview', $dok->id) }}', '{{ addslashes($dok->judul) }}', '{{ $dok->file_type ?? 'pdf' }}')"
+                                                <button onclick="showDocumentPreview('{{ route('dokumen.preview', $dok->id) }}', '{{ htmlspecialchars(addslashes($dok->judul), ENT_QUOTES, 'UTF-8') }}', '{{ $dok->file_type ?? 'pdf' }}');"
                                                         class="px-3 py-2 text-sm bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                     Preview
@@ -202,20 +202,20 @@
                                                 </a>
                                             @endif
                                             @if($dok->status === 'disetujui')
-                                                <button onclick="showProsesModal({{ $dok->id }}, '{{ $dok->judul }}')" 
+                                                <button onclick="showProsesModal({{ $dok->id }}, '{{ htmlspecialchars(addslashes($dok->judul), ENT_QUOTES, 'UTF-8') }}')" 
                                                         class="px-3 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                                                     Proses
                                                 </button>
                                             @elseif($dok->status === 'diproses')
-                                                <button onclick="showSelesaiModal({{ $dok->id }}, '{{ addslashes($dok->judul) }}')" 
+                                                <button onclick="showSelesaiModal({{ $dok->id }}, '{{ htmlspecialchars(addslashes($dok->judul), ENT_QUOTES, 'UTF-8') }}')" 
                                                         class="px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                     Selesai
                                                 </button>
                                             @elseif($dok->status === 'selesai' && $dok->instansi_id)
                                                 <div class="flex flex-col items-center gap-1 relative">
-                                                    <button onclick="showRevisiModal({{ $dok->id }}, '{{ addslashes($dok->judul) }}')" 
+                                                    <button onclick="showRevisiModal({{ $dok->id }}, '{{ htmlspecialchars(addslashes($dok->judul), ENT_QUOTES, 'UTF-8') }}');" 
                                                             title="Kirim Revisi ke Unit"
                                                             class="px-3 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition flex items-center gap-1 w-full justify-center shadow-lg shadow-orange-500/20">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -612,7 +612,7 @@
                         const container = timer.closest('.relative');
                         if (container) {
                             const btn = container.querySelector('button');
-                            if (btn) {
+                            if (btn && !btn.disabled) {
                                 btn.disabled = true;
                                 btn.classList.replace('bg-orange-500', 'bg-gray-400');
                                 btn.classList.replace('hover:bg-orange-600', 'hover:bg-gray-400');
