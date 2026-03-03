@@ -67,9 +67,13 @@ Route::middleware('web')->group(function () {
         $user = auth()->user();
         $count = 0;
         if ($user && $user->instansi_id) {
-            $count = \App\Models\ArsipDigital::where('instansi_id', $user->instansi_id)->count();
+            $count = \App\Models\Dokumen::where('is_archived', true)
+                ->where('instansi_id', $user->instansi_id)
+                ->count();
         } elseif ($user) {
-            $count = \App\Models\ArsipDigital::where('user_id', $user->id)->count();
+            $count = \App\Models\Dokumen::where('is_archived', true)
+                ->where('user_id', $user->id)
+                ->count();
         }
 
         return response()->json(['count' => $count]);
