@@ -203,12 +203,20 @@ class PageController extends Controller
             $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi'])
                 ->where('instansi_id', $user->instansi_id)
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(function ($sm) {
+                    $sm->file_url = $sm->file ? \Illuminate\Support\Facades\Storage::url($sm->file) : null;
+                    return $sm;
+                });
         } else {
             // Staff/Admin sees all?
             $surat_masuks = \App\Models\SuratMasuk::with(['klasifikasi', 'instansi'])
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(function ($sm) {
+                    $sm->file_url = $sm->file ? \Illuminate\Support\Facades\Storage::url($sm->file) : null;
+                    return $sm;
+                });
         }
 
         return view('surat-masuk', compact('dokumenDigital', 'surat_masuks'));
