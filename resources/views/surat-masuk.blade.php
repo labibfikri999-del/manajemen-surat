@@ -845,6 +845,7 @@
        // Initialize DataTables
        dataTableInstance = $('#dataTableSuratMasuk').DataTable({
            responsive: true,
+           autoWidth: false, // Prevent DataTables from overriding Tailwind width classes
            language: {
                search: "Cari:",
                lengthMenu: "Tampilkan _MENU_ data",
