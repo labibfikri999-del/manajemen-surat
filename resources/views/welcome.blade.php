@@ -294,13 +294,33 @@
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 bg-white border-t border-slate-100 shrink-0">
-                <form id="chatbot-form" class="relative group">
-                    <input type="text" id="chatbot-input" class="w-full bg-slate-50 text-[13px] text-slate-700 border border-slate-200 rounded-full pl-5 pr-14 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 focus:bg-white transition-all placeholder:text-slate-400 shadow-inner group-hover:border-slate-300" placeholder="Ketik pesan..." autocomplete="off">
-                    
-                    <button type="submit" id="chatbot-submit" class="absolute right-1.5 top-1.5 bottom-1.5 w-10 bg-emerald-500 text-white rounded-full flex items-center justify-center hover:bg-emerald-600 transition-transform hover:scale-105 active:scale-95 focus:outline-none disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-sm group-focus-within:bg-emerald-600">
-                        <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <div class="p-3 bg-white border-t border-slate-100 shrink-0">
+                
+                <!-- File Preview Container (Hidden by default) -->
+                <div id="chatbot-file-preview" class="hidden items-center justify-between bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mb-2">
+                    <div class="flex items-center space-x-2 overflow-hidden">
+                        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                        <span id="chatbot-file-name" class="text-xs text-emerald-700 font-medium truncate">filename.pdf</span>
+                    </div>
+                    <button type="button" id="chatbot-file-remove" class="text-emerald-500 hover:text-red-500 transition-colors focus:outline-none ml-2 flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
+                </div>
+
+                <form id="chatbot-form" class="relative flex items-center gap-2 group">
+                    <input type="file" id="chatbot-file-input" class="hidden" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.txt" />
+                    
+                    <button type="button" id="chatbot-attach-btn" class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors focus:outline-none" title="Lampirkan File/Foto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    </button>
+
+                    <div class="relative flex-1">
+                        <input type="text" id="chatbot-input" class="w-full bg-slate-50 text-[13px] text-slate-700 border border-slate-200 rounded-full pl-4 pr-12 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 focus:bg-white transition-all placeholder:text-slate-400 shadow-inner group-hover:border-slate-300" placeholder="Ketik pesan..." autocomplete="off">
+                        
+                        <button type="submit" id="chatbot-submit" class="absolute right-1 top-1 bottom-1 w-8 rounded-full flex items-center justify-center text-emerald-500 hover:text-white hover:bg-emerald-500 transition-all focus:outline-none disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-emerald-500 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </button>
+                    </div>
                 </form>
                 <div class="text-center mt-3 flex justify-center items-center space-x-1">
                     <svg class="w-3 h-3 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
@@ -362,13 +382,22 @@
             cInput.addEventListener('focus', () => cSubmit.parentElement.classList.add('ring-2', 'ring-emerald-500/20', 'rounded-full'));
             cInput.addEventListener('blur', () => cSubmit.parentElement.classList.remove('ring-2', 'ring-emerald-500/20', 'rounded-full'));
 
-            function appendUserMessage(text) {
+            function appendUserMessage(text, fileName = null) {
                 if(suggestionsContainer) suggestionsContainer.style.display = 'none';
                 
+                let safeText = text ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+                
+                let fileNoticeHTML = '';
+                if (fileName) {
+                    const iconSvg = `<svg class="w-3 h-3 text-emerald-500 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>`;
+                    fileNoticeHTML = `<div class="bg-white/20 px-2 py-1 rounded text-[11px] mb-1 italic flex items-center">${iconSvg} Melampirkan: ${fileName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+                }
+
                 const msgHTML = `
                 <div class="flex items-end justify-end space-x-2 animate-fade-in pl-10 mb-2">
                     <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white p-3.5 rounded-2xl rounded-br-sm text-[13px] shadow-sm max-w-[85%] break-words leading-relaxed font-medium">
-                        ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                        ${fileNoticeHTML}
+                        ${safeText}
                     </div>
                 </div>`;
                 msgsContainer.insertAdjacentHTML('beforeend', msgHTML);
@@ -418,25 +447,72 @@
                 msgsContainer.scrollTop = msgsContainer.scrollHeight;
             }
 
+            const fileInput = document.getElementById('chatbot-file-input');
+            const attachBtn = document.getElementById('chatbot-attach-btn');
+            const filePreview = document.getElementById('chatbot-file-preview');
+            const fileNameDisplay = document.getElementById('chatbot-file-name');
+            const fileRemoveBtn = document.getElementById('chatbot-file-remove');
+
+            let selectedFile = null;
+
+            // Handle Attachment Button Click
+            attachBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Handle File Selection
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedFile = file;
+                    fileNameDisplay.textContent = file.name;
+                    filePreview.classList.remove('hidden');
+                    filePreview.classList.add('flex');
+                    cInput.focus();
+                }
+            });
+
+            // Handle File Remove
+            fileRemoveBtn.addEventListener('click', () => {
+                selectedFile = null;
+                fileInput.value = ''; // Clear input
+                filePreview.classList.add('hidden');
+                filePreview.classList.remove('flex');
+                cInput.focus();
+            });
+
             async function sendMessage(text) {
-                if(!text.trim()) return;
+                if(!text.trim() && !selectedFile) return;
                 
                 cInput.value = '';
                 cSubmit.disabled = true;
                 cInput.disabled = true;
+                attachBtn.disabled = true;
                 
-                appendUserMessage(text);
+                const fileName = selectedFile ? selectedFile.name : null;
+
+                // Prepare FormData
+                const formData = new FormData();
+                formData.append('message', text || 'Tolong analisa file terlampir.');
+                if (selectedFile) {
+                    formData.append('file', selectedFile);
+                }
+
+                // Hide file preview immediately from input area
+                filePreview.classList.add('hidden');
+                filePreview.classList.remove('flex');
+                
+                appendUserMessage(text, fileName);
                 showTyping();
 
                 try {
                     const response = await fetch('/chatbot/send', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify({ message: text })
+                        body: formData // Using FormData instead of JSON stringify
                     });
 
                     const data = await response.json();
@@ -444,6 +520,9 @@
                     removeTyping();
                     cSubmit.disabled = false;
                     cInput.disabled = false;
+                    attachBtn.disabled = false;
+                    selectedFile = null;
+                    fileInput.value = ''; // Reset file input
                     cInput.focus();
 
                     if (!response.ok) {

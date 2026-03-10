@@ -19,17 +19,52 @@ class ChatbotController extends Controller
     public function sendMessage(Request $request)
     {
         $request->validate([
-            'message' => 'required|string',
+            'message' => 'required_without:file|string|nullable',
+            'file'    => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg,webp,txt|max:10240', // 10MB max
         ]);
 
-        $rawUserMessage = $request->input('message');
+        $rawUserMessage = $request->input('message') ?? 'Tolong analisa file terlampir.';
         
         // Inject system-level formatting instruction to the user message dynamically
-        $formattingInstruction = "\n\n(Tolong jawab pertanyaan di atas dengan bahasa Indonesia yang sangat profesional, terstruktur, ramah, dan ringkas. Gunakan format bullet points atau penomoran markdown jika menjabarkan daftar. JANGAN PERNAH menyertakan anotasi sumber referensi file seperti 【7:0†source】dalam teks jawabanmu.)";
+        $currentDate = now()->translatedFormat('l, d F Y');
+        $formattingInstruction = "\n\n(Informasi Waktu Sistem: Hari ini adalah tanggal $currentDate. Tolong jawab pertanyaan di atas dengan bahasa Indonesia yang sangat profesional, terstruktur, ramah, dan ringkas. Gunakan format bullet points atau penomoran markdown jika menjabarkan daftar. JANGAN PERNAH menyertakan anotasi sumber referensi file seperti 【7:0†source】dalam teks jawabanmu.)";
         
         $userMessage = $rawUserMessage . $formattingInstruction;
 
         try {
+            // Check if file is uploaded
+            $uploadedFileId = null;
+            $isImage = false;
+            
+            if ($request->hasFile('file') && $request->file('file')->isValid()) {
+                $file = $request->file('file');
+                $mimeType = $file->getMimeType();
+                $isImage = str_starts_with($mimeType, 'image/');
+                
+                // Simpan file sementara dengan ekstensi aslinya agar dikenali OpenAI
+                $originalName = $file->getClientOriginalName();
+                $tempDir = storage_path('app/temp');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
+                $tempPath = $tempDir . '/' . uniqid() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '_', $originalName);
+                
+                copy($file->getRealPath(), $tempPath);
+                
+                // Upload file to OpenAI
+                $openAiFile = OpenAI::files()->upload([
+                    'purpose' => $isImage ? 'vision' : 'assistants',
+                    'file' => fopen($tempPath, 'r'),
+                ]);
+                
+                $uploadedFileId = $openAiFile->id;
+                
+                // Hapus file sementara
+                if (file_exists($tempPath)) {
+                    unlink($tempPath);
+                }
+            }
+
             // Retrieve or Create a Thread ID stored in the user's session
             if (!Session::has('openai_thread_id')) {
                 $thread = OpenAI::threads()->create([]);
@@ -40,11 +75,43 @@ class ChatbotController extends Controller
             // Catat riwayat chat ke file log Laravel (Saran 2: History Tracking)
             $ipAddress = $request->ip();
 
-            // 1. Add Message to Thread
-            OpenAI::threads()->messages()->create($threadId, [
-                'role' => 'user',
-                'content' => $userMessage,
-            ]);
+            // 1. Build Message Content array
+            $messageContent = [];
+            
+            if ($isImage && $uploadedFileId) {
+                // If it's an image, use image_file content type (Vision)
+                $messageContent[] = [
+                    'type' => 'image_file',
+                    'image_file' => ['file_id' => $uploadedFileId]
+                ];
+                $messageContent[] = [
+                    'type' => 'text',
+                    'text' => $userMessage
+                ];
+                
+                OpenAI::threads()->messages()->create($threadId, [
+                    'role' => 'user',
+                    'content' => $messageContent,
+                ]);
+            } else {
+                // If it's text only OR a document (PDF, Word, etc.)
+                $messagePayload = [
+                    'role' => 'user',
+                    'content' => $userMessage,
+                ];
+                
+                // Add attachments for File Search if a document was uploaded
+                if ($uploadedFileId && !$isImage) {
+                    $messagePayload['attachments'] = [
+                        [
+                            'file_id' => $uploadedFileId,
+                            'tools' => [['type' => 'file_search'], ['type' => 'code_interpreter']]
+                        ]
+                    ];
+                }
+                
+                OpenAI::threads()->messages()->create($threadId, $messagePayload);
+            }
 
             // 2. Run the Assistant
             $run = OpenAI::threads()->runs()->create(

@@ -631,7 +631,13 @@
           tanggal_diterima: doc.created_at.split('T')[0],
           pengirim: doc.user ? doc.user.name : 'Pusat/Staff', // Fallback name
           perihal: doc.judul + (doc.deskripsi ? ' - ' + doc.deskripsi : ''),
-          file_url: `${storageRoot}/${doc.file_path}`,
+          file_url: doc.file_path ? `${storageRoot}/${doc.file_path}` : null,
+          lampirans: doc.balasan_file ? [{
+            file_path: doc.balasan_file,
+            file_name: 'Surat_Balasan' + (doc.balasan_file.includes('.') ? '.' + doc.balasan_file.split('.').pop() : '.pdf'),
+            file_type: doc.balasan_file.includes('.') ? doc.balasan_file.split('.').pop() : 'pdf',
+            is_balasan: true
+          }] : [],
           is_digital: true, // Flag to identify
           status: doc.status || 'Selesai',
           is_read: doc.is_read // Added is_read
@@ -748,12 +754,14 @@
         if (item.lampirans && item.lampirans.length > 0) {
             item.lampirans.forEach((l, idx) => {
                 const lpUrl = l.file_path.startsWith('http') ? l.file_path : '/storage/' + l.file_path;
+                const label = l.is_balasan ? 'Balasan' : `Lmp. ${idx + 1}`;
+                const colorClass = l.is_balasan ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100';
                 lampiransHtml += `
                 <button onclick="previewFileUrl('${lpUrl}', '${l.file_name}')"
-                        class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg shadow-sm hover:bg-indigo-100 transition-all duration-200 text-xs flex items-center justify-center gap-1 font-medium whitespace-nowrap"
+                        class="p-1.5 ${colorClass} rounded-lg shadow-sm transition-all duration-200 text-xs flex items-center justify-center gap-1 font-medium whitespace-nowrap"
                         title="Lihat ${l.file_name}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                  Lmp. ${idx + 1}
+                  ${label}
                 </button>`;
             });
         }
@@ -769,8 +777,12 @@
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
             </button>` : '';
 
-        const downloadBtn = `
+        const hasFile = item.file_url || item.file;
+        const downloadBtn = hasFile ? `
             <button onclick="downloadFile('${item.id}', ${item.is_digital})" class="p-2 bg-emerald-50 text-emerald-500 hover:text-emerald-600 rounded-xl hover:bg-emerald-100 transition shadow-sm btn-download" title="Download">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </button>` : `
+            <button disabled class="p-2 bg-gray-50 text-gray-300 rounded-xl transition shadow-sm cursor-not-allowed" title="File tidak tersedia">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             </button>`;
 
@@ -779,19 +791,28 @@
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>` : '';
 
-        const actionButtons = `
-            <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
-               ${editBtn}
-               <div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
-               ${viewFilesBtn}
-               <div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
-               ${downloadBtn}
+        let actionButtonsHtml = '<div class="flex items-center justify-center gap-1.5 whitespace-nowrap mx-auto w-fit">';
+        if (!item.is_digital) {
+             actionButtonsHtml += editBtn;
+             actionButtonsHtml += '<div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>';
+        }
+        
+        actionButtonsHtml += viewFilesBtn;
+        actionButtonsHtml += '<div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>';
+        
+        actionButtonsHtml += downloadBtn;
+        
+        actionButtonsHtml += `
                <button onclick="showAuditHistory('${item.id}')" class="p-2 bg-purple-50 text-purple-500 hover:text-purple-600 rounded-xl hover:bg-purple-100 transition shadow-sm btn-audit" title="Riwayat Aktivitas">
                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-               </button>
-               ${deleteBtn}
-            </div>
-        `;
+               </button>`;
+               
+        if (!item.is_digital) {
+             actionButtonsHtml += deleteBtn;
+        }
+        actionButtonsHtml += '</div>';
+
+        const actionButtons = actionButtonsHtml;
 
         row.innerHTML = `
           <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono text-center">${index + 1}</td>
