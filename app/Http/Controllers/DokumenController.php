@@ -583,10 +583,9 @@ class DokumenController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Auto-create Surat Masuk for instansi user (balasan dari staff)
-            if ($dokumen->instansi_id) {
-                // Determine file to attach: newly uploaded balasan OR null
-                $fileToAttach = $updateData['balasan_file'] ?? null;
+            // Auto-create Surat Masuk for instansi user (balasan dari staff) ONLY IF a file is uploaded
+            if ($dokumen->instansi_id && isset($updateData['balasan_file'])) {
+                $fileToAttach = $updateData['balasan_file'];
 
                 SuratMasuk::create([
                     'instansi_id' => $dokumen->instansi_id,
@@ -837,6 +836,15 @@ class DokumenController extends Controller
                 $suratMasuk->update([
                     'file' => $filePath,
                     'perihal' => $perihalTitle
+                ]);
+            } else {
+                SuratMasuk::create([
+                    'instansi_id' => $dokumen->instansi_id,
+                    'nomor_surat' => 'BALASAN/'.$dokumen->nomor_dokumen, // Distinct numbering
+                    'tanggal_diterima' => now(),
+                    'pengirim' => 'Pusat (Administrator)',
+                    'perihal' => '[REVISI] SURAT BALASAN DARI PUSAT: '.$dokumen->judul,
+                    'file' => $filePath,
                 ]);
             }
 
