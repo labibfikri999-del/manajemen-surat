@@ -1,5 +1,5 @@
 <!-- Chatbot Floating Widget -->
-    <div id="chatbot-container" class="fixed bottom-6 right-6 z-50 animate-fade-in font-sans">
+    <div id="chatbot-container" class="fixed bottom-6 right-6 z-[9999] animate-fade-in font-sans">
         <!-- Chatbot Toggler Button -->
         <button id="chatbot-toggle" class="w-14 h-14 rounded-full chatbot-btn text-white shadow-lg flex items-center justify-center hover:scale-105 hover:bg-emerald-600 hover:shadow-xl transition-all duration-200 relative group focus:outline-none focus:ring-4 focus:ring-emerald-200">
             <svg id="chatbot-icon-msg" class="w-6 h-6 absolute transition-all duration-300 scale-100 opacity-100 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
