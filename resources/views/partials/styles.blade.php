@@ -407,4 +407,32 @@
         to { opacity: 1; transform: translateX(0); }
     }
     .animate-slide-in { animation: slideIn 0.3s ease-out; }
+
+    /* --- Chatbot Specific Styles --- */
+    .chatbot-btn { background-color: #10b981; }
+    .chatbot-header { background-color: #10b981; }
+    
+    .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing {
+        0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+        40% { transform: scale(1); opacity: 1; background-color: #10b981; }
+    }
+
+    .chat-scroll::-webkit-scrollbar { width: 5px; }
+    .chat-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 4px; }
+    .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .chat-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .chip-stagger {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: slideUpFade 0.3s forwards;
+    }
+    .chip-stagger:nth-child(1) { animation-delay: 0.05s; }
+    .chip-stagger:nth-child(2) { animation-delay: 0.1s; }
+    .chip-stagger:nth-child(3) { animation-delay: 0.15s; }
+    
+    @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
 </style>

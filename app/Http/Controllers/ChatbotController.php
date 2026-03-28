@@ -20,14 +20,17 @@ class ChatbotController extends Controller
     {
         $request->validate([
             'message' => 'required_without:file|string|nullable',
-            'file'    => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg,webp,txt|max:10240', // 10MB max
+            // Update 3: Meningkatkan validasi mime types agar file docx dan format umum lainnya tidak tertolak
+            'file'    => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg,webp,txt|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,text/plain,application/zip,application/x-zip-compressed|max:10240', // 10MB max
+            'page_context' => 'nullable|string',
         ]);
 
         $rawUserMessage = $request->input('message') ?? 'Tolong analisa file terlampir.';
         
-        // Inject system-level formatting instruction to the user message dynamically
+        // Inject system-level formatting instruction and context to the user message dynamically
         $currentDate = now()->translatedFormat('l, d F Y');
-        $formattingInstruction = "\n\n(Informasi Waktu Sistem: Hari ini adalah tanggal $currentDate. Tolong jawab pertanyaan di atas dengan bahasa Indonesia yang sangat profesional, terstruktur, ramah, dan ringkas. Gunakan format bullet points atau penomoran markdown jika menjabarkan daftar. JANGAN PERNAH menyertakan anotasi sumber referensi file seperti 【7:0†source】dalam teks jawabanmu.)";
+        $pageContext = $request->input('page_context') ? "\n(Konteks URL Saat Ini: " . $request->input('page_context') . ")" : "";
+        $formattingInstruction = "\n\n(Informasi Sistem: Hari ini adalah tanggal $currentDate. $pageContext Tolong jawab pertanyaan di atas dengan bahasa Indonesia yang sangat profesional, terstruktur, ramah, dan ringkas. Gunakan format bullet points atau penomoran markdown jika menjabarkan daftar. JANGAN PERNAH menyertakan anotasi sumber referensi file seperti 【7:0†source】dalam teks jawabanmu.)";
         
         $userMessage = $rawUserMessage . $formattingInstruction;
 
@@ -59,6 +62,11 @@ class ChatbotController extends Controller
                 
                 $uploadedFileId = $openAiFile->id;
                 
+                // Track uploaded file IDs in session to delete them later (Update 2: Storage Bloat)
+                $sessionFiles = Session::get('openai_uploaded_files', []);
+                $sessionFiles[] = $uploadedFileId;
+                Session::put('openai_uploaded_files', $sessionFiles);
+                
                 // Hapus file sementara
                 if (file_exists($tempPath)) {
                     unlink($tempPath);
@@ -72,9 +80,6 @@ class ChatbotController extends Controller
             }
             $threadId = Session::get('openai_thread_id');
             
-            // Catat riwayat chat ke file log Laravel (Saran 2: History Tracking)
-            $ipAddress = $request->ip();
-
             // 1. Build Message Content array
             $messageContent = [];
             
@@ -113,58 +118,73 @@ class ChatbotController extends Controller
                 OpenAI::threads()->messages()->create($threadId, $messagePayload);
             }
 
-            // 2. Run the Assistant
-            $run = OpenAI::threads()->runs()->create(
-                threadId: $threadId,
-                parameters: [
-                    'assistant_id' => $this->assistantId,
-                ],
-            );
-
-            // 3. Wait for completion (Polling)
-            $completed = false;
-            $maxRetries = 30; // 30 seconds max
-            $retries = 0;
-
-            while (!$completed && $retries < $maxRetries) {
-                sleep(1); 
-                $runStatus = OpenAI::threads()->runs()->retrieve(
+            // 2 & 3. Run the Assistant and Stream directly using Symphony StreamedResponse
+            $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($threadId) {
+                $stream = OpenAI::threads()->runs()->createStreamed(
                     threadId: $threadId,
-                    runId: $run->id,
+                    parameters: [
+                        'assistant_id' => $this->assistantId,
+                    ]
                 );
 
-                if ($runStatus->status === 'completed') {
-                    $completed = true;
-                } elseif ($runStatus->status === 'failed' || $runStatus->status === 'cancelled' || $runStatus->status === 'expired') {
-                     Log::error('OpenAI Run Failed: ' . $runStatus->status);
-                     return response()->json(['error' => 'Maaf, sistem AI sedang mengalami gangguan. Silakan coba beberapa saat lagi.'], 500);
+                foreach ($stream as $response) {
+                    if ($response->event === 'thread.message.delta') {
+                        $deltaText = $response->response->delta->content[0]->text->value ?? '';
+                        if (!empty($deltaText)) {
+                            // Format to SSE standard
+                            echo "data: " . json_encode(['text' => $deltaText]) . "\n\n";
+                            ob_flush();
+                            flush();
+                        }
+                    }
                 }
-                $retries++;
-            }
+                
+                // Send an end stream event
+                echo "data: [DONE]\n\n";
+                ob_flush();
+                flush();
+            });
 
-            if (!$completed) {
-                return response()->json(['error' => 'Waktu tunggu habis (Timeout).'], 504);
-            }
+            // Set headers for SSE Stream
+            $response->headers->set('Content-Type', 'text/event-stream');
+            $response->headers->set('Cache-Control', 'no-cache');
+            $response->headers->set('Connection', 'keep-alive');
+            $response->headers->set('X-Accel-Buffering', 'no'); // Prevent Nginx from buffering
 
-            // 4. Retrieve Messages
-            $messages = OpenAI::threads()->messages()->list($threadId);
-            
-            // The first message is the latest response from the assistant
-            $assistantResponse = $messages->data[0]->content[0]->text->value;
-
-            return response()->json([
-                'response' => $assistantResponse
-            ]);
+            return $response;
 
         } catch (\Exception $e) {
             Log::error('Chatbot API Error: ' . $e->getMessage());
+            // Since we might be returning a stream, error handling on frontend requires care. 
+            // If it fails before stream starts, it will return this regular JSON error.
             return response()->json(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()], 500);
         }
     }
     
     public function resetSession(Request $request)
     {
+        // Update 2: Delete thread and files from OpenAI to prevent storage bloat
+        try {
+            if (Session::has('openai_thread_id')) {
+                OpenAI::threads()->delete(Session::get('openai_thread_id'));
+            }
+            
+            if (Session::has('openai_uploaded_files')) {
+                $files = Session::get('openai_uploaded_files');
+                foreach ($files as $fileId) {
+                    try {
+                        OpenAI::files()->delete($fileId);
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete OpenAI file: ' . $fileId);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error cleaning up OpenAI session: ' . $e->getMessage());
+        }
+
         Session::forget('openai_thread_id');
-        return response()->json(['status' => 'success', 'message' => 'Sesi chat telah direset.']);
+        Session::forget('openai_uploaded_files');
+        return response()->json(['status' => 'success', 'message' => 'Sesi chat telah direset dan data sementara telah dibersihkan.']);
     }
 }

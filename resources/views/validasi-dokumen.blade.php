@@ -24,6 +24,7 @@
     <title>Validasi Dokumen — YARSI NTB</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @include('partials.styles')
@@ -511,7 +512,9 @@
         // Initial check
         checkNotifications();
         // Poll every 10 seconds
-        setInterval(checkNotifications, 10000);
-    </script>
+    @include('partials.scripts')
+    
+    <!-- Global Chatbot Widget -->
+    @include('components.chatbot-widget')
 </body>
 </html>

@@ -90,6 +90,52 @@
             transform: scale(1.05) translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        
+        /* Professional Chatbot Styles */
+        .chatbot-btn {
+            background-color: #10b981; /* Emerald 500 */
+        }
+        .chatbot-header {
+            background-color: #10b981; /* Emerald 500 */
+        }
+        .typing-dot {
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; background-color: #10b981; }
+        }
+        /* Custom scrollbar for chat */
+        .chat-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.02);
+            border-radius: 4px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 4px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+        
+        /* Stagger animation for chips */
+        .chip-stagger {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideUpFade 0.3s forwards;
+        }
+        .chip-stagger:nth-child(1) { animation-delay: 0.05s; }
+        .chip-stagger:nth-child(2) { animation-delay: 0.1s; }
+        .chip-stagger:nth-child(3) { animation-delay: 0.15s; }
+        
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen relative flex flex-col items-center py-12 px-4">
@@ -218,358 +264,10 @@
     </footer>
 
     <!-- Chatbot Floating Widget -->
-    <div id="chatbot-container" class="fixed bottom-6 right-6 z-50 animate-fade-in font-sans">
-        <!-- Chatbot Toggler Button -->
-        <button id="chatbot-toggle" class="w-14 h-14 rounded-full bg-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center hover:bg-emerald-500 hover:scale-110 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] transition-all duration-300 relative group focus:outline-none focus:ring-4 focus:ring-emerald-300">
-            <!-- Pulse ring effect behind icon -->
-            <div class="absolute inset-0 rounded-full border-2 border-emerald-400 opacity-0 group-hover:animate-ping z-0"></div>
-            
-            <svg id="chatbot-icon-msg" class="w-6 h-6 absolute transition-all duration-300 scale-100 opacity-100 group-hover:-translate-y-0.5 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-            <svg id="chatbot-icon-close" class="w-6 h-6 absolute transition-all duration-300 scale-50 opacity-0 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            
-            <!-- Notification Badge -->
-            <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full z-20"></span>
-        </button>
+    <!-- Include Chatbot Widget Container -->
+    @include('components.chatbot-widget')
 
-        <!-- Chatbot Window panel -->
-        <div id="chatbot-panel" class="absolute bottom-20 right-0 w-[350px] sm:w-[400px] h-[550px] max-h-[80vh] bg-[#f8fafc] rounded-[24px] shadow-2xl border border-white/60 flex flex-col overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right scale-0 opacity-0 pointer-events-none ring-1 ring-black/5">
-            
-            <!-- Header (Glassmorphism) -->
-            <div class="relative p-4 text-emerald-900 border-b border-white z-10 overflow-hidden shrink-0">
-                <!-- Glass Background -->
-                <div class="absolute inset-0 bg-emerald-500/10 backdrop-blur-xl z-0"></div>
-                <div class="absolute inset-0 bg-gradient-to-br from-white/60 to-white/20 z-0"></div>
-                
-                <div class="relative flex justify-between items-center z-10">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-[15px] leading-tight text-slate-800">YARSI Assistant</h3>
-                            <div class="flex items-center mt-0.5 space-x-1.5">
-                                <span class="relative flex h-2 w-2">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                <span class="text-[11px] font-medium text-slate-500">Online & Siap Membantu</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="chatbot-reset" title="Mulai Obrolan Baru" class="p-2 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-white/50 transition-colors focus:outline-none border border-transparent hover:border-white/50 hover:shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Messages Area -->
-            <div id="chatbot-messages" class="flex-1 p-5 overflow-y-auto space-y-5 scroll-smooth relative z-0">
-                <!-- Welcome Message -->
-                <div class="flex items-start">
-                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center mr-3 flex-shrink-0 border border-emerald-200 mt-1 shadow-sm">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] text-[13px] text-slate-700 max-w-[85%] leading-relaxed">
-                        Halo 👋 Saya adalah Asisten AI Pintar YARSI NTB.
-                        <br><br>
-                        Ada yang bisa saya bantu hari ini terkait layanan operasional atau informasi Yayasan?
-                    </div>
-                </div>
-
-                <!-- Suggested Questions Chips -->
-                <div id="chatbot-suggestions" class="flex flex-col gap-2 pt-2 px-11 w-full">
-                    <button class="suggestion-btn text-[12px] bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-2 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all shadow-sm text-left relative overflow-hidden group">
-                        <span class="relative z-10">Tugas pokok direktur?</span>
-                        <div class="absolute inset-0 bg-emerald-50 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
-                    </button>
-                    <button class="suggestion-btn text-[12px] bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-2 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all shadow-sm text-left relative overflow-hidden group">
-                        <span class="relative z-10">Bagaimana struktur organisasi Yayasan?</span>
-                        <div class="absolute inset-0 bg-emerald-50 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
-                    </button>
-                    <button class="suggestion-btn text-[12px] bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-2 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all shadow-sm text-left relative overflow-hidden group">
-                        <span class="relative z-10">Wewenang RS Islam?</span>
-                        <div class="absolute inset-0 bg-emerald-50 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="p-3 bg-white border-t border-slate-100 shrink-0">
-                
-                <!-- File Preview Container (Hidden by default) -->
-                <div id="chatbot-file-preview" class="hidden items-center justify-between bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mb-2">
-                    <div class="flex items-center space-x-2 overflow-hidden">
-                        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                        <span id="chatbot-file-name" class="text-xs text-emerald-700 font-medium truncate">filename.pdf</span>
-                    </div>
-                    <button type="button" id="chatbot-file-remove" class="text-emerald-500 hover:text-red-500 transition-colors focus:outline-none ml-2 flex-shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-
-                <form id="chatbot-form" class="relative flex items-center gap-2 group">
-                    <input type="file" id="chatbot-file-input" class="hidden" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.txt" />
-                    
-                    <button type="button" id="chatbot-attach-btn" class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors focus:outline-none" title="Lampirkan File/Foto">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                    </button>
-
-                    <div class="relative flex-1">
-                        <input type="text" id="chatbot-input" class="w-full bg-slate-50 text-[13px] text-slate-700 border border-slate-200 rounded-full pl-4 pr-12 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 focus:bg-white transition-all placeholder:text-slate-400 shadow-inner group-hover:border-slate-300" placeholder="Ketik pesan..." autocomplete="off">
-                        
-                        <button type="submit" id="chatbot-submit" class="absolute right-1 top-1 bottom-1 w-8 rounded-full flex items-center justify-center text-emerald-500 hover:text-white hover:bg-emerald-500 transition-all focus:outline-none disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-emerald-500 disabled:cursor-not-allowed">
-                            <svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                        </button>
-                    </div>
-                </form>
-                <div class="text-center mt-3 flex justify-center items-center space-x-1">
-                    <svg class="w-3 h-3 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
-                    <span class="text-[10px] font-medium text-slate-400">Powered by AI Analytics</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chatbot Logic -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleBtn = document.getElementById('chatbot-toggle');
-            const panel = document.getElementById('chatbot-panel');
-            const iconMsg = document.getElementById('chatbot-icon-msg');
-            const iconClose = document.getElementById('chatbot-icon-close');
-            const msgsContainer = document.getElementById('chatbot-messages');
-            const cForm = document.getElementById('chatbot-form');
-            const cInput = document.getElementById('chatbot-input');
-            const cSubmit = document.getElementById('chatbot-submit');
-            const cReset = document.getElementById('chatbot-reset');
-            const suggestionsContainer = document.getElementById('chatbot-suggestions');
-            
-            let isOpen = false;
-
-            // Markdown Config
-            marked.setOptions({ breaks: true, gfm: true });
-
-            // Toggle Panel Logic
-            toggleBtn.addEventListener('click', () => {
-                isOpen = !isOpen;
-                if(isOpen) {
-                    panel.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
-                    panel.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
-                    iconMsg.style.transform = 'scale(0) rotate(-45deg)';
-                    iconMsg.style.opacity = '0';
-                    iconClose.style.transform = 'scale(1) rotate(0deg)';
-                    iconClose.style.opacity = '1';
-                    
-                    // Hide notification badge
-                    const badge = toggleBtn.querySelector('span.bg-red-500');
-                    if(badge) badge.classList.add('hidden');
-                    
-                    setTimeout(() => cInput.focus(), 300);
-                } else {
-                    panel.classList.replace('scale-100', 'scale-0');
-                    panel.classList.replace('opacity-100', 'opacity-0');
-                    panel.classList.replace('pointer-events-auto', 'pointer-events-none');
-                    
-                    iconClose.style.transform = 'scale(0) rotate(45deg)';
-                    iconClose.style.opacity = '0';
-                    iconMsg.style.transform = 'scale(1) rotate(0)';
-                    iconMsg.style.opacity = '1';
-                }
-            });
-
-            // Focus Effects
-            cInput.addEventListener('focus', () => cSubmit.parentElement.classList.add('ring-2', 'ring-emerald-500/20', 'rounded-full'));
-            cInput.addEventListener('blur', () => cSubmit.parentElement.classList.remove('ring-2', 'ring-emerald-500/20', 'rounded-full'));
-
-            function appendUserMessage(text, fileName = null) {
-                if(suggestionsContainer) suggestionsContainer.style.display = 'none';
-                
-                let safeText = text ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
-                
-                let fileNoticeHTML = '';
-                if (fileName) {
-                    const iconSvg = `<svg class="w-3 h-3 text-emerald-500 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>`;
-                    fileNoticeHTML = `<div class="bg-white/20 px-2 py-1 rounded text-[11px] mb-1 italic flex items-center">${iconSvg} Melampirkan: ${fileName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
-                }
-
-                const msgHTML = `
-                <div class="flex items-end justify-end space-x-2 animate-fade-in pl-10 mb-2">
-                    <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white p-3.5 rounded-2xl rounded-br-sm text-[13px] shadow-sm max-w-[85%] break-words leading-relaxed font-medium">
-                        ${fileNoticeHTML}
-                        ${safeText}
-                    </div>
-                </div>`;
-                msgsContainer.insertAdjacentHTML('beforeend', msgHTML);
-                scrollToBottom();
-            }
-
-            function appendAIMessage(text) {
-                // Remove citation marks e.g. 【7:0†source】
-                const cleanText = text.replace(/【.*?】/g, '');
-                const parsedText = marked.parse(cleanText);
-                
-                const msgHTML = `
-                <div class="flex items-start space-x-3 animate-fade-in pr-6 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center flex-shrink-0 border border-emerald-100 mt-0.5 shadow-sm">
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl rounded-tl-sm border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] text-[13px] text-slate-700 max-w-[90%] leading-relaxed prose prose-sm prose-emerald prose-p:my-1 prose-ul:my-1 prose-li:my-0.5" style="& ul { list-style-type: disc; padding-left: 1.5rem; } ol { list-style-type: decimal; padding-left: 1.5rem; }">
-                        ${parsedText}
-                    </div>
-                </div>`;
-                msgsContainer.insertAdjacentHTML('beforeend', msgHTML);
-                scrollToBottom();
-            }
-
-            function showTyping() {
-                const typingHTML = `
-                <div id="typing-indicator" class="flex items-start space-x-3 animate-fade-in mb-2">
-                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 border border-emerald-100 mt-0.5 shadow-sm">
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
-                    </div>
-                    <div class="bg-white px-4 py-3.5 rounded-2xl rounded-tl-sm border border-slate-100 shadow-sm flex space-x-1.5 items-center">
-                        <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce"></div>
-                    </div>
-                </div>`;
-                msgsContainer.insertAdjacentHTML('beforeend', typingHTML);
-                scrollToBottom();
-            }
-
-            function removeTyping() {
-                const typingEl = document.getElementById('typing-indicator');
-                if(typingEl) typingEl.remove();
-            }
-
-            function scrollToBottom() {
-                msgsContainer.scrollTop = msgsContainer.scrollHeight;
-            }
-
-            const fileInput = document.getElementById('chatbot-file-input');
-            const attachBtn = document.getElementById('chatbot-attach-btn');
-            const filePreview = document.getElementById('chatbot-file-preview');
-            const fileNameDisplay = document.getElementById('chatbot-file-name');
-            const fileRemoveBtn = document.getElementById('chatbot-file-remove');
-
-            let selectedFile = null;
-
-            // Handle Attachment Button Click
-            attachBtn.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            // Handle File Selection
-            fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    selectedFile = file;
-                    fileNameDisplay.textContent = file.name;
-                    filePreview.classList.remove('hidden');
-                    filePreview.classList.add('flex');
-                    cInput.focus();
-                }
-            });
-
-            // Handle File Remove
-            fileRemoveBtn.addEventListener('click', () => {
-                selectedFile = null;
-                fileInput.value = ''; // Clear input
-                filePreview.classList.add('hidden');
-                filePreview.classList.remove('flex');
-                cInput.focus();
-            });
-
-            async function sendMessage(text) {
-                if(!text.trim() && !selectedFile) return;
-                
-                cInput.value = '';
-                cSubmit.disabled = true;
-                cInput.disabled = true;
-                attachBtn.disabled = true;
-                
-                const fileName = selectedFile ? selectedFile.name : null;
-
-                // Prepare FormData
-                const formData = new FormData();
-                formData.append('message', text || 'Tolong analisa file terlampir.');
-                if (selectedFile) {
-                    formData.append('file', selectedFile);
-                }
-
-                // Hide file preview immediately from input area
-                filePreview.classList.add('hidden');
-                filePreview.classList.remove('flex');
-                
-                appendUserMessage(text, fileName);
-                showTyping();
-
-                try {
-                    const response = await fetch('/chatbot/send', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: formData // Using FormData instead of JSON stringify
-                    });
-
-                    const data = await response.json();
-                    
-                    removeTyping();
-                    cSubmit.disabled = false;
-                    cInput.disabled = false;
-                    attachBtn.disabled = false;
-                    selectedFile = null;
-                    fileInput.value = ''; // Reset file input
-                    cInput.focus();
-
-                    if (!response.ok) {
-                        appendAIMessage(data.error || "Terjadi kesalahan sambungan jaringan.");
-                    } else {
-                        appendAIMessage(data.response);
-                    }
-                } catch (error) {
-                    removeTyping();
-                    cSubmit.disabled = false;
-                    cInput.disabled = false;
-                    appendAIMessage("Koneksi terputus. Silakan periksa jaringan Anda dan coba lagi.");
-                }
-            }
-
-            cForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                sendMessage(cInput.value);
-            });
-
-            document.querySelectorAll('.suggestion-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    sendMessage(this.querySelector('span').innerText);
-                });
-            });
-
-            // Soft Reset
-            cReset.addEventListener('click', async () => {
-                if(!confirm('Mulai sesi obrolan baru?')) return;
-                
-                try {
-                    cReset.querySelector('svg').classList.add('animate-spin');
-                    await fetch('/chatbot/reset', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
-                    
-                    const welcomeMsg = msgsContainer.firstElementChild.outerHTML;
-                    msgsContainer.innerHTML = welcomeMsg;
-                    if(suggestionsContainer) {
-                        msgsContainer.innerHTML += suggestionsContainer.outerHTML;
-                        suggestionsContainer.style.display = 'flex';
-                    }
-                    cReset.querySelector('svg').classList.remove('animate-spin');
-                } catch(e) {
-                    cReset.querySelector('svg').classList.remove('animate-spin');
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>
+

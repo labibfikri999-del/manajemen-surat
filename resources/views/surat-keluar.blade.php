@@ -9,6 +9,7 @@
   <title>Surat Keluar — YARSI NTB</title>
   <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -1031,10 +1032,8 @@
   </script>
 
   @include('partials.scripts')
+
+  <!-- Global Chatbot Widget -->
+  @include('components.chatbot-widget')
 </body>
 </html>
-
-
-
-
-
