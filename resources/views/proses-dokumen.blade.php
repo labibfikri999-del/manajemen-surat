@@ -805,7 +805,8 @@
         // Initial check
         checkNotifications();
         // Poll every 10 seconds
-    @include('partials.scripts')
+        setInterval(checkNotifications, 10000);
+    </script>
     
     <!-- Global Chatbot Widget -->
     @include('components.chatbot-widget')
