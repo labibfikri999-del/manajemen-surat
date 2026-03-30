@@ -13,7 +13,6 @@
   
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
   
   <!-- Custom DataTable Styling to Override Default DataTables styles with Tailwind -->
   <style>
@@ -38,6 +37,17 @@
     }
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
         background: #ecfdf5 !important; color: #065f46 !important; border: 1px solid #a7f3d0 !important;
+    }
+    /* Force table to always show full columns */
+    #dataTableSuratMasuk {
+        min-width: 900px;
+        width: 100% !important;
+    }
+    .dataTables_wrapper {
+        overflow-x: auto;
+    }
+    .dataTables_scrollBody {
+        overflow-x: auto !important;
     }
   </style>
 
@@ -838,14 +848,14 @@
              ${actionButtons}
           </td>
         `;
-        
         tbody.appendChild(row);
         if (!item.is_digital) setupRowActions(row);
        });
        
        // Initialize DataTables
        dataTableInstance = $('#dataTableSuratMasuk').DataTable({
-           responsive: true,
+           responsive: false,
+           scrollX: true,
            autoWidth: false, // Prevent DataTables from overriding Tailwind width classes
            language: {
                search: "Cari:",
@@ -1246,7 +1256,7 @@
   </script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
   @include('partials.scripts')
 
   <!-- Global Chatbot Widget -->
