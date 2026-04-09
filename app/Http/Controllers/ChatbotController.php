@@ -21,7 +21,7 @@ class ChatbotController extends Controller
         $request->validate([
             'message' => 'required_without:file|string|nullable',
             // Update 3: Meningkatkan validasi mime types agar file docx dan format umum lainnya tidak tertolak
-            'file'    => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg,webp,txt|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,text/plain,application/zip,application/x-zip-compressed|max:10240', // 10MB max
+            'file'    => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg,webp,txt,xls,xlsx,csv|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,text/plain,application/zip,application/x-zip-compressed,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv|max:10240', // 10MB max
             'page_context' => 'nullable|string',
         ]);
 
