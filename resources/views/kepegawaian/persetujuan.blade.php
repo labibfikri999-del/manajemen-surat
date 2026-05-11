@@ -39,12 +39,11 @@
                         </div>
                         <div class="flex flex-wrap gap-2">
                             @if($row['file_path'])
+                                <a href="{{ route('kepegawaian.dokumen.preview', $row['id']) }}" target="_blank" rel="noopener" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700">Preview</a>
                                 <a href="{{ route('kepegawaian.dokumen.download', $row['id']) }}" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700">Download</a>
+                            @else
+                                <button type="button" disabled class="cursor-not-allowed rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-400">Preview</button>
                             @endif
-                            <form action="{{ route('kepegawaian.persetujuan.action', $row['id']) }}" method="POST">
-                                @csrf
-                                <button name="action" value="preview" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700">Preview</button>
-                            </form>
                             <form action="{{ route('kepegawaian.persetujuan.action', $row['id']) }}" method="POST">
                                 @csrf
                                 <button name="action" value="approve" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white">Setujui</button>

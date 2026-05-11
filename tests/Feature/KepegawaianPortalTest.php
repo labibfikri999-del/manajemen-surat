@@ -61,6 +61,98 @@ class KepegawaianPortalTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_preview_dokumen_kepegawaian_ditampilkan_inline(): void
+    {
+        $staff = User::factory()->create([
+            'username' => 'staff.preview',
+            'role' => 'staff_kepegawaian',
+            'module_access' => ['kepegawaian'],
+            'is_active' => true,
+        ]);
+        $pegawai = User::factory()->create([
+            'username' => '198801012014041002',
+            'role' => 'pegawai',
+            'module_access' => ['kepegawaian'],
+            'is_active' => true,
+        ]);
+        $category = SdmKategoriDokumen::create([
+            'kode' => 'PREVIEW',
+            'nama' => 'Dokumen Preview',
+            'is_active' => true,
+        ]);
+
+        Storage::disk('public')->put('kepegawaian/dokumen/preview.pdf', 'dummy pdf');
+
+        $document = SdmTransaksiDokumen::create([
+            'user_id' => $pegawai->id,
+            'sdm_kategori_dokumen_id' => $category->id,
+            'nomor_pengajuan' => 'KPG-PREVIEW-001',
+            'judul' => 'Preview PDF',
+            'file_path' => 'kepegawaian/dokumen/preview.pdf',
+            'file_name' => 'preview.pdf',
+            'status' => 'diajukan',
+            'submitted_at' => now(),
+        ]);
+
+        $response = $this->actingAs($staff)
+            ->get(route('kepegawaian.dokumen.preview', $document->id));
+
+        $response->assertOk();
+        $this->assertStringContainsString('inline', $response->headers->get('content-disposition'));
+    }
+
+    public function test_preview_link_muncul_di_verifikasi_dan_persetujuan(): void
+    {
+        $staff = User::factory()->create([
+            'username' => 'staff.preview.link',
+            'role' => 'staff_kepegawaian',
+            'module_access' => ['kepegawaian'],
+            'is_active' => true,
+        ]);
+        $sekjen = User::factory()->create([
+            'username' => 'sekjen.preview.link',
+            'role' => 'sekjen',
+            'module_access' => ['kepegawaian'],
+            'is_active' => true,
+        ]);
+        $pegawai = User::factory()->create([
+            'username' => '198801012014041003',
+            'role' => 'pegawai',
+            'module_access' => ['kepegawaian'],
+            'is_active' => true,
+        ]);
+        $category = SdmKategoriDokumen::create([
+            'kode' => 'LINK',
+            'nama' => 'Dokumen Link',
+            'is_active' => true,
+        ]);
+
+        Storage::disk('public')->put('kepegawaian/dokumen/link.pdf', 'dummy pdf');
+
+        $document = SdmTransaksiDokumen::create([
+            'user_id' => $pegawai->id,
+            'sdm_kategori_dokumen_id' => $category->id,
+            'nomor_pengajuan' => 'KPG-PREVIEW-002',
+            'judul' => 'Preview Link',
+            'file_path' => 'kepegawaian/dokumen/link.pdf',
+            'file_name' => 'link.pdf',
+            'status' => 'menunggu_sekjen',
+            'submitted_at' => now(),
+        ]);
+
+        $previewUrl = route('kepegawaian.dokumen.preview', $document->id);
+
+        $this->actingAs($staff)
+            ->get(route('kepegawaian.verifikasi'))
+            ->assertOk()
+            ->assertSee($previewUrl, false);
+
+        $this->actingAs($sekjen)
+            ->get(route('kepegawaian.persetujuan'))
+            ->assertOk()
+            ->assertSee($previewUrl, false);
+    }
+
     public function test_panel_verifikasi_memperbarui_dokumen_yang_dipilih(): void
     {
         $staff = User::factory()->create([

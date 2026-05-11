@@ -204,6 +204,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ganti-password', [KepegawaianPortalController::class, 'changePasswordForm'])->name('password.change');
         Route::post('/ganti-password', [KepegawaianPortalController::class, 'updatePassword'])->name('password.update');
         Route::get('/dashboard', [KepegawaianPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dokumen/{document}/preview', [KepegawaianPortalController::class, 'previewDocument'])->name('dokumen.preview');
         Route::get('/dokumen/{document}/download', [KepegawaianPortalController::class, 'downloadDocument'])->name('dokumen.download');
 
         Route::middleware('role:pegawai,staff_kepegawaian,staff')->group(function () {

@@ -408,6 +408,21 @@ class PortalController extends Controller
         return Storage::disk('public')->download($model->file_path, $model->file_name);
     }
 
+    public function previewDocument(int $document)
+    {
+        $model = SdmTransaksiDokumen::findOrFail($document);
+
+        abort_unless($this->canViewDocument($model), 403);
+        abort_unless($model->file_path && Storage::disk('public')->exists($model->file_path), 404);
+
+        return Storage::disk('public')->response(
+            $model->file_path,
+            $model->file_name ?: basename($model->file_path),
+            ['X-Content-Type-Options' => 'nosniff'],
+            'inline'
+        );
+    }
+
     public function akun()
     {
         $accounts = User::query()
