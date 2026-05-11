@@ -1,13 +1,9 @@
 
 <?php
-use App\Http\Controllers\Api\ExportController;
-use App\Http\Controllers\ArsipDigitalController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DataMasterController;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\Kepegawaian\PortalController as KepegawaianPortalController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\SuratKeluarController;
-use App\Http\Controllers\SuratMasukController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes (Guest only)
@@ -40,6 +36,20 @@ Route::get('/sdm/login', function () {
     return view('sdm.auth.login');
 })->name('sdm.login');
 
+// ===== SISTEM KEPEGAWAIAN (PUBLIC) =====
+Route::get('/kepegawaian/login', function () {
+    if (auth()->check()) {
+        $access = auth()->user()->module_access ?? [];
+        if (array_intersect(['sdm', 'kepegawaian', 'pegawai'], $access)) {
+            return redirect()->route('kepegawaian.dashboard');
+        }
+        return redirect()->route('dashboard');
+    }
+    return view('kepegawaian.auth.login');
+})->name('kepegawaian.login');
+Route::get('/kepegawaian/lupa-password', [KepegawaianPortalController::class, 'forgotPassword'])->name('kepegawaian.forgot-password');
+Route::post('/kepegawaian/lupa-password', [KepegawaianPortalController::class, 'requestPasswordReset'])->name('kepegawaian.forgot-password.store');
+
 // ===== SISTEM KEUANGAN (PUBLIC) =====
 Route::get('/keuangan/login', function () {
     if (auth()->check()) {
@@ -70,9 +80,13 @@ Route::middleware('auth')->group(function () {
     // Dashboard - semua role bisa akses
     Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
 
+    // ===== DIREKTUR ONLY =====
+    Route::middleware('role:direktur')->group(function () {
+        Route::get('/validasi-dokumen', [PageController::class, 'validasiDokumen'])->name('validasi-dokumen');
+    });
+
     // ===== DIREKTUR & STAFF =====
     Route::middleware('role:direktur,staff')->group(function () {
-        Route::get('/validasi-dokumen', [PageController::class, 'validasiDokumen'])->name('validasi-dokumen');
         Route::get('/data-master', [PageController::class, 'dataMaster'])->name('data-master');
     });
 
@@ -87,6 +101,10 @@ Route::middleware('auth')->group(function () {
     // ===== INSTANSI & STAFF =====
     Route::middleware('role:instansi,staff')->group(function () {
         Route::get('/upload-dokumen', [PageController::class, 'uploadDokumen'])->name('upload-dokumen');
+    });
+
+    // ===== INSTANSI ONLY =====
+    Route::middleware('role:instansi')->group(function () {
         Route::get('/tracking-dokumen', [PageController::class, 'trackingDokumen'])->name('tracking-dokumen');
     });
 
@@ -181,6 +199,36 @@ Route::middleware('auth')->group(function () {
         Route::delete('/settings/user/{id}', [App\Http\Controllers\SDM\SettingsController::class, 'destroyUser'])->name('settings.user.destroy');
     });
 
+    // Protected Routes Kepegawaian Dokumen
+    Route::prefix('kepegawaian')->name('kepegawaian.')->middleware(['auth', 'module.access:sdm,kepegawaian,pegawai'])->group(function () {
+        Route::get('/ganti-password', [KepegawaianPortalController::class, 'changePasswordForm'])->name('password.change');
+        Route::post('/ganti-password', [KepegawaianPortalController::class, 'updatePassword'])->name('password.update');
+        Route::get('/dashboard', [KepegawaianPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dokumen/{document}/download', [KepegawaianPortalController::class, 'downloadDocument'])->name('dokumen.download');
+
+        Route::middleware('role:pegawai,staff_kepegawaian,staff')->group(function () {
+            Route::get('/upload', [KepegawaianPortalController::class, 'upload'])->name('upload');
+            Route::post('/upload', [KepegawaianPortalController::class, 'storeUpload'])->name('upload.store');
+        });
+
+        Route::middleware('role:staff_kepegawaian,staff')->group(function () {
+            Route::get('/verifikasi', [KepegawaianPortalController::class, 'verifikasi'])->name('verifikasi');
+            Route::post('/verifikasi/action', [KepegawaianPortalController::class, 'verifikasiPanelAction'])->name('verifikasi.panel');
+            Route::post('/verifikasi/{document}', [KepegawaianPortalController::class, 'verifikasiAction'])->name('verifikasi.action');
+            Route::get('/verifikasi-export', [KepegawaianPortalController::class, 'exportVerifikasi'])->name('verifikasi.export');
+            Route::get('/akun', [KepegawaianPortalController::class, 'akun'])->name('akun');
+            Route::post('/akun/action', [KepegawaianPortalController::class, 'akunAction'])->name('akun.action');
+            Route::get('/akun-template', [KepegawaianPortalController::class, 'downloadAccountTemplate'])->name('akun.template');
+            Route::get('/reset-password', [KepegawaianPortalController::class, 'resetPassword'])->name('reset-password');
+            Route::post('/reset-password/{resetRequest}', [KepegawaianPortalController::class, 'resetPasswordAction'])->name('reset-password.action');
+        });
+
+        Route::middleware('role:sekjen,direktur')->group(function () {
+            Route::get('/persetujuan', [KepegawaianPortalController::class, 'persetujuan'])->name('persetujuan');
+            Route::post('/persetujuan/{document}', [KepegawaianPortalController::class, 'persetujuanAction'])->name('persetujuan.action');
+        });
+    });
+
     // Protected Routes Keuangan
     Route::prefix('keuangan')->name('keuangan.')->middleware(['auth', 'module.access:keuangan'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Keuangan\DashboardController::class, 'index'])->name('dashboard');
@@ -220,7 +268,7 @@ Route::middleware('auth')->group(function () {
 
 
     // Legacy routes (Sistem Surat) - Apply Access Control
-    Route::middleware(['module.access:surat'])->group(function () {
+    Route::middleware(['module.access:surat', 'role:instansi'])->group(function () {
         Route::get('/surat-masuk', [PageController::class, 'suratMasuk'])->name('surat-masuk');
         Route::get('/surat-keluar', [PageController::class, 'suratKeluar'])->name('surat-keluar');
     });
@@ -231,61 +279,3 @@ Route::middleware(['web', 'throttle:5,1'])->group(function () {
     Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 'sendMessage']);
 });
 Route::middleware('web')->post('/chatbot/reset', [\App\Http\Controllers\ChatbotController::class, 'resetSession']);
-
-// PUBLIC API (agar fetch dari halaman bisa langsung JSON tanpa redirect login)
-Route::prefix('api')->middleware('auth')->group(function () {
-    Route::apiResource('surat-masuk', SuratMasukController::class);
-    Route::get('surat-masuk/{id}/download', [SuratMasukController::class, 'download']);
-    Route::apiResource('surat-keluar', SuratKeluarController::class);
-    Route::get('surat-keluar/{id}/download', [SuratKeluarController::class, 'download']);
-    Route::apiResource('arsip-digital', ArsipDigitalController::class);
-    Route::get('arsip-digital/{id}/download', [ArsipDigitalController::class, 'download']);
-
-    // Arsip Digital API endpoints
-    Route::get('/arsip-stats', [ArsipDigitalController::class, 'getStats']);
-    Route::get('/arsip-kategori-count', [ArsipDigitalController::class, 'getKategoriCount']);
-    Route::get('/arsip-by-kategori/{kategori}', [ArsipDigitalController::class, 'getByKategori']);
-    Route::get('/arsip-download-kategori/{kategori}', [ArsipDigitalController::class, 'downloadKategori']);
-    // Note: POST /api/arsip-digital already handled by apiResource above (line 75)
-
-    // Modifikasi: Hapus rute duplikat dan komentar yang tidak perlu
-    // Route::apiResource('klasifikasi', DataMasterController::class); // Hapus baris ini jika benar-benar tidak digunakan
-
-    Route::get('/klasifikasi-list', [DataMasterController::class, 'indexKlasifikasi']);
-    Route::post('/klasifikasi-store', [DataMasterController::class, 'storeKlasifikasi']);
-    Route::put('/klasifikasi/{id}', [DataMasterController::class, 'updateKlasifikasi']);
-    Route::delete('/klasifikasi/{id}', [DataMasterController::class, 'destroyKlasifikasi']);
-
-    // Data Master Extras (Stats, Departemen, Pengguna, Tipe Lampiran)
-    Route::get('/master/stats', [DataMasterController::class, 'getStats']);
-    Route::get('/laporan/stats', [DataMasterController::class, 'getLaporanStats']);
-
-    Route::get('/departemen-list', [DataMasterController::class, 'indexDepartemen']);
-    Route::post('/departemen-store', [DataMasterController::class, 'storeDepartemen']);
-    Route::put('/departemen/{id}', [DataMasterController::class, 'updateDepartemen']);
-    Route::delete('/departemen/{id}', [DataMasterController::class, 'destroyDepartemen']);
-
-    Route::get('/pengguna-list', [DataMasterController::class, 'indexPengguna']);
-    Route::post('/pengguna-store', [DataMasterController::class, 'storePengguna']);
-    Route::put('/pengguna/{id}', [DataMasterController::class, 'updatePengguna']);
-    Route::delete('/pengguna/{id}', [DataMasterController::class, 'destroyPengguna']);
-
-    Route::get('/lampiran-list', [DataMasterController::class, 'indexTipeLampiran']);
-    Route::post('/lampiran-store', [DataMasterController::class, 'storeTipeLampiran']);
-    Route::put('/lampiran/{id}', [DataMasterController::class, 'updateTipeLampiran']);
-    Route::delete('/lampiran/{id}', [DataMasterController::class, 'destroyTipeLampiran']);
-
-    Route::get('/export/pdf', [ExportController::class, 'exportPdf']);
-    Route::get('/export/csv', [ExportController::class, 'exportCsv']);
-
-    // Backup Routes
-    Route::get('/backup/db', [\App\Http\Controllers\Api\BackupController::class, 'backupDb']);
-    Route::get('/backup/files', [\App\Http\Controllers\Api\BackupController::class, 'backupFiles']);
-
-    // Dokumen API
-    Route::apiResource('dokumen', DokumenController::class);
-    Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
-    Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
-    Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
-    Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
-});

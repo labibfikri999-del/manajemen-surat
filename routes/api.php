@@ -1,11 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\BalasanApiController;
+use App\Http\Controllers\Api\ExportController;
+use App\Http\Controllers\ArsipDigitalController;
+use App\Http\Controllers\DataMasterController;
+use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
-use App\Http\Controllers\DokumenController;
 use App\Models\Dokumen;
 use App\Models\User;
+use App\Services\SuratStatsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,243 +24,155 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Statistics API endpoints
-Route::middleware('web')->group(function () {
-
-    // Surat Masuk = Dokumen dengan jenis 'surat_masuk' atau null (legacy)
+Route::middleware(['web', 'auth', 'module.access:surat'])->group(function () {
     Route::get('/surat-masuk/count', function () {
-        $user = auth()->user();
-        $count = 0;
-        if ($user && $user->instansi_id) {
-            $count = \App\Models\Dokumen::where(function ($q) {
-                $q->where('jenis_dokumen', 'surat_masuk')
-                    ->orWhereNull('jenis_dokumen');
-            })
-                ->where('instansi_id', $user->instansi_id)
-                ->count();
-        } elseif ($user) {
-            $count = \App\Models\Dokumen::where(function ($q) {
-                $q->where('jenis_dokumen', 'surat_masuk')
-                    ->orWhereNull('jenis_dokumen');
-            })
-                ->where('user_id', $user->id)
-                ->count();
-        }
+        return response()->json([
+            'count' => app(SuratStatsService::class)->suratMasukCount(auth()->user()),
+        ]);
+    })->middleware('role:direktur,staff,instansi');
 
-        return response()->json(['count' => $count]);
-    });
-
-    // Surat Keluar = Dokumen dengan jenis 'surat_keluar'
     Route::get('/surat-keluar/count', function () {
-        $user = auth()->user();
-        $count = 0;
-        if ($user && $user->instansi_id) {
-            $count = \App\Models\Dokumen::where('jenis_dokumen', 'surat_keluar')
-                ->where('instansi_id', $user->instansi_id)
-                ->count();
-        } elseif ($user) {
-            $count = \App\Models\Dokumen::where('jenis_dokumen', 'surat_keluar')
-                ->where('user_id', $user->id)
-                ->count();
-        }
+        return response()->json([
+            'count' => app(SuratStatsService::class)->suratKeluarCount(auth()->user()),
+        ]);
+    })->middleware('role:direktur,staff,instansi');
 
-        return response()->json(['count' => $count]);
-    });
-
-    // Arsip Digital = Dokumen dengan is_archived = true
     Route::get('/arsip-digital/count', function () {
-        $user = auth()->user();
-        $count = 0;
-        if ($user && $user->instansi_id) {
-            $count = \App\Models\Dokumen::where('is_archived', true)
-                ->where('instansi_id', $user->instansi_id)
-                ->count();
-        } elseif ($user) {
-            $count = \App\Models\Dokumen::where('is_archived', true)
-                ->where('user_id', $user->id)
-                ->count();
-        }
+        return response()->json([
+            'count' => app(SuratStatsService::class)->arsipDigitalCount(auth()->user()),
+        ]);
+    })->middleware('role:direktur,staff,instansi');
 
-        return response()->json(['count' => $count]);
-    });
-
-    // Total Pengguna Aktif
     Route::get('/pengguna-aktif', function () {
-        $count = User::count();
+        $user = auth()->user();
+        $count = ($user->isDirektur() || $user->isStaff())
+            ? User::where('is_active', true)->count()
+            : 0;
 
         return response()->json(['count' => $count]);
-    });
+    })->middleware('role:direktur,staff,instansi');
 
-    // Arsip per kategori (count)
-    Route::get('/arsip-kategori-count', function () {
-        $counts = Dokumen::where('is_archived', true)
-            ->selectRaw('kategori_arsip, COUNT(*) as count')
-            ->groupBy('kategori_arsip')
-            ->pluck('count', 'kategori_arsip');
+    Route::middleware('role:direktur,staff,instansi')->group(function () {
+        Route::get('/arsip-stats', [ArsipDigitalController::class, 'getStats']);
+        Route::get('/arsip-kategori-count', [ArsipDigitalController::class, 'getKategoriCount']);
+        Route::get('/arsip-by-kategori/{kategori}', [ArsipDigitalController::class, 'getByKategori']);
+        Route::get('/arsip-download-kategori/{kategori}', [ArsipDigitalController::class, 'downloadKategori']);
 
-        return response()->json([
-            'UMUM' => $counts['UMUM'] ?? 0,
-            'SDM' => $counts['SDM'] ?? 0,
-            'ASSET' => $counts['ASSET'] ?? 0,
-            'HUKUM' => $counts['HUKUM'] ?? 0,
-            'KEUANGAN' => $counts['KEUANGAN'] ?? 0,
-        ]);
-    });
+        Route::get('arsip-digital', [ArsipDigitalController::class, 'index']);
+        Route::get('arsip-digital/{id}/download', [ArsipDigitalController::class, 'download']);
 
-    // Statistik arsip (total, ukuran, akses terakhir)
-    Route::get('/arsip-stats', function () {
-        $user = auth()->user();
-        $query = Dokumen::where('is_archived', true);
-        if ($user && $user->instansi_id) {
-            $query->where('instansi_id', $user->instansi_id);
-        } elseif ($user) {
-            $query->where('user_id', $user->id);
-        }
-        $totalArsip = $query->count();
-        $totalBytes = $query->sum('file_size');
-        // Format ukuran
-        if ($totalBytes >= 1073741824) {
-            $totalSize = number_format($totalBytes / 1073741824, 2).' GB';
-        } elseif ($totalBytes >= 1048576) {
-            $totalSize = number_format($totalBytes / 1048576, 2).' MB';
-        } elseif ($totalBytes >= 1024) {
-            $totalSize = number_format($totalBytes / 1024, 2).' KB';
-        } else {
-            $totalSize = $totalBytes.' B';
-        }
-        $lastAccess = $query->orderBy('tanggal_arsip', 'desc')->first();
-        $lastAccessText = 'Belum ada data';
-        if ($lastAccess && $lastAccess->tanggal_arsip) {
-            $lastAccessText = $lastAccess->tanggal_arsip->diffForHumans();
-        }
+        Route::get('/balasan/unread-count', [BalasanApiController::class, 'unreadCount']);
+        Route::get('/balasan/unread-list', [BalasanApiController::class, 'unreadList']);
+        Route::post('/balasan/mark-read/{id}', [BalasanApiController::class, 'markRead']);
 
-        return response()->json([
-            'total_dokumen' => $totalArsip,
-            'ukuran_total' => $totalSize,
-            'akses_terakhir' => $lastAccessText,
-        ]);
-    });
+        Route::get('surat-masuk/export/excel', [SuratMasukController::class, 'export']);
+        Route::get('surat-masuk/{id}/download', [SuratMasukController::class, 'download']);
+        Route::get('surat-masuk/{id}/audits', [SuratMasukController::class, 'audits']);
+        Route::apiResource('surat-masuk', SuratMasukController::class);
 
-    // Arsip by kategori (list dokumen)
-    Route::get('/arsip-by-kategori/{kategori}', function ($kategori) {
-        $user = auth()->user();
-        $query = Dokumen::with(['instansi', 'processor'])
-            ->where('is_archived', true)
-            ->where('kategori_arsip', strtoupper($kategori));
-        if ($user && $user->instansi_id) {
-            $query->where('instansi_id', $user->instansi_id);
-        } elseif ($user) {
-            $query->where('user_id', $user->id);
-        }
-        $dokumens = $query->orderBy('tanggal_arsip', 'desc')->get();
+        Route::get('surat-keluar/generate-nomor', [SuratKeluarController::class, 'generateNomor']);
+        Route::get('surat-keluar/export/excel', [SuratKeluarController::class, 'export']);
+        Route::get('surat-keluar/{id}/download', [SuratKeluarController::class, 'download']);
+        Route::get('surat-keluar/{id}/audits', [SuratKeluarController::class, 'audits']);
+        Route::apiResource('surat-keluar', SuratKeluarController::class);
 
-        return response()->json($dokumens);
-    });
+        Route::get('/export/pdf', [ExportController::class, 'exportPdf']);
+        Route::get('/export/csv', [ExportController::class, 'exportCsv']);
 
-    // Upload file ke arsip digital (Staff/Direktur)
-    Route::post('/arsip-upload', function (Request $request) {
-        $user = auth()->user();
+        Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
+        Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
+        Route::get('dokumen/{id}/audits', [DokumenController::class, 'audits'])->name('dokumen.audits');
+        Route::get('/dokumen/{id}/download-balasan', [DokumenController::class, 'downloadBalasan']);
+        Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
+        Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
+        Route::post('dokumen/{id}/revisi', [DokumenController::class, 'revisi']);
+        Route::apiResource('dokumen', DokumenController::class);
 
-        // Check authorization
-        if (! $user) {
-            return response()->json(['error' => 'Unauthorized', 'message' => 'Silakan login terlebih dahulu'], 401);
-        }
+        Route::get('/laporan/stats', [DataMasterController::class, 'getLaporanStats']);
 
-        // Hanya staff dan direktur yang bisa upload langsung ke arsip
-        if (! $user->isStaff() && ! $user->isDirektur()) {
-            return response()->json(['error' => 'Forbidden', 'message' => 'Hanya Staff dan Direktur yang dapat mengupload'], 403);
-        }
+        Route::get('/notifikasi/count', function () {
+            $user = auth()->user();
 
-        $request->validate([
-            'judul' => 'required|string|max:255',
-            'kategori_arsip' => 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN',
-            'deskripsi' => 'nullable|string',
-            'file' => 'required|file|max:10240', // Max 10MB
-        ]);
+            if ($user->isDirektur()) {
+                return response()->json(['count' => Dokumen::where('status', 'pending')->count()]);
+            }
 
-        $file = $request->file('file');
-        $fileName = $file->getClientOriginalName();
-        // Create dummy instansi kode if user tidak punya instansi
-        $instansiKode = $user->instansi?->kode ?? 'ARSIP';
-        $filePath = $file->store('dokumen/'.$instansiKode.'/arsip', 'public');
+            if ($user->isStaff()) {
+                return response()->json(['count' => Dokumen::where('status', 'disetujui')->count()]);
+            }
 
-        // Create dokumen record - instansi_id bisa null
-        $dokumenData = [
-            'nomor_dokumen' => Dokumen::generateNomorDokumen($instansiKode),
-            'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi,
-            'file_path' => $filePath,
-            'file_name' => $fileName,
-            'file_type' => $file->getClientOriginalExtension(),
-            'file_size' => $file->getSize(),
-            'user_id' => $user->id,
-            'status' => 'selesai',
-            'kategori_arsip' => $request->kategori_arsip,
-            'is_archived' => true,
-            'tanggal_arsip' => now(),
-            'processed_by' => $user->id,
-            'tanggal_selesai' => now(),
-        ];
-
-        // Hanya tambahkan instansi_id jika ada
-        if ($user->instansi_id) {
-            $dokumenData['instansi_id'] = $user->instansi_id;
-        }
-
-        $dokumen = Dokumen::create($dokumenData);
-
-        return response()->json([
-            'message' => 'File berhasil diupload ke arsip',
-            'dokumen' => $dokumen,
-        ]);
-    });
-
-    Route::get('/balasan/unread-count', [BalasanApiController::class, 'unreadCount']);
-    Route::get('/balasan/unread-list', [BalasanApiController::class, 'unreadList']);
-    Route::post('/balasan/mark-read/{id}', [BalasanApiController::class, 'markRead']);
-
-    Route::apiResource('surat-masuk', SuratMasukController::class);
-    Route::get('surat-masuk/export/excel', [SuratMasukController::class, 'export']); // Export route
-    Route::get('surat-masuk/{id}/download', [SuratMasukController::class, 'download']);
-    Route::get('surat-masuk/{id}/audits', [SuratMasukController::class, 'audits']);
-    
-    // Surat Keluar routes
-    Route::get('surat-keluar/generate-nomor', [SuratKeluarController::class, 'generateNomor']);
-    Route::apiResource('surat-keluar', SuratKeluarController::class);
-    Route::get('surat-keluar/export/excel', [SuratKeluarController::class, 'export']); // Export route
-    Route::get('surat-keluar/{id}/download', [SuratKeluarController::class, 'download']);
-    Route::get('surat-keluar/{id}/audits', [SuratKeluarController::class, 'audits']);
-
-    Route::apiResource('dokumen', DokumenController::class);
-    Route::get('dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
-    Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
-    Route::get('dokumen/{id}/audits', [DokumenController::class, 'audits'])->name('dokumen.audits');
-    Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
-    Route::post('dokumen/{id}/revisi', [DokumenController::class, 'revisi']);
-
-    Route::get('/dokumen/{id}/download-balasan', [App\Http\Controllers\DokumenController::class, 'downloadBalasan']);
-
-    // Notifikasi Counting
-    Route::get('/notifikasi/count', function () {
-        $user = auth()->user();
-        if (! $user) {
             return response()->json(['count' => 0]);
-        }
+        });
+    });
 
-        if ($user->role === 'direktur') {
-            // Count dokumen waiting for validation
-            $count = \App\Models\Dokumen::where('status', 'menunggu_validasi')->count();
+    Route::middleware('role:direktur,staff')->group(function () {
+        Route::post('arsip-digital', [ArsipDigitalController::class, 'store']);
+        Route::match(['put', 'patch'], 'arsip-digital/{id}', [ArsipDigitalController::class, 'update']);
+        Route::delete('arsip-digital/{id}', [ArsipDigitalController::class, 'destroy']);
 
-            return response()->json(['count' => $count]);
-        }
+        Route::post('/arsip-upload', function (Request $request) {
+            $user = auth()->user();
 
-        if ($user->role === 'staff') {
-            // Count dokumen approved (ready for processing)
-            $count = \App\Models\Dokumen::where('status', 'disetujui')->count();
+            $request->validate([
+                'judul' => 'required|string|max:255',
+                'kategori_arsip' => 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK',
+                'deskripsi' => 'nullable|string',
+                'file' => 'required|file|max:10240',
+            ]);
 
-            return response()->json(['count' => $count]);
-        }
+            $file = $request->file('file');
+            $instansiKode = $user->instansi?->kode ?? 'ARSIP';
+            $filePath = $file->store('dokumen/'.$instansiKode.'/arsip', 'public');
 
-        return response()->json(['count' => 0]);
+            $dokumen = Dokumen::create([
+                'nomor_dokumen' => Dokumen::generateNomorDokumen($instansiKode),
+                'judul' => $request->judul,
+                'deskripsi' => $request->deskripsi,
+                'file_path' => $filePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => $file->getClientOriginalExtension(),
+                'file_size' => $file->getSize(),
+                'user_id' => $user->id,
+                'instansi_id' => $user->instansi_id,
+                'status' => 'selesai',
+                'kategori_arsip' => $request->kategori_arsip,
+                'is_archived' => true,
+                'tanggal_arsip' => now(),
+                'processed_by' => $user->id,
+                'tanggal_selesai' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'File berhasil diupload ke arsip',
+                'dokumen' => $dokumen,
+            ], 201);
+        });
+
+        Route::get('/klasifikasi-list', [DataMasterController::class, 'indexKlasifikasi']);
+        Route::post('/klasifikasi-store', [DataMasterController::class, 'storeKlasifikasi']);
+        Route::put('/klasifikasi/{id}', [DataMasterController::class, 'updateKlasifikasi']);
+        Route::delete('/klasifikasi/{id}', [DataMasterController::class, 'destroyKlasifikasi']);
+
+        Route::get('/master/stats', [DataMasterController::class, 'getStats']);
+
+        Route::get('/departemen-list', [DataMasterController::class, 'indexDepartemen']);
+        Route::post('/departemen-store', [DataMasterController::class, 'storeDepartemen']);
+        Route::put('/departemen/{id}', [DataMasterController::class, 'updateDepartemen']);
+        Route::delete('/departemen/{id}', [DataMasterController::class, 'destroyDepartemen']);
+
+        Route::get('/pengguna-list', [DataMasterController::class, 'indexPengguna']);
+        Route::post('/pengguna-store', [DataMasterController::class, 'storePengguna']);
+        Route::put('/pengguna/{id}', [DataMasterController::class, 'updatePengguna']);
+        Route::delete('/pengguna/{id}', [DataMasterController::class, 'destroyPengguna']);
+
+        Route::get('/lampiran-list', [DataMasterController::class, 'indexTipeLampiran']);
+        Route::post('/lampiran-store', [DataMasterController::class, 'storeTipeLampiran']);
+        Route::put('/lampiran/{id}', [DataMasterController::class, 'updateTipeLampiran']);
+        Route::delete('/lampiran/{id}', [DataMasterController::class, 'destroyTipeLampiran']);
+    });
+
+    Route::middleware('role:direktur')->group(function () {
+        Route::get('/backup/db', [BackupController::class, 'backupDb']);
+        Route::get('/backup/files', [BackupController::class, 'backupFiles']);
     });
 });

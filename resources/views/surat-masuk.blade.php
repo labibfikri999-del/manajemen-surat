@@ -1,4 +1,8 @@
-@php $user = auth()->user(); $role = $user->role ?? 'guest'; @endphp
+@php
+    $user = auth()->user();
+    $role = $user->role ?? 'guest';
+    $instansis = $role === 'instansi' ? collect() : \App\Models\Instansi::where('is_active', true)->orderBy('nama')->get();
+@endphp
 {{-- resources/views/surat-masuk.blade.php --}}
 <!doctype html>
 <html lang="id">
@@ -40,7 +44,7 @@
     }
     /* Force table to always show full columns */
     #dataTableSuratMasuk {
-        min-width: 900px;
+        min-width: 1040px;
         width: 100% !important;
     }
     .dataTables_wrapper {
@@ -48,6 +52,52 @@
     }
     .dataTables_scrollBody {
         overflow-x: auto !important;
+    }
+    #dataTableSuratMasuk th:last-child,
+    #dataTableSuratMasuk td:last-child {
+        width: 280px !important;
+        min-width: 280px;
+    }
+    .surat-action-grid {
+        display: grid;
+        grid-template-columns: 72px 86px 40px 40px;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-width: 254px;
+    }
+    .surat-action-grid.with-admin {
+        grid-template-columns: 40px 1px 72px 86px 1px 40px 40px 40px;
+        min-width: 342px;
+    }
+    .surat-action-divider {
+        width: 1px;
+        height: 1.5rem;
+        background: #e5e7eb;
+    }
+    .surat-action-label,
+    .surat-action-icon {
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        white-space: nowrap;
+    }
+    .surat-action-label {
+        width: 100%;
+        gap: 0.25rem;
+        padding: 0 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .surat-action-icon {
+        width: 40px;
+        padding: 0;
+    }
+    .surat-action-placeholder {
+        visibility: hidden;
+        pointer-events: none;
     }
   </style>
 
@@ -168,7 +218,7 @@
                   <th class="px-4 py-3 text-xs font-semibold tracking-wider">Jenis</th>
                   <th class="px-4 py-3 text-xs font-semibold tracking-wider w-24">Status</th>
                   <th class="px-4 py-3 text-xs font-semibold tracking-wider w-24">Sifat</th>
-                  <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center w-48">Aksi</th>
+                  <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center w-[280px]">Aksi</th>
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-emerald-50 text-sm">
@@ -240,6 +290,18 @@
             <label class="block text-sm font-medium text-emerald-700 mb-2">Tanggal <span class="text-red-500">*</span></label>
             <input type="date" id="formTanggal" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
+
+          @if($role !== 'instansi')
+          <div>
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Unit Usaha</label>
+            <select id="formInstansiId" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="">Umum / Pusat</option>
+                @foreach($instansis as $instansi)
+                    <option value="{{ $instansi->id }}">{{ $instansi->nama }}</option>
+                @endforeach
+            </select>
+          </div>
+          @endif
           
           <div>
             <label class="block text-sm font-medium text-emerald-700 mb-2">Pengirim <span class="text-red-500">*</span></label>
@@ -748,73 +810,73 @@
         const sifatColor = 'bg-gray-100 text-gray-600';
 
         // Action Buttons
-        let lampiransHtml = '';
+        const eyeIcon = '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+        const emptyLabelSlot = '<span class="surat-action-label surat-action-placeholder"></span>';
 
+        let mainFileBtn = emptyLabelSlot;
         if (item.file_url || item.file) {
             const mainFileUrl = item.file_url || '/storage/' + item.file;
             const title = item.perihal || item.nomor_surat;
-            lampiransHtml += `
+            mainFileBtn = `
             <button onclick="previewFileUrl('${mainFileUrl}', '${title}')"
-                    class="p-1.5 bg-blue-50 text-blue-600 rounded-lg shadow-sm hover:bg-blue-100 transition-all duration-200 text-xs flex items-center justify-center gap-1 font-medium whitespace-nowrap"
+                    class="surat-action-label bg-blue-50 text-blue-600 shadow-sm hover:bg-blue-100 transition-all duration-200"
                     title="Lihat File Utama">
-               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> 
-               Utama
+               ${eyeIcon}
+               <span>Utama</span>
             </button>`;
         }
 
+        let balasanBtn = emptyLabelSlot;
         if (item.lampirans && item.lampirans.length > 0) {
-            item.lampirans.forEach((l, idx) => {
-                const lpUrl = l.file_path.startsWith('http') ? l.file_path : '/storage/' + l.file_path;
-                const label = l.is_balasan ? 'Balasan' : `Lmp. ${idx + 1}`;
-                const colorClass = l.is_balasan ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100';
-                lampiransHtml += `
-                <button onclick="previewFileUrl('${lpUrl}', '${l.file_name}')"
-                        class="p-1.5 ${colorClass} rounded-lg shadow-sm transition-all duration-200 text-xs flex items-center justify-center gap-1 font-medium whitespace-nowrap"
-                        title="Lihat ${l.file_name}">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                  ${label}
-                </button>`;
-            });
+            const lampiran = item.lampirans.find((l) => l.is_balasan) || item.lampirans[0];
+            const lpUrl = lampiran.file_path.startsWith('http') ? lampiran.file_path : '/storage/' + lampiran.file_path;
+            const label = lampiran.is_balasan ? 'Balasan' : 'Lampiran';
+            const colorClass = lampiran.is_balasan ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100';
+            balasanBtn = `
+            <button onclick="previewFileUrl('${lpUrl}', '${lampiran.file_name}')"
+                    class="surat-action-label ${colorClass} shadow-sm transition-all duration-200"
+                    title="Lihat ${lampiran.file_name}">
+              ${eyeIcon}
+              <span>${label}</span>
+            </button>`;
         }
-        
-        let viewFilesBtn = lampiransHtml ? `<div class="flex items-center gap-1">${lampiransHtml}</div>` : `
-            <button disabled class="p-1.5 bg-gray-50 text-gray-300 rounded-lg border border-gray-100 cursor-not-allowed">
-               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-            </button>
-        `;
 
         const editBtn = !item.is_digital ? `
-            <button class="p-2 bg-amber-50 text-amber-500 hover:text-amber-600 rounded-xl hover:bg-amber-100 transition shadow-sm btn-edit" title="Edit Data">
+            <button class="surat-action-icon bg-amber-50 text-amber-500 hover:text-amber-600 hover:bg-amber-100 transition shadow-sm btn-edit" title="Edit Data">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
             </button>` : '';
 
         const hasFile = item.file_url || item.file;
         const downloadBtn = hasFile ? `
-            <button onclick="downloadFile('${item.id}', ${item.is_digital})" class="p-2 bg-emerald-50 text-emerald-500 hover:text-emerald-600 rounded-xl hover:bg-emerald-100 transition shadow-sm btn-download" title="Download">
+            <button onclick="downloadFile('${item.id}', ${item.is_digital})" class="surat-action-icon bg-emerald-50 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-100 transition shadow-sm btn-download" title="Download">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             </button>` : `
-            <button disabled class="p-2 bg-gray-50 text-gray-300 rounded-xl transition shadow-sm cursor-not-allowed" title="File tidak tersedia">
+            <button disabled class="surat-action-icon bg-gray-50 text-gray-300 transition shadow-sm cursor-not-allowed" title="File tidak tersedia">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             </button>`;
 
         const deleteBtn = !item.is_digital ? `
-            <button class="p-2 bg-red-50 text-red-500 hover:text-red-600 rounded-xl hover:bg-red-100 transition shadow-sm btn-delete" title="Hapus Data">
+            <button class="surat-action-icon bg-red-50 text-red-500 hover:text-red-600 hover:bg-red-100 transition shadow-sm btn-delete" title="Hapus Data">
                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>` : '';
 
-        let actionButtonsHtml = '<div class="flex items-center justify-center gap-1.5 whitespace-nowrap mx-auto w-fit">';
+        let actionButtonsHtml = item.is_digital
+            ? '<div class="surat-action-grid">'
+            : '<div class="surat-action-grid with-admin">';
         if (!item.is_digital) {
              actionButtonsHtml += editBtn;
-             actionButtonsHtml += '<div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>';
+             actionButtonsHtml += '<div class="surat-action-divider"></div>';
         }
         
-        actionButtonsHtml += viewFilesBtn;
-        actionButtonsHtml += '<div class="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>';
-        
+        actionButtonsHtml += mainFileBtn;
+        actionButtonsHtml += balasanBtn;
+        if (!item.is_digital) {
+             actionButtonsHtml += '<div class="surat-action-divider"></div>';
+        }
         actionButtonsHtml += downloadBtn;
         
         actionButtonsHtml += `
-               <button onclick="showAuditHistory('${item.id}')" class="p-2 bg-purple-50 text-purple-500 hover:text-purple-600 rounded-xl hover:bg-purple-100 transition shadow-sm btn-audit" title="Riwayat Aktivitas">
+               <button onclick="showAuditHistory('${item.id}')" class="surat-action-icon bg-purple-50 text-purple-500 hover:text-purple-600 hover:bg-purple-100 transition shadow-sm btn-audit" title="Riwayat Aktivitas">
                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                </button>`;
                
@@ -949,6 +1011,7 @@
       const formPengirim = document.getElementById('formPengirim');
       const formPerihal = document.getElementById('formPerihal');
       const formStatus = document.getElementById('formStatus');
+      const formInstansiId = document.getElementById('formInstansiId');
 
       // Reset file input
       formFile.value = '';
@@ -968,6 +1031,7 @@
         formPengirim.value = item.pengirim;
         formPerihal.value = item.perihal;
         formStatus.value = item.status || 'Belum Diproses';
+        if (formInstansiId) formInstansiId.value = item.instansi_id || '';
       } else {
         modalTitle.textContent = 'Tambah Surat Masuk';
         formNomorSurat.value = '';
@@ -975,6 +1039,7 @@
         formPengirim.value = '';
         formPerihal.value = '';
         formStatus.value = 'Belum Diproses';
+        if (formInstansiId) formInstansiId.value = '';
       }
 
       modalBackdrop.classList.remove('hidden');
@@ -1007,6 +1072,7 @@
       const formPengirim = document.getElementById('formPengirim');
       const formPerihal = document.getElementById('formPerihal');
       const formStatus = document.getElementById('formStatus');
+      const formInstansiId = document.getElementById('formInstansiId');
 
       if (!formNomorSurat.value || !formTanggal.value || !formPengirim.value || !formPerihal.value) {
         showToast('Data Tidak Lengkap', 'Semua field wajib diisi', 'warning');
@@ -1020,6 +1086,9 @@
       formData.append('pengirim', formPengirim.value);
       formData.append('perihal', formPerihal.value);
       formData.append('status', formStatus.value);
+      if (formInstansiId && formInstansiId.value) {
+        formData.append('instansi_id', formInstansiId.value);
+      }
       
       // Add multiple files if selected
       if (formFile.files.length > 0) {

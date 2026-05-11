@@ -106,4 +106,71 @@ class DokumenSendLogicTest extends TestCase
         $this->assertEquals('disetujui', $response->json('dokumen.status'));
         // Should NOT call Director validation
     }
+
+    /** @test */
+    public function staff_sent_document_goes_to_unit_inbox_not_staff_process_queue()
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'username' => 'staff-kirim-' . uniqid(),
+            'module_access' => ['surat'],
+        ]);
+
+        $instansi = Instansi::create([
+            'kode' => 'UNIT',
+            'nama' => 'Unit Tujuan',
+            'email' => 'unit@example.test',
+            'is_active' => true,
+        ]);
+
+        $unitUser = User::factory()->create([
+            'role' => 'instansi',
+            'username' => 'unit-tujuan-' . uniqid(),
+            'instansi_id' => $instansi->id,
+            'module_access' => ['surat'],
+        ]);
+
+        $outgoing = Dokumen::create([
+            'nomor_dokumen' => 'DOC/UNIT/202605/0001',
+            'judul' => 'Surat Balasan Staff ke Unit',
+            'jenis_dokumen' => 'surat_keluar',
+            'file_path' => 'dokumen/UNIT/balasan.pdf',
+            'file_name' => 'balasan.pdf',
+            'file_type' => 'pdf',
+            'file_size' => 100,
+            'user_id' => $staff->id,
+            'instansi_id' => $instansi->id,
+            'status' => 'selesai',
+            'kategori_arsip' => 'SURAT_KELUAR',
+            'is_archived' => true,
+            'tanggal_arsip' => now(),
+            'tanggal_selesai' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $incoming = Dokumen::create([
+            'nomor_dokumen' => 'DOC/UNIT/202605/0002',
+            'judul' => 'Dokumen Unit Perlu Diproses',
+            'jenis_dokumen' => 'surat_masuk',
+            'file_path' => 'dokumen/UNIT/masuk.pdf',
+            'file_name' => 'masuk.pdf',
+            'file_type' => 'pdf',
+            'file_size' => 100,
+            'user_id' => $unitUser->id,
+            'instansi_id' => $instansi->id,
+            'status' => 'disetujui',
+            'tanggal_validasi' => now(),
+        ]);
+
+        $this->actingAs($staff)
+            ->get('/proses-dokumen')
+            ->assertOk()
+            ->assertDontSee($outgoing->judul)
+            ->assertSee($incoming->judul);
+
+        $this->actingAs($unitUser)
+            ->get('/surat-masuk')
+            ->assertOk()
+            ->assertSee($outgoing->judul);
+    }
 }

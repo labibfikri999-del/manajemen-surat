@@ -14,7 +14,7 @@ class CheckModuleAccess
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $module): Response
+    public function handle(Request $request, Closure $next, string ...$modules): Response
     {
         if (!Auth::check()) {
             return redirect('login');
@@ -28,7 +28,11 @@ class CheckModuleAccess
         
         $access = $user->module_access ?? ['surat']; // Default to surat if null
 
-        if (!in_array($module, $access)) {
+        if (empty($modules)) {
+            $modules = ['surat'];
+        }
+
+        if (empty(array_intersect($modules, $access))) {
             // Log them out if they are logged in but shouldn't be here? 
             // Better: just deny access or redirect to their allowed dashboard.
             

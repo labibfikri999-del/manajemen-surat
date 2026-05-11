@@ -68,6 +68,18 @@ class PageController extends Controller
                            ->where('updated_at', '>=', now()->subHours(2));
                   });
             })
+            ->where(function ($q) {
+                $q->whereHas('user', function ($userQuery) {
+                    $userQuery->where('role', 'instansi');
+                })->orWhere(function ($staffInternalQuery) {
+                    $staffInternalQuery
+                        ->whereNull('instansi_id')
+                        ->whereIn('status', ['disetujui', 'diproses'])
+                        ->whereHas('user', function ($userQuery) {
+                            $userQuery->where('role', 'staff');
+                        });
+                });
+            })
             ->orderBy('tanggal_validasi', 'desc')
             ->get();
 
@@ -125,10 +137,15 @@ class PageController extends Controller
     public function arsipDigital()
     {
         // Hitung metrik arsip digital dari tabel Dokumen (Unified)
+        $user = auth()->user();
         $query = Dokumen::where('is_archived', true);
 
+        if ($user->isInstansi()) {
+            $query->where('instansi_id', $user->instansi_id);
+        }
+
         $totalArsip = $query->count();
-        $totalBytes = $query->sum('file_size') ?? 0;
+        $totalBytes = (clone $query)->sum('file_size') ?? 0;
 
         // Format ukuran ke string human readable
         $formatSize = function ($bytes) {
@@ -148,7 +165,7 @@ class PageController extends Controller
         $totalSize = $formatSize($totalBytes);
 
         // Akses terakhir (gunakan created_at atau updated_at dari Dokumen)
-        $lastAccess = $query->latest('created_at')->value('created_at');
+        $lastAccess = (clone $query)->latest('created_at')->value('created_at');
 
         return view('arsip-digital', [
             'totalArsip' => $totalArsip,

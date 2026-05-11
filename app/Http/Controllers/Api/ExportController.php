@@ -61,11 +61,16 @@ class ExportController extends Controller
     {
         // Ambil semua surat dengan filters jika ada
         $query = SuratMasuk::with('klasifikasi');
+        $user = auth()->user();
+
+        if ($user && $user->isInstansi()) {
+            $query->where('instansi_id', $user->instansi_id);
+        }
 
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('no_surat', 'like', "%$search%")
+                $q->where('nomor_surat', 'like', "%$search%")
                     ->orWhere('pengirim', 'like', "%$search%")
                     ->orWhere('perihal', 'like', "%$search%");
             });
@@ -75,7 +80,7 @@ class ExportController extends Controller
             $query->where('klasifikasi_id', $request->klasifikasi_id);
         }
 
-        $surats = $query->orderBy('tanggal', 'desc')->get();
+        $surats = $query->orderBy('tanggal_diterima', 'desc')->get();
 
         $filename = 'surat-masuk-'.now()->format('Y-m-d').'.csv';
         $headers = [
@@ -91,8 +96,8 @@ class ExportController extends Controller
         // Data rows
         foreach ($surats as $surat) {
             fputcsv($csv, [
-                $surat->no_surat,
-                $surat->tanggal,
+                $surat->nomor_surat,
+                $surat->tanggal_diterima,
                 $surat->pengirim,
                 $surat->perihal,
                 $surat->klasifikasi->nama ?? '-',

@@ -204,11 +204,11 @@
         fileInput.addEventListener('change', function() {
             if (this.files[0]) {
                 const file = this.files[0];
-                const validExtensions = ['doc', 'docx', 'pdf', 'xlsx', 'xls', 'zip', 'rar'];
+                const validExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar', 'csv', 'txt'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
                 
                 if (!validExtensions.includes(fileExtension)) {
-                    alert('❌ Hanya file WORD (.doc, .docx) atau PDF (.pdf) yang diperbolehkan!');
+                    alert('❌ Format file tidak didukung. Gunakan PDF, gambar, Word, Excel, PowerPoint, ZIP/RAR, CSV, atau TXT.');
                     this.value = '';
                     fileName.classList.add('hidden');
                     return;
@@ -234,11 +234,11 @@
             dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
             if (e.dataTransfer.files[0]) {
                 const file = e.dataTransfer.files[0];
-                const validExtensions = ['doc', 'docx', 'pdf', 'xlsx', 'xls', 'zip', 'rar'];
+                const validExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar', 'csv', 'txt'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
                 
                 if (!validExtensions.includes(fileExtension)) {
-                    alert('❌ Hanya file PDF, Word, Excel, atau ZIP/RAR yang diperbolehkan!');
+                    alert('❌ Format file tidak didukung. Gunakan PDF, gambar, Word, Excel, PowerPoint, ZIP/RAR, CSV, atau TXT.');
                     return;
                 }
                 

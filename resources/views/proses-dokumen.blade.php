@@ -392,8 +392,8 @@
                                 </svg>
                             </div>
                             <span class="text-sm font-semibold text-orange-700" id="fileRevisiLabel">Pilih File Baru</span>
-                            <span class="text-xs text-gray-400 mt-1">PDF, Word, Excel, Zip</span>
-                            <input type="file" name="file_balasan" id="fileRevisiInput" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar" required>
+                            <span class="text-xs text-gray-400 mt-1">PDF, gambar, Word, Excel, PowerPoint, ZIP/RAR, CSV, TXT</span>
+                            <input type="file" name="file_balasan" id="fileRevisiInput" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt" required>
                         </label>
                         <p class="text-xs text-gray-500 mt-2 font-medium text-orange-600 text-center" id="fileRevisiName"></p>
                     </div>

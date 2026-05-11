@@ -38,11 +38,13 @@ class ChatbotController extends Controller
             // Check if file is uploaded
             $uploadedFileId = null;
             $isImage = false;
+            $fileExtension = null;
             
             if ($request->hasFile('file') && $request->file('file')->isValid()) {
                 $file = $request->file('file');
                 $mimeType = $file->getMimeType();
                 $isImage = str_starts_with($mimeType, 'image/');
+                $fileExtension = strtolower($file->getClientOriginalExtension());
                 
                 // Simpan file sementara dengan ekstensi aslinya agar dikenali OpenAI
                 $originalName = $file->getClientOriginalName();
@@ -107,10 +109,18 @@ class ChatbotController extends Controller
                 
                 // Add attachments for File Search if a document was uploaded
                 if ($uploadedFileId && !$isImage) {
+                    $tools = [['type' => 'code_interpreter']]; // Code interpreter is broadly supported
+                    
+                    // file_search supported extensions
+                    $fileSearchSupported = ['c', 'cpp', 'csv', 'docx', 'html', 'java', 'json', 'md', 'pdf', 'php', 'pptx', 'py', 'rb', 'tex', 'txt', 'css', 'ts', 'doc'];
+                    if ($fileExtension && in_array($fileExtension, $fileSearchSupported)) {
+                        $tools[] = ['type' => 'file_search'];
+                    }
+
                     $messagePayload['attachments'] = [
                         [
                             'file_id' => $uploadedFileId,
-                            'tools' => [['type' => 'file_search'], ['type' => 'code_interpreter']]
+                            'tools' => $tools
                         ]
                     ];
                 }
@@ -120,23 +130,39 @@ class ChatbotController extends Controller
 
             // 2 & 3. Run the Assistant and Stream directly using Symphony StreamedResponse
             $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($threadId) {
-                $stream = OpenAI::threads()->runs()->createStreamed(
-                    threadId: $threadId,
-                    parameters: [
-                        'assistant_id' => $this->assistantId,
-                    ]
-                );
+                try {
+                    $stream = OpenAI::threads()->runs()->createStreamed(
+                        threadId: $threadId,
+                        parameters: [
+                            'assistant_id' => $this->assistantId,
+                        ]
+                    );
 
-                foreach ($stream as $response) {
-                    if ($response->event === 'thread.message.delta') {
-                        $deltaText = $response->response->delta->content[0]->text->value ?? '';
-                        if (!empty($deltaText)) {
-                            // Format to SSE standard
-                            echo "data: " . json_encode(['text' => $deltaText]) . "\n\n";
+                    foreach ($stream as $response) {
+                        if ($response->event === 'thread.run.failed') {
+                            $errorCode = $response->response->last_error->code ?? 'unknown';
+                            $errorMsg = $response->response->last_error->message ?? 'Terjadi kesalahan sistem AI.';
+                            \Illuminate\Support\Facades\Log::error("Assistant Run Failed: [$errorCode] $errorMsg");
+                            echo "data: " . json_encode(['text' => "\n[Pesan Sistem: Run AI gagal karena '$errorMsg'. Pastikan file didukung dan Assistant memiliki tools yang aktif.]"]) . "\n\n";
                             ob_flush();
                             flush();
                         }
+                        
+                        if ($response->event === 'thread.message.delta') {
+                            $deltaText = $response->response->delta->content[0]->text->value ?? '';
+                            if (!empty($deltaText)) {
+                                // Format to SSE standard
+                                echo "data: " . json_encode(['text' => $deltaText]) . "\n\n";
+                                ob_flush();
+                                flush();
+                            }
+                        }
                     }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Stream Error: " . $e->getMessage());
+                    echo "data: " . json_encode(['text' => "\n[Maaf, terjadi kesalahan internal saat AI memproses data. Silakan coba lagi.]"]) . "\n\n";
+                    ob_flush();
+                    flush();
                 }
                 
                 // Send an end stream event

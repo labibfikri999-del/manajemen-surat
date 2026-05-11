@@ -90,7 +90,7 @@
             transform: scale(1.05) translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
+
         /* Professional Chatbot Styles */
         .chatbot-btn {
             background-color: #10b981; /* Emerald 500 */
@@ -122,7 +122,7 @@
         .chat-scroll::-webkit-scrollbar-thumb:hover {
             background: #94a3b8; /* slate-400 */
         }
-        
+
         /* Stagger animation for chips */
         .chip-stagger {
             opacity: 0;
@@ -132,7 +132,7 @@
         .chip-stagger:nth-child(1) { animation-delay: 0.05s; }
         .chip-stagger:nth-child(2) { animation-delay: 0.1s; }
         .chip-stagger:nth-child(3) { animation-delay: 0.15s; }
-        
+
         @keyframes slideUpFade {
             to { opacity: 1; transform: translateY(0); }
         }
@@ -157,11 +157,11 @@
 
     <!-- Main Container -->
     <main class="w-full max-w-5xl animate-fade-in">
-        
+
         <!-- Header -->
         <div class="text-center mb-16 relative">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white rounded-full filter blur-[100px] opacity-40 -z-10"></div>
-            
+
             <!-- Left Decoration (CSS Aurora) -->
             <div data-value="-2" class="parallax absolute -left-20 top-1/2 transform -translate-y-1/2 w-64 h-96 bg-gradient-to-r from-cyan-400 to-teal-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob hidden lg:block pointer-events-none"></div>
 
@@ -170,9 +170,9 @@
 
             <!-- JS Parallax Removed for Performance -->
             <!-- The CSS 'animate-blob' class handles the ambient movement efficiently -->
-            
+
             <img src="{{ asset('images/logo_rsi_ntb_new.png') }}" alt="Logo" class="h-48 md:h-64 w-auto mx-auto mb-10 animate-float drop-shadow-2xl filter brightness-110">
-            
+
             <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-2">
                 <span class="text-gradient">Portal Terintegrasi</span>
             </h1>
@@ -182,8 +182,8 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
+
             <!-- Card 1: Sistem Surat (Primary) - Standardized Size -->
             <a href="{{ route('login') }}" class="glass-panel rounded-3xl p-6 relative overflow-hidden group card-hover text-center border-2 border-transparent hover:border-emerald-200 flex flex-col justify-center items-center">
                 <!-- Shine Effect -->
@@ -194,10 +194,10 @@
                 <div class="w-14 h-14 mx-auto rounded-2xl energy-gradient flex items-center justify-center text-white mb-4 shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform duration-300">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
-                
+
                 <h2 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">Sistem Surat</h2>
                 <p class="text-slate-500 text-xs mb-4">Administrasi & Disposisi</p>
-                
+
                 <span class="relative overflow-hidden inline-block px-5 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-emerald-200">
                     <span class="relative z-10">Akses Masuk →</span>
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shine_1.5s_infinite] z-0"></div>
@@ -211,28 +211,40 @@
                 </div>
                 <h2 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-cyan-600 transition-colors">Sistem SDM</h2>
                 <p class="text-slate-500 text-xs mb-4 text-balance">Sumber Daya Manusia</p>
-                
+
                 <span class="relative overflow-hidden inline-block px-5 py-1.5 rounded-full bg-cyan-100 text-cyan-700 text-xs font-bold group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-cyan-200">
                     <span class="relative z-10">Akses Masuk →</span>
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shine_1.5s_infinite] z-0"></div>
                 </span>
             </a>
 
-            <!-- Card 3: Keuangan (New) -->
+            <!-- Card 3: Kepegawaian Dokumen -->
+            <a href="{{ route('kepegawaian.login') }}" class="glass-panel rounded-3xl p-6 relative overflow-hidden group card-hover text-center border-2 border-transparent hover:border-sky-200 flex flex-col justify-center items-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center text-white mb-4 shadow-lg shadow-sky-200 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M8 4h8l4 4v10a2 2 0 01-2 2H8a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+                </div>
+                <h2 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">Kepegawaian</h2>
+                <p class="text-slate-500 text-xs mb-4 text-balance">Dokumen Pegawai</p>
+
+                <span class="relative overflow-hidden inline-block px-5 py-1.5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold group-hover:bg-sky-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-sky-200">
+                    <span class="relative z-10">Akses Masuk →</span>
+                    <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shine_1.5s_infinite] z-0"></div>
+                </span>
+            </a>
+
+            <!-- Card 4: Keuangan (New) -->
             <a href="{{ route('keuangan.login') }}" class="glass-panel rounded-3xl p-6 relative overflow-hidden group card-hover text-center border-2 border-transparent hover:border-amber-200 flex flex-col justify-center items-center">
                 <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform duration-300">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <h2 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">Keuangan</h2>
                 <p class="text-slate-500 text-xs mb-4 text-balance">Manajemen Finansial</p>
-                
+
                 <span class="relative overflow-hidden inline-block px-5 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold group-hover:bg-amber-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-amber-200">
                     <span class="relative z-10">Akses Masuk →</span>
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shine_1.5s_infinite] z-0"></div>
                 </span>
             </a>
-
-
 
             <!-- Card 5: Aset (Existing) -->
             <a href="{{ route('aset.login') }}" class="glass-panel rounded-3xl p-6 relative overflow-hidden group card-hover text-center border-2 border-transparent hover:border-lime-200 flex flex-col justify-center items-center">
@@ -241,7 +253,7 @@
                 </div>
                 <h2 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-lime-600 transition-colors">Sistem Aset</h2>
                 <p class="text-slate-500 text-xs mb-4 text-balance">Inventaris & Logistik</p>
-                
+
                 <span class="relative overflow-hidden inline-block px-5 py-1.5 rounded-full bg-lime-100 text-lime-700 text-xs font-bold group-hover:bg-lime-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-lime-200">
                     <span class="relative z-10">Akses Masuk →</span>
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shine_1.5s_infinite] z-0"></div>
@@ -270,4 +282,3 @@
 </body>
 
 </html>
-

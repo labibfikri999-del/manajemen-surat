@@ -5,14 +5,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>Buat Surat Otomatis — YARSI NTB</title>
+  <title>Buat Surat Otomatis - YARSI NTB</title>
   <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   @include('partials.styles')
 </head>
-<body class="bg-gray-50">
+<body class="surat-app bg-slate-50">
   <div id="app" class="flex flex-col">
     @include('partials.header')
 

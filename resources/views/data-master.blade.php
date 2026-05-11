@@ -8,7 +8,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>Data Master — YARSI NTB</title>
+  <title>Data Master - YARSI NTB</title>
   <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -20,7 +20,7 @@
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-gray-50">
+<body class="surat-app bg-slate-50">
   <div id="app" class="flex flex-col">
     @include('partials.header')
     @include('partials.sidebar-menu')

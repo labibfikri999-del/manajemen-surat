@@ -77,14 +77,24 @@
     const dropdown = document.getElementById('balasanNotifDropdown');
     if (btn && dropdown) {
         async function fetchBalasanCount() {
-            const res = await fetch('/api/balasan/unread-count');
+            const res = await fetch('/api/balasan/unread-count', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
             const data = await res.json();
             const badge = document.getElementById('balasanNotifBadge');
             badge.textContent = data.count;
             badge.style.display = data.count > 0 ? 'inline-block' : 'none';
         }
         async function fetchBalasanList() {
-            const res = await fetch('/api/balasan/unread-list');
+            const res = await fetch('/api/balasan/unread-list', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
             const data = await res.json();
             const list = document.getElementById('balasanNotifList');
             list.innerHTML = '';

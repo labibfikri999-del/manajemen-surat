@@ -9,17 +9,32 @@ use Illuminate\Support\Facades\Storage;
 
 class SuratKeluarController extends Controller
 {
+    private function scopedQuery(array $relations = [])
+    {
+        $query = SuratKeluar::query();
+
+        if (! empty($relations)) {
+            $query->with($relations);
+        }
+
+        $user = Auth::user();
+        if ($user?->isInstansi()) {
+            abort_unless($user->instansi_id, 403, 'User instansi tidak memiliki data instansi.');
+            $query->where('instansi_id', $user->instansi_id);
+        }
+
+        return $query;
+    }
+
+    private function findAccessible($id, array $relations = [])
+    {
+        return $this->scopedQuery($relations)->findOrFail($id);
+    }
+
     // Get all surat keluar
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $query = SuratKeluar::with('lampirans');
-
-        // Role-based filtering
-        if ($user->role === 'instansi') {
-            $query->where('instansi_id', $user->instansi_id);
-        }
-        // staff & direktur see all data
+        $query = $this->scopedQuery(['lampirans']);
 
         // Date Filtering
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -46,11 +61,10 @@ class SuratKeluarController extends Controller
     public function export(Request $request)
     {
         $user = Auth::user();
-        $query = SuratKeluar::query();
+        $query = $this->scopedQuery();
         $instansiName = 'YARSI NTB';
 
-        if ($user->role === 'instansi') {
-            $query->where('instansi_id', $user->instansi_id);
+        if ($user->isInstansi()) {
             if ($user->instansi) {
                 $instansiName = strtoupper($user->instansi->nama);
             }
@@ -93,10 +107,30 @@ class SuratKeluarController extends Controller
         exit;
     }
 
+    public function show($id)
+    {
+        $surat = $this->findAccessible($id, ['lampirans', 'klasifikasi', 'instansi']);
+
+        if ($surat->file) {
+            $surat->file_url = Storage::url($surat->file);
+        } elseif ($surat->konten) {
+            $surat->file_url = url('/api/surat-keluar/' . $surat->id . '/download');
+        } else {
+            $surat->file_url = null;
+        }
+
+        return response()->json($surat);
+    }
+
     // Store new surat keluar
     public function store(Request $request)
     {
+        if ($request->user()->isInstansi() && ! $request->user()->instansi_id) {
+            abort(403, 'User instansi tidak memiliki data instansi.');
+        }
+
         $validated = $request->validate([
+            'instansi_id' => 'nullable|exists:instansis,id',
             'nomor_surat' => 'required|string',
             'tanggal_keluar' => 'required|date|before_or_equal:today',
             'tujuan' => 'required|string',
@@ -152,9 +186,10 @@ class SuratKeluarController extends Controller
     // Update surat keluar
     public function update(Request $request, $id)
     {
-        $surat = SuratKeluar::findOrFail($id);
+        $surat = $this->findAccessible($id);
 
         $validated = $request->validate([
+            'instansi_id' => 'nullable|exists:instansis,id',
             'nomor_surat' => 'required|string',
             'tanggal_keluar' => 'required|date|before_or_equal:today',
             'tujuan' => 'required|string',
@@ -164,6 +199,10 @@ class SuratKeluarController extends Controller
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
             'lampirans.*' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
+
+        if ($request->user()->isInstansi()) {
+            $validated['instansi_id'] = $request->user()->instansi_id;
+        }
 
         // Handle file upload
         if ($request->hasFile('file')) {
@@ -208,7 +247,7 @@ class SuratKeluarController extends Controller
     // Delete surat keluar
     public function destroy($id)
     {
-        $surat = SuratKeluar::findOrFail($id);
+        $surat = $this->findAccessible($id);
 
         // Delete file if exists
         if ($surat->file && Storage::disk('public')->exists($surat->file)) {
@@ -230,7 +269,7 @@ class SuratKeluarController extends Controller
     // Download file
     public function download($id)
     {
-        $surat = SuratKeluar::findOrFail($id);
+        $surat = $this->findAccessible($id);
 
         if (! $surat->file && ! $surat->konten) {
             return response()->json(['message' => 'File or content not found'], 404);
@@ -262,7 +301,7 @@ class SuratKeluarController extends Controller
     // Get audit history
     public function audits($id)
     {
-        $surat = SuratKeluar::findOrFail($id);
+        $surat = $this->findAccessible($id);
         $audits = $surat->audits()->with('user:id,name')->get();
         return response()->json($audits);
     }

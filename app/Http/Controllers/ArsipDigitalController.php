@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArsipDigital;
 use App\Models\Dokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,28 +10,52 @@ use ZipArchive;
 
 class ArsipDigitalController extends Controller
 {
-    // Get all files
-    public function index()
+    private function archiveQuery()
     {
         $user = Auth::user();
         $query = Dokumen::where('is_archived', true);
 
-        // Filter based on user role/instansi
-        if ($user && $user->instansi_id) {
+        if ($user?->isInstansi()) {
+            abort_unless($user->instansi_id, 403, 'User instansi tidak memiliki data instansi.');
             $query->where('instansi_id', $user->instansi_id);
         } elseif ($user && ! $user->isDirektur() && ! $user->isStaff()) {
-            // If user has no instansi and is not staff/direktur, they only see their own
             $query->where('user_id', $user->id);
         }
-        // Direktur & Staff can typically see all, or we might want to restrict them too?
-        // Based on existing api.php logic, usually they oversee everything or have specific logic.
-        // But for safety, let's keep it consistent: Direktur/Staff see ALL, Instansi users restricted.
 
-        $data = $query->latest('tanggal_arsip')->get()->map(function ($item) {
-            $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
+        return $query;
+    }
 
-            return $item;
-        });
+    private function findAccessibleArchive($id): Dokumen
+    {
+        return $this->archiveQuery()->findOrFail($id);
+    }
+
+    private function normalizeCategory(?string $category): ?string
+    {
+        if ($category === null || $category === '') {
+            return null;
+        }
+
+        return strtoupper($category);
+    }
+
+    private function decorateArchive(Dokumen $item): Dokumen
+    {
+        $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
+        $item->nama_dokumen = $item->judul;
+        $item->nama_file = $item->file_name;
+        $item->kategori = $item->kategori_arsip;
+        $item->tipe = $item->file_type;
+
+        return $item;
+    }
+
+    // Get all files
+    public function index()
+    {
+        $query = $this->archiveQuery();
+
+        $data = $query->latest('tanggal_arsip')->get()->map(fn ($item) => $this->decorateArchive($item));
 
         return response()->json($data);
     }
@@ -40,44 +63,42 @@ class ArsipDigitalController extends Controller
     // Upload file
     public function store(Request $request)
     {
+        $user = Auth::user();
+        abort_unless($user->isDirektur() || $user->isStaff(), 403, 'Hanya Staff dan Direktur yang dapat mengupload arsip.');
+
         $validated = $request->validate([
-            'judul' => 'required|string',
-            'kategori_arsip' => 'nullable|string',
+            'judul' => 'nullable|required_without:nama_dokumen|string|max:255',
+            'nama_dokumen' => 'nullable|required_without:judul|string|max:255',
+            'kategori_arsip' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK',
+            'kategori' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK',
             'deskripsi' => 'nullable|string',
             'file' => 'required|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $file = $request->file('file');
-        $filename = time().'_'.$file->getClientOriginalName();
-        $path = $file->storeAs('arsip-digital', $filename, 'public');
+        $instansiKode = $user->instansi?->kode ?? 'ARSIP';
+        $path = $file->store('dokumen/'.$instansiKode.'/arsip', 'public');
+        $category = $this->normalizeCategory($validated['kategori_arsip'] ?? $validated['kategori'] ?? null);
 
-        // Get file extension
-        $extension = strtoupper($file->getClientOriginalExtension());
-
-        // Format file size
-        $bytes = $file->getSize();
-        if ($bytes >= 1048576) {
-            $ukuran = number_format($bytes / 1048576, 2).' MB';
-        } elseif ($bytes >= 1024) {
-            $ukuran = number_format($bytes / 1024, 2).' KB';
-        } else {
-            $ukuran = $bytes.' B';
-        }
-
-        $user = Auth::user();
-        $arsip = ArsipDigital::create([
-            'instansi_id' => $user->instansi_id ?? null,
-            'nama_dokumen' => $validated['judul'],
-            'kategori' => $validated['kategori_arsip'] ?? null,
+        $arsip = Dokumen::create([
+            'nomor_dokumen' => Dokumen::generateNomorDokumen($instansiKode),
+            'judul' => $validated['judul'] ?? $validated['nama_dokumen'],
             'deskripsi' => $validated['deskripsi'] ?? null,
-            'nama_file' => $file->getClientOriginalName(),
             'file_path' => $path,
-            'tipe' => $extension,
-            'ukuran' => $ukuran,
-            'tanggal_upload' => now(),
+            'file_name' => $file->getClientOriginalName(),
+            'file_type' => $file->getClientOriginalExtension(),
+            'file_size' => $file->getSize(),
+            'user_id' => $user->id,
+            'instansi_id' => $user->instansi_id,
+            'status' => 'selesai',
+            'kategori_arsip' => $category,
+            'is_archived' => true,
+            'tanggal_arsip' => now(),
+            'processed_by' => $user->id,
+            'tanggal_selesai' => now(),
         ]);
 
-        $arsip->file_url = Storage::url($arsip->file_path);
+        $this->decorateArchive($arsip);
 
         return response()->json($arsip, 201);
     }
@@ -85,18 +106,23 @@ class ArsipDigitalController extends Controller
     // Update arsip
     public function update(Request $request, $id)
     {
-        $arsip = ArsipDigital::findOrFail($id);
+        $user = Auth::user();
+        abort_unless($user->isDirektur() || $user->isStaff(), 403, 'Hanya Staff dan Direktur yang dapat mengubah arsip.');
+
+        $arsip = $this->findAccessibleArchive($id);
 
         $validated = $request->validate([
-            'nama_dokumen' => 'required|string',
-            'kategori' => 'nullable|string',
+            'nama_dokumen' => 'nullable|required_without:judul|string|max:255',
+            'judul' => 'nullable|required_without:nama_dokumen|string|max:255',
+            'kategori' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK,TIDAK_DIARSIPKAN',
+            'kategori_arsip' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK,TIDAK_DIARSIPKAN',
             'deskripsi' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt|max:10240',
         ]);
 
         $updateData = [
-            'nama_dokumen' => $validated['nama_dokumen'],
-            'kategori' => $validated['kategori'] ?? null,
+            'judul' => $validated['judul'] ?? $validated['nama_dokumen'],
+            'kategori_arsip' => $this->normalizeCategory($validated['kategori_arsip'] ?? $validated['kategori'] ?? null),
             'deskripsi' => $validated['deskripsi'] ?? null,
         ];
 
@@ -108,27 +134,17 @@ class ArsipDigitalController extends Controller
             }
 
             $file = $request->file('file');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $path = $file->storeAs('arsip-digital', $filename, 'public');
+            $instansiKode = $arsip->instansi?->kode ?? $user->instansi?->kode ?? 'ARSIP';
+            $path = $file->store('dokumen/'.$instansiKode.'/arsip', 'public');
 
-            $extension = strtoupper($file->getClientOriginalExtension());
-            $bytes = $file->getSize();
-            if ($bytes >= 1048576) {
-                $ukuran = number_format($bytes / 1048576, 2).' MB';
-            } elseif ($bytes >= 1024) {
-                $ukuran = number_format($bytes / 1024, 2).' KB';
-            } else {
-                $ukuran = $bytes.' B';
-            }
-
-            $updateData['nama_file'] = $file->getClientOriginalName();
+            $updateData['file_name'] = $file->getClientOriginalName();
             $updateData['file_path'] = $path;
-            $updateData['tipe'] = $extension;
-            $updateData['ukuran'] = $ukuran;
+            $updateData['file_type'] = $file->getClientOriginalExtension();
+            $updateData['file_size'] = $file->getSize();
         }
 
         $arsip->update($updateData);
-        $arsip->file_url = $arsip->file_path ? Storage::url($arsip->file_path) : null;
+        $this->decorateArchive($arsip);
 
         return response()->json($arsip);
     }
@@ -136,7 +152,10 @@ class ArsipDigitalController extends Controller
     // Remove from Arsip Digital (Un-archive) instead of hard delete
     public function destroy($id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $user = Auth::user();
+        abort_unless($user->isDirektur() || $user->isStaff(), 403, 'Hanya Staff dan Direktur yang dapat mengubah arsip.');
+
+        $dokumen = $this->findAccessibleArchive($id);
 
         // Instead of hard-deleting the document (which removes it from the Unit Usaha's history as well),
         // we just mark it as not archived.
@@ -152,13 +171,7 @@ class ArsipDigitalController extends Controller
     // Download file
     public function download($id)
     {
-        $arsip = Dokumen::findOrFail($id);
-        $user = Auth::user();
-
-        // Security check: Ensure user belongs to the same instansi or is staff/direktur
-        if ($user && $user->instansi_id && $arsip->instansi_id && $user->instansi_id != $arsip->instansi_id) {
-            abort(403, 'Unauthorized access to this document.');
-        }
+        $arsip = $this->findAccessibleArchive($id);
 
         if (! $arsip->file_path || ! Storage::disk('public')->exists($arsip->file_path)) {
             return response()->json(['message' => 'File not found'], 404);
@@ -172,7 +185,7 @@ class ArsipDigitalController extends Controller
     // Get statistics for Arsip Digital page
     public function getStats()
     {
-        $query = Dokumen::where('is_archived', true);
+        $query = $this->archiveQuery();
         $totalDokumen = $query->count();
         $totalBytes = $query->sum('file_size');
 
@@ -188,7 +201,7 @@ class ArsipDigitalController extends Controller
         }
 
         // Get last access
-        $lastAccess = Dokumen::where('is_archived', true)->latest('updated_at')->first();
+        $lastAccess = $this->archiveQuery()->latest('updated_at')->first();
         $aksesTerakhir = $lastAccess ? $lastAccess->updated_at->diffForHumans() : 'Belum ada data';
 
         return response()->json([
@@ -201,14 +214,15 @@ class ArsipDigitalController extends Controller
     // Get document count by category
     public function getKategoriCount()
     {
+        $baseQuery = $this->archiveQuery();
         $counts = [
-            'UMUM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'UMUM')->count(),
-            'SDM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SDM')->count(),
-            'ASSET' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'ASSET')->count(),
-            'HUKUM' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'HUKUM')->count(),
-            'KEUANGAN' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'KEUANGAN')->count(),
-            'SURAT_KELUAR' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SURAT_KELUAR')->count(),
-            'SK' => Dokumen::where('is_archived', true)->where('kategori_arsip', 'SK')->count(),
+            'UMUM' => (clone $baseQuery)->where('kategori_arsip', 'UMUM')->count(),
+            'SDM' => (clone $baseQuery)->where('kategori_arsip', 'SDM')->count(),
+            'ASSET' => (clone $baseQuery)->where('kategori_arsip', 'ASSET')->count(),
+            'HUKUM' => (clone $baseQuery)->where('kategori_arsip', 'HUKUM')->count(),
+            'KEUANGAN' => (clone $baseQuery)->where('kategori_arsip', 'KEUANGAN')->count(),
+            'SURAT_KELUAR' => (clone $baseQuery)->where('kategori_arsip', 'SURAT_KELUAR')->count(),
+            'SK' => (clone $baseQuery)->where('kategori_arsip', 'SK')->count(),
         ];
 
         return response()->json($counts);
@@ -217,17 +231,13 @@ class ArsipDigitalController extends Controller
     // Get documents by category
     public function getByKategori($kategori)
     {
-        $dokumens = Dokumen::where('is_archived', true)
-            ->where('kategori_arsip', $kategori)
+        $dokumens = $this->archiveQuery()
+            ->where('kategori_arsip', strtoupper($kategori))
             ->with(['instansi', 'processor'])
             ->latest('tanggal_arsip')
             ->get();
 
-        $dokumens->map(function ($item) {
-            $item->file_url = $item->file_path ? Storage::url($item->file_path) : null;
-
-            return $item;
-        });
+        $dokumens->map(fn ($item) => $this->decorateArchive($item));
 
         return response()->json($dokumens);
     }
@@ -235,8 +245,8 @@ class ArsipDigitalController extends Controller
     // Download all files in a category as ZIP
     public function downloadKategori($kategori)
     {
-        $dokumens = Dokumen::where('is_archived', true)
-            ->where('kategori_arsip', $kategori)
+        $dokumens = $this->archiveQuery()
+            ->where('kategori_arsip', strtoupper($kategori))
             ->get();
 
         if ($dokumens->isEmpty()) {
@@ -256,7 +266,7 @@ class ArsipDigitalController extends Controller
                 if ($dok->file_path && Storage::disk('public')->exists($dok->file_path)) {
                     $absolutePath = Storage::disk('public')->path($dok->file_path);
                     // Prevent duplicate names in zip
-                    $fileNameInZip = $dok->nama_file ?? basename($dok->file_path);
+                    $fileNameInZip = $dok->file_name ?? basename($dok->file_path);
                     $zip->addFile($absolutePath, $fileNameInZip);
                 }
             }

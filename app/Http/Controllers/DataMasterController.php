@@ -7,6 +7,7 @@ use App\Models\Instansi;
 use App\Models\Klasifikasi;
 use App\Models\TipeLampiran;
 use App\Models\User;
+use App\Services\SuratStatsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -23,109 +24,9 @@ class DataMasterController extends Controller
         ]);
     }
 
-    public function getLaporanStats()
+    public function getLaporanStats(SuratStatsService $suratStats)
     {
-        $user = auth()->user();
-        $isInstansi = $user->role === 'instansi';
-        $instansiId = $user->instansi_id;
-
-        // Definitions for scope
-        $scopeMasuk = function ($q) use ($isInstansi, $instansiId) {
-            $q->where('jenis_dokumen', 'surat_masuk');
-
-            if ($isInstansi) {
-                // Instansi only sees their own incoming letters
-                $q->where('instansi_id', $instansiId);
-            } else {
-                // Global scope for staff/direktur (or maybe they want unrelated ones too?)
-                // Original logic had OR whereNull logic, but let's keep it safe.
-                // Actually, original logic was:
-                // $q->where('jenis_dokumen', 'surat_masuk')
-                //   ->orWhere(function($q2) { ... });
-
-                // If Instansi: STRICTLY their instansi_id.
-                // If Staff: GLOBAL.
-
-                $q->orWhere(function ($q2) {
-                    $q2->whereNull('jenis_dokumen')->whereNull('instansi_id');
-                });
-            }
-        };
-
-        $scopeKeluar = function ($q) use ($isInstansi, $instansiId) {
-            $q->where('jenis_dokumen', 'surat_keluar');
-
-            if ($isInstansi) {
-                $q->where('instansi_id', $instansiId);
-            } else {
-                $q->orWhere(function ($q2) {
-                    $q2->whereNull('jenis_dokumen')->whereNotNull('instansi_id');
-                });
-            }
-        };
-
-        // 1. Counts
-        $suratMasuk = Dokumen::where($scopeMasuk)->count();
-        $suratKeluar = Dokumen::where($scopeKeluar)->count();
-
-        // Unified Arsip Logic (Match with api.php)
-        $arsipQuery = Dokumen::where('is_archived', true);
-        if ($isInstansi) {
-            $arsipQuery->where('instansi_id', $instansiId);
-        }
-        $arsip = $arsipQuery->count();
-
-        // 2. Monthly Data (Current Year)
-        $monthlyMasuk = Dokumen::where($scopeMasuk)
-            ->whereYear('created_at', date('Y'))
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-            ->groupBy('month')
-            ->pluck('count', 'month')
-            ->toArray();
-
-        $monthlyKeluar = Dokumen::where($scopeKeluar)
-            ->whereYear('created_at', date('Y'))
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-            ->groupBy('month')
-            ->pluck('count', 'month')
-            ->toArray();
-
-        // Fill 0 for missing months
-        $monthsMasuk = [];
-        $monthsKeluar = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $monthsMasuk[] = $monthlyMasuk[$i] ?? 0;
-            $monthsKeluar[] = $monthlyKeluar[$i] ?? 0;
-        }
-
-        // 3. Arsip Distribution
-        $arsipDistQuery = Dokumen::where('is_archived', true);
-        if ($isInstansi) {
-            $arsipDistQuery->where('instansi_id', $instansiId);
-        }
-        $arsipDist = $arsipDistQuery->selectRaw('kategori_arsip as kategori, COUNT(*) as count')
-            ->groupBy('kategori_arsip')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => $item->kategori ?? 'Umum',
-                    'count' => $item->count,
-                ];
-            });
-
-        // If arsip distribution is empty, fake it for UI demo if no data
-        if ($arsipDist->isEmpty() && $arsip > 0) {
-            $arsipDist = [['label' => 'Umum', 'count' => $arsip]];
-        }
-
-        return response()->json([
-            'surat_masuk' => $suratMasuk,
-            'surat_keluar' => $suratKeluar,
-            'arsip_digital' => $arsip,
-            'monthly_masuk' => $monthsMasuk,
-            'monthly_keluar' => $monthsKeluar,
-            'arsip_distribution' => $arsipDist,
-        ]);
+        return response()->json($suratStats->laporanStats(auth()->user()));
     }
 
     // === Klasifikasi ===

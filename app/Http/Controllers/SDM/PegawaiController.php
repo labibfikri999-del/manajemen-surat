@@ -89,8 +89,8 @@ class PegawaiController extends Controller
                 'email' => $request->email, 
                 'username' => $request->username,
                 'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-                'role' => 'staff', 
-                'module_access' => ['pegawai'], 
+                'role' => 'pegawai', 
+                'module_access' => ['kepegawaian'], 
                 'is_active' => true, 
             ]);
             

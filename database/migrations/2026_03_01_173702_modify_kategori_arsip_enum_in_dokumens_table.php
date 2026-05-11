@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('dokumens', function (Blueprint $table) {
-        // Using raw statement for ENUM modification since Doctrine DBAL doesn't support ENUM natively
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM','SDM','ASSET','HUKUM','KEUANGAN','SURAT_KELUAR','SK','TIDAK_DIARSIPKAN')");
-        });
+        if (config('database.default') !== 'sqlite') {
+            Schema::table('dokumens', function (Blueprint $table) {
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM','SDM','ASSET','HUKUM','KEUANGAN','SURAT_KELUAR','SK','TIDAK_DIARSIPKAN')");
+            });
+        }
     }
 
     /**
@@ -22,9 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dokumens', function (Blueprint $table) {
-        // Reverting the column back to original ENUM values (be careful of data loss if 'TIDAK_DIARSIPKAN' was heavily used)
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM','SDM','ASSET','HUKUM','KEUANGAN','SURAT_KELUAR','SK')");
-        });
+        if (config('database.default') !== 'sqlite') {
+            Schema::table('dokumens', function (Blueprint $table) {
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE dokumens MODIFY COLUMN kategori_arsip ENUM('UMUM','SDM','ASSET','HUKUM','KEUANGAN','SURAT_KELUAR','SK')");
+            });
+        }
     }
 };

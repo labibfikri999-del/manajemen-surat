@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Storage;
 
 class DokumenController extends Controller
 {
+    private const ALLOWED_FILE_MIMES = 'pdf,png,jpg,jpeg,doc,docx,xls,xlsx,ppt,pptx,zip,rar,csv,txt';
+
     protected $telegram;
 
     public function __construct(TelegramService $telegram)
@@ -26,12 +28,47 @@ class DokumenController extends Controller
         $this->telegram = $telegram;
     }
 
+    private function canAccessDokumen(Dokumen $dokumen): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->isDirektur() || $user->isStaff()) {
+            return true;
+        }
+
+        if ($user->isInstansi()) {
+            return ($user->instansi_id && $dokumen->instansi_id === $user->instansi_id)
+                || $dokumen->user_id === $user->id;
+        }
+
+        return $dokumen->user_id === $user->id;
+    }
+
+    private function findAccessibleDokumen(string $id, array $relations = []): Dokumen
+    {
+        $query = Dokumen::query();
+
+        if (! empty($relations)) {
+            $query->with($relations);
+        }
+
+        $dokumen = $query->findOrFail($id);
+
+        abort_unless($this->canAccessDokumen($dokumen), 403, 'Anda tidak memiliki akses ke dokumen ini.');
+
+        return $dokumen;
+    }
+
     /**
      * Download file balasan dokumen
      */
     public function downloadBalasan($id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id);
         if (! $dokumen->balasan_file || ! Storage::disk('public')->exists($dokumen->balasan_file)) {
             return response()->json(['error' => 'File balasan tidak ditemukan'], 404);
         }
@@ -101,7 +138,7 @@ class DokumenController extends Controller
             'tujuan_instansi_id' => 'nullable|exists:instansis,id',
             'email_eksternal' => 'nullable|email', // Validasi email eksternal
             'kategori_arsip' => 'nullable|string|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK', // Opsi arsip langsung
-            'file' => 'required|file|mimes:doc,docx,pdf,xlsx,zip,rar|max:10240', // Word/PDF/Excel/Zip, Max 10MB
+            'file' => 'required|file|mimes:'.self::ALLOWED_FILE_MIMES.'|max:10240',
         ]);
 
         // Upload file
@@ -386,7 +423,7 @@ class DokumenController extends Controller
      */
     public function show(string $id)
     {
-        $dokumen = Dokumen::with(['instansi', 'user', 'validator', 'processor'])->findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id, ['instansi', 'user', 'validator', 'processor']);
 
         return response()->json($dokumen);
     }
@@ -396,7 +433,7 @@ class DokumenController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id);
         $user = Auth::user();
 
         // Hanya user yang upload bisa edit, dan hanya jika status masih pending
@@ -425,7 +462,7 @@ class DokumenController extends Controller
      */
     public function destroy(string $id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id);
         $user = Auth::user();
 
         // Check permission: Owner or Direktur can delete
@@ -531,7 +568,7 @@ class DokumenController extends Controller
         // Jika status selesai, wajib pilih kategori dan file balasan opsional
         if ($request->status === 'selesai') {
             $rules['kategori_arsip'] = 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,TIDAK_DIARSIPKAN';
-            $rules['file_balasan'] = 'nullable|file|max:10240'; // Max 10MB
+            $rules['file_balasan'] = 'nullable|file|mimes:'.self::ALLOWED_FILE_MIMES.'|max:10240';
         }
 
         $request->validate($rules);
@@ -614,7 +651,7 @@ class DokumenController extends Controller
      */
     public function audits(string $id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id);
         $audits = $dokumen->audits()->with('user:id,name')->get();
         return response()->json($audits);
     }
@@ -624,7 +661,7 @@ class DokumenController extends Controller
      */
     public function download(string $id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id);
 
         if (! Storage::disk('public')->exists($dokumen->file_path)) {
             return response()->json(['error' => 'File tidak ditemukan'], 404);
@@ -661,7 +698,7 @@ class DokumenController extends Controller
      */
     public function preview(string $id)
     {
-        $dokumen = Dokumen::findOrFail($id);
+        $dokumen = $this->findAccessibleDokumen($id);
 
         if (! Storage::disk('public')->exists($dokumen->file_path)) {
             abort(404);
@@ -782,7 +819,7 @@ class DokumenController extends Controller
         }
 
         $request->validate([
-            'file_balasan' => 'required|file|max:10240', // Max 10MB
+            'file_balasan' => 'required|file|mimes:'.self::ALLOWED_FILE_MIMES.'|max:10240',
             'catatan_revisi' => 'required|string',
         ]);
 

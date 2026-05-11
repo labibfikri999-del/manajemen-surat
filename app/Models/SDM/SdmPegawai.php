@@ -45,4 +45,14 @@ class SdmPegawai extends Model
     {
         return $this->hasMany(SdmDocument::class, 'sdm_pegawai_id')->orderBy('created_at', 'desc');
     }
+
+    public function transaksiDokumens()
+    {
+        return $this->hasMany(\App\Models\SdmTransaksiDokumen::class, 'sdm_pegawai_id')->orderBy('created_at', 'desc');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 }

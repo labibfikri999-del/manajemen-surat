@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\SuratAudit;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 trait LogsAudit
@@ -14,10 +15,10 @@ trait LogsAudit
         });
 
         static::updated(function ($model) {
-            // Only log if there are actual changes
-            if ($model->isDirty()) {
-                $oldValues = array_intersect_key($model->getOriginal(), $model->getDirty());
-                $newValues = $model->getDirty();
+            $newValues = Arr::except($model->getChanges(), ['updated_at']);
+
+            if (!empty($newValues)) {
+                $oldValues = Arr::only($model->getOriginal(), array_keys($newValues));
                 $model->logAudit('updated', $oldValues, $newValues);
             }
         });

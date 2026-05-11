@@ -2,6 +2,7 @@
 // import CSS agar vite bundling
 import '../css/app.css'
 import axios from 'axios'
+import 'flowbite'
 
 // definisikan data awal dari server lewat window.__... (jika tidak ada, fallback ke array/obj)
 const SURAT = window.__SURAT_DATA__ ?? []

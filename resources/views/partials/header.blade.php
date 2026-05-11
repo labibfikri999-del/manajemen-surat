@@ -40,7 +40,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Fetch unread balasan count
     async function fetchBalasanCount() {
         try {
             const res = await fetch('/api/balasan/unread-count');
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (e) { console.error('Error fetching count', e); }
     }
-    // Fetch unread balasan list
+
     async function fetchBalasanList() {
         try {
             const res = await fetch('/api/balasan/unread-list');
@@ -65,17 +64,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             data.dokumens.forEach(dok => {
                 const ext = dok.balasan_file.split('.').pop().toLowerCase();
-                // Escape quotes for JS string
                 const safeTitle = dok.judul.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const storageRoot = "{{ asset('storage') }}";
                 const fileUrl = `${storageRoot}/${dok.balasan_file}`;
                 
                 const item = document.createElement('div');
                 item.className = 'flex items-start gap-3 px-4 py-3 border-b hover:bg-emerald-50 transition-colors bg-white cursor-pointer group';
-                
-                // Click title/row to preview
                 item.onclick = function(e) {
-                    // Prevent if clicked on download link specific
                     if (e.target.closest('a[download]')) return;
                     showNotificationPreview(fileUrl, safeTitle, ext);
                     markBalasanRead(dok.id);
@@ -105,15 +100,14 @@ document.addEventListener('DOMContentLoaded', function () {
             list.innerHTML = '<div class="p-3 text-red-500 text-sm">Gagal memuat data.</div>';
         }
     }
-    // Mark balasan as read
+
     window.markBalasanRead = async function (dokumenId) {
         try {
             await fetch(`/api/balasan/mark-read/${dokumenId}`, {method:'POST'});
             fetchBalasanCount();
-            // Don't refresh list immediately to keep item visible while downloading/viewing
         } catch (e) { console.error(e); }
     }
-    // Dropdown logic
+
     const btn = document.getElementById('btnBalasanNotif');
     const dropdown = document.getElementById('balasanNotifDropdown');
     btn.addEventListener('click', function(e) {
@@ -128,12 +122,10 @@ document.addEventListener('DOMContentLoaded', function () {
             dropdown.classList.add('hidden');
         }
     });
-    // Polling badge
-    setInterval(fetchBalasanCount, 10000); // 10s polling
+    setInterval(fetchBalasanCount, 10000);
     fetchBalasanCount();
 });
 
-// Global functions for Header Preview Modal
 function showNotificationPreview(url, title, extension) {
     const modal = document.getElementById('headerPreviewModal');
     const frame = document.getElementById('headerPreviewFrame');
@@ -143,7 +135,6 @@ function showNotificationPreview(url, title, extension) {
     const downloadBtn = document.getElementById('headerDownloadBtn');
     const downloadFallback = document.getElementById('headerDownloadFallback');
 
-    // Hide Navbar for immersive view (matching hasil-validasi behavior)
     const navbar = document.querySelector('header');
     if (navbar) navbar.style.display = 'none';
 
@@ -169,7 +160,6 @@ function closeNotificationPreview() {
     const modal = document.getElementById('headerPreviewModal');
     const frame = document.getElementById('headerPreviewFrame');
     
-    // Show Navbar
     const navbar = document.querySelector('header');
     if (navbar) navbar.style.display = '';
 
@@ -178,7 +168,6 @@ function closeNotificationPreview() {
     frame.src = ''; 
 }
 
-// Close modal on click outside
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('headerPreviewModal');
     if (e.target === modal) closeNotificationPreview();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use ZipArchive;
@@ -12,6 +13,8 @@ class BackupController extends Controller
 {
     public function backupDb()
     {
+        abort_unless(Auth::user()?->isDirektur(), 403, 'Hanya Direktur yang dapat mengunduh backup database.');
+
         try {
             // Manual list of tables to avoid Doctrine dependency
             // Ensure table names match Migration definitions exactly
@@ -53,6 +56,8 @@ class BackupController extends Controller
 
     public function backupFiles()
     {
+        abort_unless(Auth::user()?->isDirektur(), 403, 'Hanya Direktur yang dapat mengunduh backup file.');
+
         try {
             $filename = 'backup-files-'.date('Y-m-d_H-i-s').'.zip';
             $tempFile = sys_get_temp_dir().DIRECTORY_SEPARATOR.'backup_'.time().'.zip';

@@ -1,4 +1,8 @@
-@php $user = auth()->user(); $role = $user->role ?? 'guest'; @endphp
+@php
+    $user = auth()->user();
+    $role = $user->role ?? 'guest';
+    $instansis = $role === 'instansi' ? collect() : \App\Models\Instansi::where('is_active', true)->orderBy('nama')->get();
+@endphp
 {{-- resources/views/surat-keluar.blade.php --}}
 <!doctype html>
 <html lang="id">
@@ -228,6 +232,18 @@
             <label class="block text-sm font-medium text-emerald-700 mb-2">Tanggal Keluar <span class="text-red-500">*</span></label>
             <input type="date" id="formTanggal" required class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
           </div>
+
+          @if($role !== 'instansi')
+          <div>
+            <label class="block text-sm font-medium text-emerald-700 mb-2">Unit Usaha</label>
+            <select id="formInstansiId" class="w-full px-4 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="">Umum / Pusat</option>
+                @foreach($instansis as $instansi)
+                    <option value="{{ $instansi->id }}">{{ $instansi->nama }}</option>
+                @endforeach
+            </select>
+          </div>
+          @endif
           
           <div>
             <label class="block text-sm font-medium text-emerald-700 mb-2">Tujuan <span class="text-red-500">*</span></label>
@@ -261,7 +277,6 @@
             <button type="button" id="btnModalCancel" class="flex-1 px-4 py-2 border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition">Batal</button>
             <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Simpan</button>
           </div>
-        </form>
         </form>
       </div>
     </div>
@@ -681,6 +696,7 @@
       const formTanggal = document.getElementById('formTanggal');
       const formTujuan = document.getElementById('formTujuan');
       const formPerihal = document.getElementById('formPerihal');
+      const formInstansiId = document.getElementById('formInstansiId');
 
       // Reset file input
       formFile.value = '';
@@ -700,12 +716,14 @@
         formTanggal.value = item.tanggal_keluar;
         formTujuan.value = item.tujuan;
         formPerihal.value = item.perihal;
+        if (formInstansiId) formInstansiId.value = item.instansi_id || '';
       } else {
         modalTitle.textContent = 'Tambah Surat Keluar';
         formNomorSurat.value = '';
         formTanggal.value = new Date().toISOString().slice(0, 10);
         formTujuan.value = '';
         formPerihal.value = '';
+        if (formInstansiId) formInstansiId.value = '';
 
       }
 
@@ -736,6 +754,7 @@
       const formTanggal = document.getElementById('formTanggal');
       const formTujuan = document.getElementById('formTujuan');
       const formPerihal = document.getElementById('formPerihal');
+      const formInstansiId = document.getElementById('formInstansiId');
 
       if (!formNomorSurat.value || !formTanggal.value || !formTujuan.value || !formPerihal.value) {
         showToast('Data Tidak Lengkap', 'Semua field wajib diisi', 'warning');
@@ -748,6 +767,9 @@
       formData.append('tanggal_keluar', formTanggal.value);
       formData.append('tujuan', formTujuan.value);
       formData.append('perihal', formPerihal.value);
+      if (formInstansiId && formInstansiId.value) {
+        formData.append('instansi_id', formInstansiId.value);
+      }
       
       // Add multiple files if selected
           if (formFile.files.length > 0) {

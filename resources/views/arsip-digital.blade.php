@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Arsip Digital — YARSI NTB</title>
+  <title>Arsip Digital - YARSI NTB</title>
   <link rel="icon" type="image/png" href="{{ asset('images/logo_rsi_ntb_new.png') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -27,7 +27,7 @@
     }
   </style>
 </head>
-<body class="bg-gray-50">
+<body class="surat-app bg-slate-50">
   <div id="app" class="flex flex-col">
     @include('partials.header')
 

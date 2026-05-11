@@ -15,8 +15,13 @@ class AdminSeeder extends Seeder
         $admins = [
             [
                 'name' => 'Labib',
+                'username' => 'labib',
                 'email' => 'Labib@gmail.com',
                 'password' => Hash::make('Labib02'),
+                'plain_password' => 'Labib02',
+                'role' => 'direktur',
+                'is_active' => true,
+                'module_access' => ['surat'],
             ],
         ];
 

@@ -38,6 +38,7 @@ class User extends Authenticatable
         'telegram_chat_id',
         'plain_password',
         'module_access',
+        'must_change_password',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'plain_password',
         'remember_token',
     ];
 
@@ -62,6 +64,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'module_access' => 'array',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -123,6 +126,9 @@ class User extends Authenticatable
             'direktur' => 'Sekjen Yayasan',
             'staff' => 'Staff Sekjen',
             'instansi' => 'Unit Usaha',
+            'pegawai' => 'Pegawai',
+            'staff_kepegawaian' => 'Staff Kepegawaian',
+            'sekjen' => 'Sekjen',
             default => 'Unknown',
         };
     }
