@@ -243,6 +243,25 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
+    public function staff_without_surat_module_gets_json_for_dokumen_upload_forbidden()
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'username' => 'staff-no-surat-' . uniqid(),
+            'module_access' => ['kepegawaian'],
+        ]);
+
+        $response = $this->actingAs($staff)->postJson('/api/dokumen', [
+            'judul' => 'Upload Tanpa Akses Surat',
+            'jenis' => 'surat_keluar',
+            'file' => UploadedFile::fake()->create('surat.pdf', 100),
+        ]);
+
+        $response->assertForbidden()
+            ->assertJsonPath('message', 'Akses Ditolak. Akun Anda tidak terdaftar untuk modul ini.');
+    }
+
+    /** @test */
     public function instansi_upload_preserves_physical_nomor_surat_in_auto_surat_keluar()
     {
         $instansi = Instansi::create([

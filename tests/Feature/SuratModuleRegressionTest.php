@@ -493,6 +493,18 @@ class SuratModuleRegressionTest extends TestCase
         }
     }
 
+    public function test_staff_without_surat_module_cannot_open_upload_dokumen_page(): void
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'module_access' => ['kepegawaian'],
+        ]);
+
+        $this->actingAs($staff)
+            ->get('/upload-dokumen')
+            ->assertForbidden();
+    }
+
     private function makeTwoInstansis(): array
     {
         return [

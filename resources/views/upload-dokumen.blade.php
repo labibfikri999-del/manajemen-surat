@@ -267,7 +267,18 @@
                     body: formData
                 });
 
-                const data = await response.json();
+                const responseText = await response.text();
+                let data = {};
+
+                try {
+                    data = responseText ? JSON.parse(responseText) : {};
+                } catch (parseError) {
+                    data = {
+                        message: response.status === 403
+                            ? 'Akses ditolak. Pastikan akun Staff memiliki akses modul Surat.'
+                            : 'Server mengembalikan respons yang tidak valid. Silakan coba lagi atau hubungi admin.'
+                    };
+                }
 
                 if (response.ok) {
                     // Show success notification

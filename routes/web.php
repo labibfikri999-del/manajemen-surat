@@ -99,7 +99,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // ===== INSTANSI & STAFF =====
-    Route::middleware('role:instansi,staff')->group(function () {
+    Route::middleware(['module.access:surat', 'role:instansi,staff'])->group(function () {
         Route::get('/upload-dokumen', [PageController::class, 'uploadDokumen'])->name('upload-dokumen');
     });
 
