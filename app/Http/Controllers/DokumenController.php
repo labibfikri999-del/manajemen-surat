@@ -147,9 +147,15 @@ class DokumenController extends Controller
         $targetInstansiId = null;
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName(); // Define fileName early
+        $staffIsSendingOut = $user->isStaff() && (
+            $request->boolean('send_to_all')
+            || $request->filled('tujuan_instansi_id')
+            || $request->filled('email_eksternal')
+        );
+        $jenisDokumen = $staffIsSendingOut ? 'surat_keluar' : $request->jenis;
 
         // === LOGIC BARU: KIRIM KE SEMUA UNIT USAHA ===
-        if ($user->isStaff() && $request->filled('send_to_all') && $request->send_to_all) {
+        if ($user->isStaff() && $request->boolean('send_to_all')) {
             
             // 1. Ambil semua unit usaha aktif
             $allInstansis = Instansi::where('is_active', true)->get();
@@ -185,7 +191,7 @@ class DokumenController extends Controller
                         'nomor_dokumen' => $nomorDokumen,
                         'nomor_surat' => $request->nomor_surat,
                         'judul' => $request->judul,
-                        'jenis_dokumen' => $request->jenis,
+                        'jenis_dokumen' => $jenisDokumen,
                         'deskripsi' => $request->deskripsi,
                         'file_path' => $finalPath,
                         'file_name' => $fileName,
@@ -292,7 +298,7 @@ class DokumenController extends Controller
             'nomor_dokumen' => $nomorDokumen,
             'nomor_surat' => $request->nomor_surat, // Save manual nomor_surat
             'judul' => $request->judul,
-            'jenis_dokumen' => $request->jenis,
+            'jenis_dokumen' => $jenisDokumen,
             'deskripsi' => $request->deskripsi,
             'file_path' => $filePath,
             'file_name' => $fileName,
@@ -366,7 +372,7 @@ class DokumenController extends Controller
         if ($user->isInstansi()) {
             SuratKeluar::create([
                 'instansi_id' => $user->instansi_id,
-                'nomor_surat' => $nomorDokumen,
+                'nomor_surat' => $request->filled('nomor_surat') ? $request->nomor_surat : $nomorDokumen,
                 'tanggal_keluar' => now(),
                 'tujuan' => 'Direktur YARSI NTB',
                 'perihal' => $request->judul,

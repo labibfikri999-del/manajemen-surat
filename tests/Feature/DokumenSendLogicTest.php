@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Dokumen;
 use App\Models\Instansi;
+use App\Models\SuratKeluar;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -55,6 +56,73 @@ class DokumenSendLogicTest extends TestCase
         $response->assertStatus(201);
         $this->assertEquals('selesai', $response->json('dokumen.status'));
         $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+    }
+
+    /** @test */
+    public function staff_sending_to_unit_is_recorded_as_surat_keluar_even_if_form_jenis_differs()
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'username' => 'teststaff' . uniqid(),
+            'module_access' => ['surat'],
+        ]);
+
+        $instansi = Instansi::create([
+            'kode' => 'UNIT',
+            'nama' => 'Unit Tujuan',
+            'email' => 'unit@example.test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($staff)->postJson('/api/dokumen', [
+            'judul' => 'Surat Pusat ke Unit',
+            'jenis' => 'proposal',
+            'file' => UploadedFile::fake()->create('surat.pdf', 100),
+            'tujuan_instansi_id' => $instansi->id,
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertEquals('surat_keluar', $response->json('dokumen.jenis_dokumen'));
+        $this->assertEquals('selesai', $response->json('dokumen.status'));
+        $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+    }
+
+    /** @test */
+    public function staff_broadcast_is_recorded_as_surat_keluar_even_if_form_jenis_differs()
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'username' => 'broadcaststaff' . uniqid(),
+            'module_access' => ['surat'],
+        ]);
+
+        Instansi::create([
+            'kode' => 'UA',
+            'nama' => 'Unit A',
+            'email' => 'unit-a@example.test',
+            'is_active' => true,
+        ]);
+        Instansi::create([
+            'kode' => 'UB',
+            'nama' => 'Unit B',
+            'email' => 'unit-b@example.test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($staff)->postJson('/api/dokumen', [
+            'judul' => 'Broadcast Pusat',
+            'jenis' => 'laporan',
+            'file' => UploadedFile::fake()->create('broadcast.pdf', 100),
+            'send_to_all' => '1',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertEquals('surat_keluar', $response->json('dokumen.jenis_dokumen'));
+        $this->assertDatabaseCount('dokumens', 2);
+        $this->assertDatabaseMissing('dokumens', [
+            'judul' => 'Broadcast Pusat',
+            'jenis_dokumen' => 'laporan',
+        ]);
     }
 
     /** @test */
@@ -172,5 +240,38 @@ class DokumenSendLogicTest extends TestCase
             ->get('/surat-masuk')
             ->assertOk()
             ->assertSee($outgoing->judul);
+    }
+
+    /** @test */
+    public function instansi_upload_preserves_physical_nomor_surat_in_auto_surat_keluar()
+    {
+        $instansi = Instansi::create([
+            'kode' => 'UNIT',
+            'nama' => 'Unit Pengirim',
+            'is_active' => true,
+        ]);
+        $unitUser = User::factory()->create([
+            'role' => 'instansi',
+            'username' => 'unit-upload-' . uniqid(),
+            'instansi_id' => $instansi->id,
+            'module_access' => ['surat'],
+        ]);
+
+        $response = $this->actingAs($unitUser)->postJson('/api/dokumen', [
+            'nomor_surat' => '001/UNIT/V/2026',
+            'judul' => 'Surat Unit ke Pusat',
+            'jenis' => 'surat_keluar',
+            'file' => UploadedFile::fake()->create('surat-unit.pdf', 100),
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertEquals('001/UNIT/V/2026', $response->json('dokumen.nomor_surat'));
+        $this->assertDatabaseHas('surat_keluar', [
+            'instansi_id' => $instansi->id,
+            'nomor_surat' => '001/UNIT/V/2026',
+            'perihal' => 'Surat Unit ke Pusat',
+            'status' => 'Terkirim',
+        ]);
+        $this->assertSame(1, SuratKeluar::count());
     }
 }
