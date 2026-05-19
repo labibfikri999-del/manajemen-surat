@@ -79,6 +79,48 @@ class SuratModuleRegressionTest extends TestCase
             ->assertJsonPath('nomor_surat', '001/UMUM/V/2026');
     }
 
+    public function test_deleting_linked_surat_keluar_keeps_dokumen_file(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create([
+            'role' => 'staff',
+            'module_access' => ['surat'],
+        ]);
+
+        Storage::disk('public')->put('dokumen/UA/linked.pdf', 'file-content');
+
+        $dokumen = Dokumen::create([
+            'nomor_dokumen' => 'DOC/UA/202605/0901',
+            'judul' => 'Dokumen Terhubung',
+            'jenis_dokumen' => 'surat_keluar',
+            'file_path' => 'dokumen/UA/linked.pdf',
+            'file_name' => 'linked.pdf',
+            'file_type' => 'pdf',
+            'file_size' => 12,
+            'user_id' => $user->id,
+            'status' => 'selesai',
+        ]);
+
+        $surat = SuratKeluar::create([
+            'dokumen_id' => $dokumen->id,
+            'nomor_surat' => 'SK-LINKED',
+            'tanggal_keluar' => now()->toDateString(),
+            'tujuan' => 'Unit A',
+            'perihal' => 'Dokumen Terhubung',
+            'file' => 'dokumen/UA/linked.pdf',
+            'status' => 'Terkirim',
+        ]);
+
+        $this->actingAs($user)
+            ->deleteJson('/api/surat-keluar/' . $surat->id)
+            ->assertOk();
+
+        Storage::disk('public')->assertExists('dokumen/UA/linked.pdf');
+        $this->assertDatabaseHas('dokumens', ['id' => $dokumen->id]);
+        $this->assertDatabaseMissing('surat_keluar', ['id' => $surat->id]);
+    }
+
     public function test_instansi_cannot_read_surat_masuk_from_other_instansi(): void
     {
         [$instansiA, $instansiB] = $this->makeTwoInstansis();
@@ -289,7 +331,7 @@ class SuratModuleRegressionTest extends TestCase
             'instansi_id' => $instansiA->id,
             'status' => 'pending',
         ]);
-        Dokumen::create([
+        $staffDokumen = Dokumen::create([
             'nomor_dokumen' => 'DOC/UA/202605/0002',
             'nomor_surat' => 'SK-DUP',
             'judul' => 'Surat Pusat ke Unit',
@@ -310,6 +352,7 @@ class SuratModuleRegressionTest extends TestCase
             'status' => 'Belum Diproses',
         ]);
         SuratKeluar::create([
+            'dokumen_id' => $staffDokumen->id,
             'nomor_surat' => 'SK-DUP',
             'tanggal_keluar' => now()->toDateString(),
             'tujuan' => 'Unit A',
@@ -365,7 +408,7 @@ class SuratModuleRegressionTest extends TestCase
             'instansi_id' => $instansiA->id,
             'status' => 'selesai',
         ]);
-        Dokumen::create([
+        $unitDokumen = Dokumen::create([
             'nomor_dokumen' => 'DOC/UA/202605/0102',
             'judul' => 'Dari Unit ke Pusat',
             'jenis_dokumen' => 'surat_masuk',
@@ -386,6 +429,7 @@ class SuratModuleRegressionTest extends TestCase
             'status' => 'Belum Diproses',
         ]);
         SuratKeluar::create([
+            'dokumen_id' => $unitDokumen->id,
             'instansi_id' => $instansiA->id,
             'nomor_surat' => 'DOC/UA/202605/0102',
             'tanggal_keluar' => now()->toDateString(),
@@ -481,8 +525,8 @@ class SuratModuleRegressionTest extends TestCase
         ]);
 
         foreach ([
-            [$direktur, ['/dashboard', '/validasi-dokumen', '/data-master', '/arsip-dokumen', '/hasil-validasi', '/laporan']],
-            [$staff, ['/dashboard', '/upload-dokumen', '/proses-dokumen', '/buat-surat', '/data-master', '/arsip-dokumen', '/hasil-validasi', '/laporan']],
+            [$direktur, ['/dashboard', '/validasi-dokumen', '/data-master', '/arsip-dokumen', '/surat-masuk', '/surat-keluar', '/hasil-validasi', '/laporan']],
+            [$staff, ['/dashboard', '/upload-dokumen', '/proses-dokumen', '/buat-surat', '/data-master', '/arsip-dokumen', '/surat-masuk', '/surat-keluar', '/hasil-validasi', '/laporan']],
             [$unit, ['/dashboard', '/upload-dokumen', '/tracking-dokumen', '/surat-masuk', '/surat-keluar', '/hasil-validasi', '/laporan']],
         ] as [$user, $paths]) {
             foreach ($paths as $path) {

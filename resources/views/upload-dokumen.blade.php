@@ -96,15 +96,40 @@
                                         document.addEventListener('DOMContentLoaded', function() {
                                             const sendToAll = document.getElementById('sendToAll');
                                             const tujuanSelect = document.getElementById('tujuanInstansi');
-                                            
-                                            sendToAll.addEventListener('change', function() {
-                                                if(this.checked) {
+                                            const emailInput = document.getElementById('emailEksternal');
+                                            const kategoriSelect = document.getElementById('kategoriArsip');
+                                            const jenisSelect = document.getElementById('jenisDokumen');
+
+                                            function syncOutgoingFields() {
+                                                if(sendToAll.checked) {
                                                     tujuanSelect.value = "";
                                                     tujuanSelect.disabled = true;
                                                 } else {
                                                     tujuanSelect.disabled = false;
                                                 }
-                                            });
+
+                                                const isOutgoing = sendToAll.checked || tujuanSelect.value || (emailInput && emailInput.value.trim());
+                                                if(isOutgoing) {
+                                                    if(kategoriSelect) {
+                                                        kategoriSelect.value = "SURAT_KELUAR";
+                                                        kategoriSelect.classList.add('bg-emerald-50', 'border-emerald-300');
+                                                    }
+                                                    if(jenisSelect) {
+                                                        jenisSelect.value = "surat_keluar";
+                                                        jenisSelect.classList.add('bg-emerald-50', 'border-emerald-300');
+                                                    }
+                                                } else {
+                                                    if(kategoriSelect) kategoriSelect.classList.remove('bg-emerald-50', 'border-emerald-300');
+                                                    if(jenisSelect) jenisSelect.classList.remove('bg-emerald-50', 'border-emerald-300');
+                                                }
+                                            }
+
+                                            sendToAll.addEventListener('change', syncOutgoingFields);
+                                            tujuanSelect.addEventListener('change', syncOutgoingFields);
+                                            if(emailInput) emailInput.addEventListener('input', syncOutgoingFields);
+                                            if(kategoriSelect) kategoriSelect.addEventListener('change', syncOutgoingFields);
+                                            if(jenisSelect) jenisSelect.addEventListener('change', syncOutgoingFields);
+                                            syncOutgoingFields();
                                         });
                                     </script>
                                 </div>
@@ -112,7 +137,7 @@
                                 {{-- Kategori Arsip (Opsional - Auto Archive) --}}
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Simpan ke Arsip (Opsional)</label>
-                                    <select name="kategori_arsip" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <select name="kategori_arsip" id="kategoriArsip" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                                         <option value="">-- Tidak Diarsipkan (Proses Biasa) --</option>
                                         <option value="UMUM">Umum</option>
                                         <option value="SDM">SDM</option>
@@ -130,7 +155,7 @@
                             @if($user->isStaff())
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Kirim ke Email (Opsional)</label>
-                                    <input type="email" name="email_eksternal" 
+                                    <input type="email" name="email_eksternal" id="emailEksternal"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400"
                                         placeholder="Contoh: dinas.pendidikan@example.com">
                                     <p class="text-xs text-gray-500 mt-1">Isi jika ingin mengirim salinan dokumen ke email luar sistem.</p>
@@ -140,7 +165,7 @@
                             {{-- Jenis Dokumen --}}
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Dokumen <span class="text-red-500">*</span></label>
-                                <select name="jenis" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                <select name="jenis" id="jenisDokumen" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                                     <option value="">-- Pilih Jenis --</option>
                                     <option value="surat_masuk">Surat Masuk</option>
                                     <option value="surat_keluar">Surat Keluar</option>

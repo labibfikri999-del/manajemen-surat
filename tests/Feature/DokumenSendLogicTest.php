@@ -77,6 +77,7 @@ class DokumenSendLogicTest extends TestCase
         $response = $this->actingAs($staff)->postJson('/api/dokumen', [
             'judul' => 'Surat Pusat ke Unit',
             'jenis' => 'proposal',
+            'kategori_arsip' => 'UMUM',
             'file' => UploadedFile::fake()->create('surat.pdf', 100),
             'tujuan_instansi_id' => $instansi->id,
         ]);
@@ -85,6 +86,12 @@ class DokumenSendLogicTest extends TestCase
         $this->assertEquals('surat_keluar', $response->json('dokumen.jenis_dokumen'));
         $this->assertEquals('selesai', $response->json('dokumen.status'));
         $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+        $this->assertDatabaseHas('surat_keluar', [
+            'instansi_id' => null,
+            'perihal' => 'Surat Pusat ke Unit',
+            'tujuan' => 'Unit Tujuan',
+            'status' => 'Terkirim',
+        ]);
     }
 
     /** @test */
@@ -112,13 +119,28 @@ class DokumenSendLogicTest extends TestCase
         $response = $this->actingAs($staff)->postJson('/api/dokumen', [
             'judul' => 'Broadcast Pusat',
             'jenis' => 'laporan',
+            'kategori_arsip' => 'SDM',
             'file' => UploadedFile::fake()->create('broadcast.pdf', 100),
             'send_to_all' => '1',
         ]);
 
         $response->assertStatus(201);
         $this->assertEquals('surat_keluar', $response->json('dokumen.jenis_dokumen'));
+        $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+        $this->assertNotEmpty($response->json('dokumen.broadcast_group_id'));
         $this->assertDatabaseCount('dokumens', 2);
+        $this->assertSame(2, Dokumen::where('kategori_arsip', 'SURAT_KELUAR')->count());
+        $this->assertDatabaseCount('surat_keluar', 2);
+        $this->assertDatabaseHas('surat_keluar', [
+            'perihal' => 'Broadcast Pusat',
+            'tujuan' => 'Unit A',
+            'status' => 'Terkirim',
+        ]);
+        $this->assertDatabaseHas('surat_keluar', [
+            'perihal' => 'Broadcast Pusat',
+            'tujuan' => 'Unit B',
+            'status' => 'Terkirim',
+        ]);
         $this->assertDatabaseMissing('dokumens', [
             'judul' => 'Broadcast Pusat',
             'jenis_dokumen' => 'laporan',
@@ -159,6 +181,69 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
+    public function staff_can_delete_broadcast_document_from_all_units()
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'username' => 'deletebroadcaststaff' . uniqid(),
+            'module_access' => ['surat'],
+        ]);
+
+        Instansi::create([
+            'kode' => 'DA',
+            'nama' => 'Delete Unit A',
+            'email' => 'delete-a@example.test',
+            'is_active' => true,
+        ]);
+        Instansi::create([
+            'kode' => 'DB',
+            'nama' => 'Delete Unit B',
+            'email' => 'delete-b@example.test',
+            'is_active' => true,
+        ]);
+
+        $createResponse = $this->actingAs($staff)->postJson('/api/dokumen', [
+            'judul' => 'Broadcast Untuk Dihapus',
+            'jenis' => 'surat_keluar',
+            'file' => UploadedFile::fake()->create('hapus-broadcast.pdf', 100),
+            'send_to_all' => '1',
+        ]);
+
+        $createResponse->assertStatus(201);
+        $firstDokumenId = $createResponse->json('dokumen.id');
+        $broadcastGroupId = $createResponse->json('dokumen.broadcast_group_id');
+
+        $this->assertNotEmpty($broadcastGroupId);
+        $this->assertDatabaseCount('dokumens', 2);
+
+        $paths = Dokumen::where('broadcast_group_id', $broadcastGroupId)
+            ->pluck('file_path')
+            ->all();
+
+        foreach ($paths as $path) {
+            Storage::disk('public')->assertExists($path);
+        }
+
+        $deleteResponse = $this->actingAs($staff)
+            ->deleteJson('/api/dokumen/' . $firstDokumenId . '/broadcast');
+
+        $deleteResponse->assertOk()
+            ->assertJsonPath('deleted_count', 2)
+            ->assertJsonPath('message', 'Dokumen berhasil dihapus dari semua unit usaha.');
+
+        $this->assertDatabaseMissing('dokumens', [
+            'broadcast_group_id' => $broadcastGroupId,
+        ]);
+        $this->assertDatabaseMissing('surat_keluar', [
+            'broadcast_group_id' => $broadcastGroupId,
+        ]);
+
+        foreach ($paths as $path) {
+            Storage::disk('public')->assertMissing($path);
+        }
+    }
+
+    /** @test */
     public function staff_sending_to_email_marks_as_selesai()
     {
         $staff = User::where('role', 'staff')->first();
@@ -181,6 +266,12 @@ class DokumenSendLogicTest extends TestCase
         $response->assertStatus(201);
         $this->assertEquals('selesai', $response->json('dokumen.status'));
         $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+        $this->assertDatabaseHas('surat_keluar', [
+            'instansi_id' => null,
+            'perihal' => 'Test Dokumen Eksternal',
+            'tujuan' => 'external@example.com',
+            'status' => 'Terkirim',
+        ]);
     }
 
     /** @test */

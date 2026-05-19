@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DokumenController extends Controller
 {
@@ -145,6 +146,7 @@ class DokumenController extends Controller
         // Instansi Kode Logic
         $instansiKode = 'YAYASAN';
         $targetInstansiId = null;
+        $targetInstansi = null;
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName(); // Define fileName early
         $staffIsSendingOut = $user->isStaff() && (
@@ -167,9 +169,12 @@ class DokumenController extends Controller
             // 2. Simpan file master sementara (untuk dicopy nanti)
             // Gunakan folder temp khusus
             $masterPath = $file->store('dokumen/temp_broadcast', 'public');
+            $broadcastGroupId = (string) Str::uuid();
             $createdDocs = [];
 
             foreach ($allInstansis as $targetInstansi) {
+                $finalPath = null;
+
                 try {
                     // A. Prepare File Path & Instansi Data
                     $instansiKode = $targetInstansi->kode;
@@ -197,6 +202,7 @@ class DokumenController extends Controller
                         'file_name' => $fileName,
                         'file_type' => $extension,
                         'file_size' => $file->getSize(),
+                        'broadcast_group_id' => $broadcastGroupId,
                         'user_id' => $user->id,
                         'instansi_id' => $targetInstansi->id,
                         // Staff sending -> Auto Complete/Selesai/Surat Keluar
@@ -204,34 +210,45 @@ class DokumenController extends Controller
                         'is_archived' => true,
                         'tanggal_arsip' => now(),
                         'tanggal_selesai' => now(),
-                        'kategori_arsip' => 'SURAT_KELUAR', // Default categories if not specified? 
-                        // Note: If sending logic implies Surat Keluar functionality:
+                        'kategori_arsip' => 'SURAT_KELUAR',
                     ];
-                    
-                    // Optional: If user selected Kategori Arsip in form (though usually hidden if disabled?)
-                    if ($request->filled('kategori_arsip')) {
-                         $createData['kategori_arsip'] = $request->kategori_arsip;
-                    }
 
-                    // E. Create Dokumen
-                    $dokumen = Dokumen::create($createData);
+                    $targetUsers = User::where('instansi_id', $targetInstansi->id)->get();
+
+                    $dokumen = DB::transaction(function () use (
+                        $createData,
+                        $request,
+                        $nomorDokumen,
+                        $targetInstansi,
+                        $broadcastGroupId,
+                        $targetUsers
+                    ) {
+                        $dokumen = Dokumen::create($createData);
+
+                        $this->recordSuratKeluar(
+                            $dokumen,
+                            $request->filled('nomor_surat') ? $request->nomor_surat : $nomorDokumen,
+                            $targetInstansi->nama,
+                            null,
+                            $broadcastGroupId
+                        );
+
+                        foreach ($targetUsers as $targetUser) {
+                            DB::table('balasan_read_status')->insert([
+                                'dokumen_id' => $dokumen->id,
+                                'user_id' => $targetUser->id,
+                                'terbaca' => false,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+
+                        return $dokumen;
+                    });
+
                     $createdDocs[] = $dokumen;
 
-                    // F. Notifications & Relations
-                    
-                    // 1. Notif DB: Balasan Read Status (for receiver)
-                    $targetUsers = User::where('instansi_id', $targetInstansi->id)->get();
-                    foreach ($targetUsers as $targetUser) {
-                        DB::table('balasan_read_status')->insert([
-                            'dokumen_id' => $dokumen->id,
-                            'user_id' => $targetUser->id,
-                            'terbaca' => false,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-
-                    // 2. Email
+                    // F. Notifications
                     if ($targetInstansi->email) {
                         try {
                             Mail::to($targetInstansi->email)->send(new DokumenMasukMail($dokumen));
@@ -257,6 +274,9 @@ class DokumenController extends Controller
 
                 } catch (\Exception $e) {
                     Log::error('Error processing broadcast for ' . $targetInstansi->nama . ': ' . $e->getMessage());
+                    if ($finalPath && Storage::disk('public')->exists($finalPath)) {
+                        Storage::disk('public')->delete($finalPath);
+                    }
                     // Continue to next instansi even if one fails
                 }
             }
@@ -311,19 +331,18 @@ class DokumenController extends Controller
 
         // Jika Staff mengupload (bukan broadcast)
         if ($user->isStaff()) {
-            // Validasi tambahan untuk kategori arsip
-            if ($request->filled('kategori_arsip')) {
-                $createData['status'] = 'selesai';
-                $createData['is_archived'] = true;
-                $createData['tanggal_arsip'] = now();
-                $createData['tanggal_selesai'] = now(); // Mark as finished too
-                $createData['kategori_arsip'] = $request->kategori_arsip;
-            } elseif ($targetInstansiId || $request->filled('email_eksternal')) {
+            if ($staffIsSendingOut) {
                 $createData['status'] = 'selesai';
                 $createData['is_archived'] = true;
                 $createData['tanggal_arsip'] = now();
                 $createData['tanggal_selesai'] = now();
                 $createData['kategori_arsip'] = 'SURAT_KELUAR';
+            } elseif ($request->filled('kategori_arsip')) {
+                $createData['status'] = 'selesai';
+                $createData['is_archived'] = true;
+                $createData['tanggal_arsip'] = now();
+                $createData['tanggal_selesai'] = now(); // Mark as finished too
+                $createData['kategori_arsip'] = $request->kategori_arsip;
             } else {
                 $createData['status'] = 'disetujui';
             }
@@ -334,21 +353,69 @@ class DokumenController extends Controller
             }
         }
 
-        $dokumen = Dokumen::create($createData);
+        $targetUsers = ($user->isStaff() && $targetInstansiId)
+            ? User::where('instansi_id', $targetInstansiId)->get()
+            : collect();
+
+        try {
+            $dokumen = DB::transaction(function () use (
+                $createData,
+                $user,
+                $targetInstansiId,
+                $targetInstansi,
+                $request,
+                $nomorDokumen,
+                $targetUsers
+            ) {
+                $dokumen = Dokumen::create($createData);
+
+                if ($user->isStaff() && ($targetInstansiId || $request->filled('email_eksternal'))) {
+                    $tujuanSuratKeluar = $targetInstansiId
+                        ? ($targetInstansi->nama ?? 'Unit Usaha')
+                        : $request->email_eksternal;
+
+                    $this->recordSuratKeluar(
+                        $dokumen,
+                        $request->filled('nomor_surat') ? $request->nomor_surat : $nomorDokumen,
+                        $tujuanSuratKeluar,
+                        null
+                    );
+                }
+
+                foreach ($targetUsers as $targetUser) {
+                    DB::table('balasan_read_status')->insert([
+                        'dokumen_id' => $dokumen->id,
+                        'user_id' => $targetUser->id,
+                        'terbaca' => false,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+
+                if ($user->isInstansi()) {
+                    $this->recordSuratKeluar(
+                        $dokumen,
+                        $request->filled('nomor_surat') ? $request->nomor_surat : $nomorDokumen,
+                        'Direktur YARSI NTB',
+                        $user->instansi_id
+                    );
+                }
+
+                return $dokumen;
+            });
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan dokumen dan agenda surat: '.$e->getMessage());
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+
+            return response()->json([
+                'error' => 'Dokumen gagal disimpan. Silakan coba lagi.',
+            ], 500);
+        }
 
         // Jika Staff mengirim ke Instansi, buat notifikasi balasan
         if ($user->isStaff() && $targetInstansiId) {
-            $targetUsers = User::where('instansi_id', $targetInstansiId)->get();
-            foreach ($targetUsers as $targetUser) {
-                DB::table('balasan_read_status')->insert([
-                    'dokumen_id' => $dokumen->id,
-                    'user_id' => $targetUser->id,
-                    'terbaca' => false,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
             // KIRIM EMAIL KE INSTANSI
             if (isset($targetInstansi) && $targetInstansi->email) {
                 try {
@@ -366,19 +433,6 @@ class DokumenController extends Controller
             } catch (\Exception $e) {
                 Log::error('Gagal kirim email eksternal: '.$e->getMessage());
             }
-        }
-
-        // Auto-create Surat Keluar ONLY for instansi users
-        if ($user->isInstansi()) {
-            SuratKeluar::create([
-                'instansi_id' => $user->instansi_id,
-                'nomor_surat' => $request->filled('nomor_surat') ? $request->nomor_surat : $nomorDokumen,
-                'tanggal_keluar' => now(),
-                'tujuan' => 'Direktur YARSI NTB',
-                'perihal' => $request->judul,
-                'file' => $filePath,
-                'status' => 'Terkirim',
-            ]);
         }
 
         // === NOTIFIKASI TELEGRAM ===
@@ -482,17 +536,78 @@ class DokumenController extends Controller
             return response()->json(['error' => 'Dokumen sedang diproses (status: '.ucfirst($dokumen->status).') dan tidak dapat dihapus.'], 403);
         }
 
-        // Hapus file
-        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
-            Storage::disk('public')->delete($dokumen->file_path);
-        }
-        if ($dokumen->balasan_file && Storage::disk('public')->exists($dokumen->balasan_file)) {
-            Storage::disk('public')->delete($dokumen->balasan_file);
-        }
+        $this->deleteStoredFiles($dokumen);
 
         $dokumen->delete();
 
         return response()->json(['message' => 'Dokumen berhasil dihapus']);
+    }
+
+    public function destroyBroadcast(string $id)
+    {
+        $dokumen = $this->findAccessibleDokumen($id);
+        $user = Auth::user();
+
+        if (! $user->isStaff() && ! $user->isDirektur()) {
+            return response()->json(['error' => 'Hanya Staff atau Direktur yang dapat menghapus kiriman ke semua unit.'], 403);
+        }
+
+        if ($dokumen->user_id !== $user->id && ! $user->isDirektur()) {
+            return response()->json(['error' => 'Tidak dapat menghapus kiriman ini. Hanya pembuat atau Direktur yang diizinkan.'], 403);
+        }
+
+        if (! $dokumen->broadcast_group_id) {
+            return response()->json([
+                'error' => 'Dokumen ini bukan kiriman ke semua unit, sehingga tidak bisa dihapus massal.',
+            ], 400);
+        }
+
+        $dokumens = Dokumen::where('broadcast_group_id', $dokumen->broadcast_group_id)
+            ->where('user_id', $dokumen->user_id)
+            ->get();
+
+        if ($dokumens->isEmpty()) {
+            return response()->json(['error' => 'Data kiriman ke semua unit tidak ditemukan.'], 404);
+        }
+
+        foreach ($dokumens as $item) {
+            $this->deleteStoredFiles($item);
+            $item->delete();
+        }
+
+        return response()->json([
+            'message' => 'Dokumen berhasil dihapus dari semua unit usaha.',
+            'deleted_count' => $dokumens->count(),
+        ]);
+    }
+
+    private function deleteStoredFiles(Dokumen $dokumen): void
+    {
+        foreach (array_unique(array_filter([$dokumen->file_path, $dokumen->balasan_file])) as $path) {
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+    }
+
+    private function recordSuratKeluar(
+        Dokumen $dokumen,
+        string $nomorSurat,
+        string $tujuan,
+        ?int $instansiId,
+        ?string $broadcastGroupId = null
+    ): void {
+        SuratKeluar::create([
+            'dokumen_id' => $dokumen->id,
+            'broadcast_group_id' => $broadcastGroupId,
+            'instansi_id' => $instansiId,
+            'nomor_surat' => $nomorSurat,
+            'tanggal_keluar' => now(),
+            'tujuan' => $tujuan,
+            'perihal' => $dokumen->judul,
+            'file' => $dokumen->file_path,
+            'status' => 'Terkirim',
+        ]);
     }
 
     /**

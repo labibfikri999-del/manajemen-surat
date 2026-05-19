@@ -83,6 +83,7 @@ Route::middleware(['web', 'auth', 'module.access:surat'])->group(function () {
         Route::get('dokumen/{id}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
         Route::get('dokumen/{id}/audits', [DokumenController::class, 'audits'])->name('dokumen.audits');
         Route::get('/dokumen/{id}/download-balasan', [DokumenController::class, 'downloadBalasan']);
+        Route::delete('dokumen/{id}/broadcast', [DokumenController::class, 'destroyBroadcast']);
         Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
         Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
         Route::post('dokumen/{id}/revisi', [DokumenController::class, 'revisi']);
@@ -110,43 +111,7 @@ Route::middleware(['web', 'auth', 'module.access:surat'])->group(function () {
         Route::match(['put', 'patch'], 'arsip-digital/{id}', [ArsipDigitalController::class, 'update']);
         Route::delete('arsip-digital/{id}', [ArsipDigitalController::class, 'destroy']);
 
-        Route::post('/arsip-upload', function (Request $request) {
-            $user = auth()->user();
-
-            $request->validate([
-                'judul' => 'required|string|max:255',
-                'kategori_arsip' => 'required|in:UMUM,SDM,ASSET,HUKUM,KEUANGAN,SURAT_KELUAR,SK',
-                'deskripsi' => 'nullable|string',
-                'file' => 'required|file|max:10240',
-            ]);
-
-            $file = $request->file('file');
-            $instansiKode = $user->instansi?->kode ?? 'ARSIP';
-            $filePath = $file->store('dokumen/'.$instansiKode.'/arsip', 'public');
-
-            $dokumen = Dokumen::create([
-                'nomor_dokumen' => Dokumen::generateNomorDokumen($instansiKode),
-                'judul' => $request->judul,
-                'deskripsi' => $request->deskripsi,
-                'file_path' => $filePath,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => $file->getClientOriginalExtension(),
-                'file_size' => $file->getSize(),
-                'user_id' => $user->id,
-                'instansi_id' => $user->instansi_id,
-                'status' => 'selesai',
-                'kategori_arsip' => $request->kategori_arsip,
-                'is_archived' => true,
-                'tanggal_arsip' => now(),
-                'processed_by' => $user->id,
-                'tanggal_selesai' => now(),
-            ]);
-
-            return response()->json([
-                'message' => 'File berhasil diupload ke arsip',
-                'dokumen' => $dokumen,
-            ], 201);
-        });
+        Route::post('/arsip-upload', [ArsipDigitalController::class, 'store']);
 
         Route::get('/klasifikasi-list', [DataMasterController::class, 'indexKlasifikasi']);
         Route::post('/klasifikasi-store', [DataMasterController::class, 'storeKlasifikasi']);

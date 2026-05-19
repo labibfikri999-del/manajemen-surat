@@ -601,6 +601,15 @@
         const instansiNama = dok.instansi ? dok.instansi.nama : (dok.instansi_id ? 'Unit Usaha #' + dok.instansi_id : 'N/A');
         const processorNama = dok.processor ? dok.processor.name : '-';
         const judulEscaped = namaDoc.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const broadcastGroupId = dok.broadcast_group_id || '';
+        const broadcastButton = broadcastGroupId ? `
+              <button onclick="deleteBroadcastDocuments(${dok.id}, '${judulEscaped}', '${broadcastGroupId}')"
+                      class="p-1.5 bg-rose-50 text-rose-700 rounded-lg hover:bg-rose-100 transition border border-rose-200"
+                      title="Hapus dokumen ini dari semua unit usaha">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6v-6m4 10H7a2 2 0 01-2-2V7h14v12a2 2 0 01-2 2zM8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M4 7h16"/>
+                </svg>
+              </button>` : '';
         
         const filePath = dok.file_path || '';
         const fileExt = filePath.split('.').pop();
@@ -650,9 +659,10 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
               </a>
+              ${broadcastButton}
               <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" 
                       class="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition border border-red-200" 
-                      title="Hapus Dokumen">
+                      title="Keluarkan dari arsip unit ini">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
@@ -692,9 +702,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                   </svg>
                 </a>
+                ${broadcastButton}
                 <button onclick="deleteArsipDocument(${dok.id}, '${judulEscaped}')" 
                         class="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition border border-red-200" 
-                        title="Hapus">
+                        title="Keluarkan dari arsip unit ini">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
@@ -791,6 +802,55 @@
       } catch (error) {
         console.error('Error deleting arsip document:', error);
         showToast('❌ Error', 'Terjadi kesalahan saat menghapus dokumen', 'error');
+      }
+    }
+
+    // Delete every document created by one "Kirim ke Semua Unit Usaha" action.
+    async function deleteBroadcastDocuments(id, namaDoc, broadcastGroupId) {
+      const confirmed = await showConfirm(
+        'Hapus dari Semua Unit Usaha?',
+        'Dokumen "' + namaDoc + '" adalah hasil kirim serentak. Jika dilanjutkan, sistem akan menghapus dokumen ini dari SEMUA Unit Usaha penerima, menghapus file fisiknya dari penyimpanan, dan menghapus notifikasi baca yang terkait. Aksi ini tidak bisa dibatalkan.'
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch('/api/dokumen/' + id + '/broadcast', {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showToast('âœ“ Berhasil', data.message || 'Dokumen berhasil dihapus dari semua unit usaha', 'success');
+
+          if (typeof currentFolderDocuments !== 'undefined') {
+            currentFolderDocuments
+              .filter(d => d.broadcast_group_id === broadcastGroupId)
+              .forEach(d => {
+                const row = document.getElementById('row-' + d.id);
+                const card = document.getElementById('card-' + d.id);
+                if (row) row.remove();
+                if (card) card.remove();
+              });
+            currentFolderDocuments = currentFolderDocuments.filter(d => d.broadcast_group_id !== broadcastGroupId);
+          }
+
+          if (typeof currentFolder !== 'undefined' && currentFolder) {
+            if (typeof openFolder === 'function') openFolder(currentFolder);
+          }
+          loadFolderCounts();
+          loadArsipStats();
+        } else {
+          showToast('âŒ Gagal', data.message || data.error || 'Gagal menghapus dokumen dari semua unit', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting broadcast documents:', error);
+        showToast('âŒ Error', 'Terjadi kesalahan saat menghapus dokumen dari semua unit', 'error');
       }
     }
 

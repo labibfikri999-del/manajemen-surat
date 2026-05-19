@@ -113,15 +113,7 @@ class SuratStatsService
 
     private function manualSuratKeluarQuery(User $user)
     {
-        $query = SuratKeluar::query()
-            ->whereNotExists(function ($subQuery) {
-                $subQuery->selectRaw('1')
-                    ->from('dokumens')
-                    ->where(function ($q) {
-                        $q->whereColumn('dokumens.nomor_dokumen', 'surat_keluar.nomor_surat')
-                            ->orWhereColumn('dokumens.nomor_surat', 'surat_keluar.nomor_surat');
-                    });
-            });
+        $query = SuratKeluar::query()->whereNull('dokumen_id');
 
         if ($user->isInstansi()) {
             $query->where('instansi_id', $user->instansi_id);

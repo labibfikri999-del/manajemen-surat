@@ -206,6 +206,12 @@ class SuratKeluarController extends Controller
 
         // Handle file upload
         if ($request->hasFile('file')) {
+            if ($surat->dokumen_id) {
+                return response()->json([
+                    'message' => 'File surat keluar ini terhubung dengan Arsip Digital. Ubah file melalui dokumen arsip agar data tetap konsisten.',
+                ], 422);
+            }
+
             // Delete old file if exists
             if ($surat->file && Storage::disk('public')->exists($surat->file)) {
                 Storage::disk('public')->delete($surat->file);
@@ -249,8 +255,9 @@ class SuratKeluarController extends Controller
     {
         $surat = $this->findAccessible($id);
 
-        // Delete file if exists
-        if ($surat->file && Storage::disk('public')->exists($surat->file)) {
+        // Hanya hapus file fisik untuk agenda manual. Agenda yang terhubung
+        // ke dokumen arsip memakai file yang sama dengan dokumen utama.
+        if (! $surat->dokumen_id && $surat->file && Storage::disk('public')->exists($surat->file)) {
             Storage::disk('public')->delete($surat->file);
         }
 

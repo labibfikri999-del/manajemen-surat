@@ -269,7 +269,7 @@ Route::middleware('auth')->group(function () {
 
 
     // Legacy routes (Sistem Surat) - Apply Access Control
-    Route::middleware(['module.access:surat', 'role:instansi'])->group(function () {
+    Route::middleware(['module.access:surat', 'role:direktur,staff,instansi'])->group(function () {
         Route::get('/surat-masuk', [PageController::class, 'suratMasuk'])->name('surat-masuk');
         Route::get('/surat-keluar', [PageController::class, 'suratKeluar'])->name('surat-keluar');
     });

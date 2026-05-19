@@ -13,6 +13,8 @@ class SuratKeluar extends Model
     protected $table = 'surat_keluar';
 
     protected $fillable = [
+        'dokumen_id',
+        'broadcast_group_id',
         'instansi_id',
         'nomor_surat',
         'tanggal_keluar',
@@ -36,6 +38,11 @@ class SuratKeluar extends Model
     public function instansi()
     {
         return $this->belongsTo(Instansi::class);
+    }
+
+    public function dokumen()
+    {
+        return $this->belongsTo(Dokumen::class);
     }
 
     public function lampirans()

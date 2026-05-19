@@ -26,6 +26,7 @@ class Dokumen extends Model
         'file_pengganti_type',
         'file_pengganti_size',
         'balasan_file',
+        'broadcast_group_id',
         'instansi_id',
         'user_id',
         'validated_by',
