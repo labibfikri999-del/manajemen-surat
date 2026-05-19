@@ -22,15 +22,11 @@ class CheckModuleAccess
 
         $user = Auth::user();
 
-        // Check if module_access is null (backward compatibility) or contains the required module
-        // We assume flexible access: if 'module_access' is null, they might have access to 'surat' by default
-        // But for strict security, we should check explicitly.
-        
-        $access = $user->module_access ?? ['surat']; // Default to surat if null
-
         if (empty($modules)) {
             $modules = ['surat'];
         }
+
+        $access = $this->resolveModuleAccess($user->module_access);
 
         if (empty(array_intersect($modules, $access))) {
             // Log them out if they are logged in but shouldn't be here? 
@@ -41,5 +37,21 @@ class CheckModuleAccess
         }
 
         return $next($request);
+    }
+
+    private function resolveModuleAccess(mixed $moduleAccess): array
+    {
+        if (is_string($moduleAccess)) {
+            $decoded = json_decode($moduleAccess, true);
+            $moduleAccess = is_array($decoded)
+                ? $decoded
+                : array_filter(array_map('trim', explode(',', $moduleAccess)));
+        }
+
+        if (! is_array($moduleAccess) || empty($moduleAccess)) {
+            return ['surat'];
+        }
+
+        return $moduleAccess;
     }
 }

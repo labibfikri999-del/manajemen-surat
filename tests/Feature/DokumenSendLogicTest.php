@@ -126,6 +126,39 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
+    public function staff_with_empty_legacy_module_access_can_broadcast_to_all_units()
+    {
+        $staff = User::factory()->create([
+            'role' => 'staff',
+            'username' => 'legacybroadcaststaff' . uniqid(),
+            'module_access' => [],
+        ]);
+
+        Instansi::create([
+            'kode' => 'LA',
+            'nama' => 'Legacy Unit A',
+            'email' => 'legacy-a@example.test',
+            'is_active' => true,
+        ]);
+        Instansi::create([
+            'kode' => 'LB',
+            'nama' => 'Legacy Unit B',
+            'email' => 'legacy-b@example.test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($staff)->postJson('/api/dokumen', [
+            'judul' => 'Broadcast Data Lama',
+            'jenis' => 'surat_keluar',
+            'file' => UploadedFile::fake()->create('broadcast-legacy.pdf', 100),
+            'send_to_all' => '1',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseCount('dokumens', 2);
+    }
+
+    /** @test */
     public function staff_sending_to_email_marks_as_selesai()
     {
         $staff = User::where('role', 'staff')->first();
