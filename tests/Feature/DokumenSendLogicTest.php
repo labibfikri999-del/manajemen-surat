@@ -128,6 +128,40 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
+    public function authenticated_user_can_upload_through_web_route_without_role_gate()
+    {
+        $user = User::factory()->create([
+            'role' => 'sekjen',
+            'username' => 'emergencyupload' . uniqid(),
+            'module_access' => [],
+        ]);
+
+        $instansi = Instansi::create([
+            'kode' => 'WEB',
+            'nama' => 'Unit Web',
+            'email' => 'web@example.test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->post('/upload-dokumen', [
+            'judul' => 'Upload Darurat Tanpa Gate Role',
+            'jenis' => 'surat_keluar',
+            'kategori_arsip' => 'SURAT_KELUAR',
+            'file' => UploadedFile::fake()->create('web-upload.pdf', 100),
+            'tujuan_instansi_id' => $instansi->id,
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('dokumens', [
+            'judul' => 'Upload Darurat Tanpa Gate Role',
+            'status' => 'selesai',
+            'kategori_arsip' => 'SURAT_KELUAR',
+        ]);
+    }
+
+    /** @test */
     public function staff_broadcast_is_recorded_as_surat_keluar_even_if_form_jenis_differs()
     {
         $staff = User::factory()->create([

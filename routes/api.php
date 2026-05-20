@@ -25,6 +25,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['web', 'auth'])->group(function () {
+    Route::post('dokumen', [DokumenController::class, 'store'])->name('dokumen.store');
+
     Route::get('/surat-masuk/count', function () {
         return response()->json([
             'count' => app(SuratStatsService::class)->suratMasukCount(auth()->user()),
@@ -87,7 +89,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('dokumen/{id}/validasi', [DokumenController::class, 'validasi']);
         Route::post('dokumen/{id}/proses', [DokumenController::class, 'proses']);
         Route::post('dokumen/{id}/revisi', [DokumenController::class, 'revisi']);
-        Route::apiResource('dokumen', DokumenController::class);
+        Route::apiResource('dokumen', DokumenController::class)->except(['store']);
 
         Route::get('/laporan/stats', [DataMasterController::class, 'getLaporanStats']);
 

@@ -125,11 +125,8 @@ class DokumenController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-
-        // Hanya user instansi dan staff yang bisa upload (Direktur tidak boleh)
-        if (! $user->isInstansi() && ! $user->isStaff()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        $userIsInstansi = $user->isInstansi();
+        $userIsStaff = $user->isStaff() || ! $userIsInstansi;
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -149,7 +146,7 @@ class DokumenController extends Controller
         $targetInstansi = null;
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName(); // Define fileName early
-        $staffIsSendingOut = $user->isStaff() && (
+        $staffIsSendingOut = $userIsStaff && (
             $request->boolean('send_to_all')
             || $request->filled('tujuan_instansi_id')
             || $request->filled('email_eksternal')
@@ -157,7 +154,7 @@ class DokumenController extends Controller
         $jenisDokumen = $request->jenis;
 
         // === LOGIC BARU: KIRIM KE SEMUA UNIT USAHA ===
-        if ($user->isStaff() && $request->boolean('send_to_all')) {
+        if ($userIsStaff && $request->boolean('send_to_all')) {
             
             // 1. Ambil semua unit usaha aktif
             $allInstansis = Instansi::where('is_active', true)->get();
@@ -293,7 +290,7 @@ class DokumenController extends Controller
         // === END LOGIC BARU ===
 
         // Jika user adalah instansi, gunakan kodenya
-        if ($user->isInstansi()) {
+        if ($userIsInstansi) {
             if (! $user->instansi) {
                 return response()->json(['error' => 'User Instansi tidak memiliki data instansi yang valid.'], 400);
             }
@@ -301,7 +298,7 @@ class DokumenController extends Controller
             $targetInstansiId = $user->instansi_id;
         }
         // Jika Staff memilih tujuan instansi
-        elseif ($request->filled('tujuan_instansi_id') && $user->isStaff()) {
+        elseif ($request->filled('tujuan_instansi_id') && $userIsStaff) {
             $targetInstansi = Instansi::find($request->tujuan_instansi_id);
             if ($targetInstansi) {
                 $instansiKode = $targetInstansi->kode;
@@ -330,7 +327,7 @@ class DokumenController extends Controller
         ];
 
         // Jika Staff mengupload (bukan broadcast)
-        if ($user->isStaff()) {
+        if ($userIsStaff) {
             if ($staffIsSendingOut) {
                 $createData['status'] = 'selesai';
                 $createData['is_archived'] = true;
@@ -353,7 +350,7 @@ class DokumenController extends Controller
             }
         }
 
-        $targetUsers = ($user->isStaff() && $targetInstansiId)
+        $targetUsers = ($userIsStaff && $targetInstansiId)
             ? User::where('instansi_id', $targetInstansiId)->get()
             : collect();
 
@@ -365,11 +362,13 @@ class DokumenController extends Controller
                 $targetInstansi,
                 $request,
                 $nomorDokumen,
-                $targetUsers
+                $targetUsers,
+                $userIsStaff,
+                $userIsInstansi
             ) {
                 $dokumen = Dokumen::create($createData);
 
-                if ($user->isStaff() && ($targetInstansiId || $request->filled('email_eksternal'))) {
+                if ($userIsStaff && ($targetInstansiId || $request->filled('email_eksternal'))) {
                     $tujuanSuratKeluar = $targetInstansiId
                         ? ($targetInstansi->nama ?? 'Unit Usaha')
                         : $request->email_eksternal;
@@ -392,7 +391,7 @@ class DokumenController extends Controller
                     ]);
                 }
 
-                if ($user->isInstansi()) {
+                if ($userIsInstansi) {
                     $this->recordSuratKeluar(
                         $dokumen,
                         $request->filled('nomor_surat') ? $request->nomor_surat : $nomorDokumen,
@@ -415,7 +414,7 @@ class DokumenController extends Controller
         }
 
         // Jika Staff mengirim ke Instansi, buat notifikasi balasan
-        if ($user->isStaff() && $targetInstansiId) {
+        if ($userIsStaff && $targetInstansiId) {
             // KIRIM EMAIL KE INSTANSI
             if (isset($targetInstansi) && $targetInstansi->email) {
                 try {
@@ -427,7 +426,7 @@ class DokumenController extends Controller
         }
 
         // KIRIM EMAIL EKSTERNAL (Jika Staff input email manual)
-        if ($user->isStaff() && $request->filled('email_eksternal')) {
+        if ($userIsStaff && $request->filled('email_eksternal')) {
             try {
                 Mail::to($request->email_eksternal)->send(new DokumenMasukMail($dokumen));
             } catch (\Exception $e) {
@@ -438,7 +437,7 @@ class DokumenController extends Controller
         // === NOTIFIKASI TELEGRAM ===
 
         // Skenario 1: STAFF Mengirim Dokumen ke Unit Usaha (Status: Disetujui/Selesai) -> Notif ke UNIT USAHA
-        if (($createData['status'] === 'disetujui' || $createData['status'] === 'selesai') && $targetInstansiId && $user->isStaff()) {
+        if (($createData['status'] === 'disetujui' || $createData['status'] === 'selesai') && $targetInstansiId && $userIsStaff) {
             $targetUsers = User::where('instansi_id', $targetInstansiId)->whereNotNull('telegram_chat_id')->get();
             foreach ($targetUsers as $tUser) {
                 $msg = "*SURAT MASUK DARI PUSAT* 📩\n".

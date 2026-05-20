@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard - semua role bisa akses
     Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
+    Route::post('/upload-dokumen', [DokumenController::class, 'store'])->name('upload-dokumen.store');
 
     // ===== DIREKTUR ONLY =====
     Route::middleware('role:direktur')->group(function () {
