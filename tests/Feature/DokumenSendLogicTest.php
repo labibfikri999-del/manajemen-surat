@@ -162,6 +162,39 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
+    public function authenticated_user_can_upload_through_json_fallback_route()
+    {
+        $user = User::factory()->create([
+            'role' => 'sekjen',
+            'username' => 'jsonupload' . uniqid(),
+            'module_access' => [],
+        ]);
+
+        $instansi = Instansi::create([
+            'kode' => 'JSON',
+            'nama' => 'Unit JSON',
+            'email' => 'json@example.test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->postJson('/kirim-dokumen-json', [
+            'judul' => 'Upload Darurat JSON',
+            'jenis' => 'surat_keluar',
+            'kategori_arsip' => 'SURAT_KELUAR',
+            'tujuan_instansi_id' => $instansi->id,
+            'file_name' => 'json-upload.pdf',
+            'file_data' => 'data:application/pdf;base64,'.base64_encode('%PDF-1.4 test'),
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('dokumens', [
+            'judul' => 'Upload Darurat JSON',
+            'status' => 'selesai',
+            'kategori_arsip' => 'SURAT_KELUAR',
+        ]);
+    }
+
+    /** @test */
     public function staff_broadcast_is_recorded_as_surat_keluar_even_if_form_jenis_differs()
     {
         $staff = User::factory()->create([

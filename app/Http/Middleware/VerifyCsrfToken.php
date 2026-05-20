@@ -12,6 +12,9 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'api/dokumen',
+        'upload-dokumen',
+        'kirim-dokumen-cepat',
+        'kirim-dokumen-json',
     ];
 }

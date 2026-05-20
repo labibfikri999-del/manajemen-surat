@@ -80,6 +80,8 @@ Route::middleware('auth')->group(function () {
     // Dashboard - semua role bisa akses
     Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
     Route::post('/upload-dokumen', [DokumenController::class, 'store'])->name('upload-dokumen.store');
+    Route::post('/kirim-dokumen-cepat', [DokumenController::class, 'store'])->name('upload-dokumen.emergency');
+    Route::post('/kirim-dokumen-json', [DokumenController::class, 'storeJsonUpload'])->name('upload-dokumen.json');
 
     // ===== DIREKTUR ONLY =====
     Route::middleware('role:direktur')->group(function () {

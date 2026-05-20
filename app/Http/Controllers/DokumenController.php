@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
 
 class DokumenController extends Controller
 {
@@ -122,6 +123,79 @@ class DokumenController extends Controller
     /**
      * Store a newly created dokumen.
      */
+    public function storeJsonUpload(Request $request)
+    {
+        $request->validate([
+            'file_data' => 'required|string',
+            'file_name' => 'required|string|max:255',
+        ]);
+
+        $fileData = $request->input('file_data');
+        $fileName = basename($request->input('file_name'));
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $allowedExtensions = explode(',', self::ALLOWED_FILE_MIMES);
+
+        if (! in_array($extension, $allowedExtensions, true)) {
+            return response()->json(['error' => 'Format file tidak didukung.'], 422);
+        }
+
+        if (str_contains($fileData, ',')) {
+            [, $fileData] = explode(',', $fileData, 2);
+        }
+
+        $decodedFile = base64_decode($fileData, true);
+
+        if ($decodedFile === false) {
+            return response()->json(['error' => 'File upload tidak valid.'], 422);
+        }
+
+        if (strlen($decodedFile) > 10 * 1024 * 1024) {
+            return response()->json(['error' => 'Ukuran file maksimal 10MB.'], 422);
+        }
+
+        $tempDir = storage_path('app/temp_uploads');
+        if (! is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $tempPath = $tempDir.'/'.Str::uuid().'.'.$extension;
+        file_put_contents($tempPath, $decodedFile);
+
+        $uploadedFile = new UploadedFile(
+            $tempPath,
+            $fileName,
+            mime_content_type($tempPath) ?: null,
+            null,
+            true
+        );
+
+        $payload = $request->except(['file_data', 'file_name']);
+        $server = $request->server->all();
+        unset($server['CONTENT_TYPE'], $server['HTTP_CONTENT_TYPE']);
+
+        $uploadRequest = Request::create(
+            $request->getRequestUri(),
+            'POST',
+            $payload,
+            $request->cookies->all(),
+            ['file' => $uploadedFile],
+            $server
+        );
+        $uploadRequest->setUserResolver($request->getUserResolver());
+        $uploadRequest->setRouteResolver($request->getRouteResolver());
+        if ($request->hasSession()) {
+            $uploadRequest->setLaravelSession($request->session());
+        }
+
+        try {
+            return $this->store($uploadRequest);
+        } finally {
+            if (is_file($tempPath)) {
+                @unlink($tempPath);
+            }
+        }
+    }
+
     public function store(Request $request)
     {
         $user = Auth::user();

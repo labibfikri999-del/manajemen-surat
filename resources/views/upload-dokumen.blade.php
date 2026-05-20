@@ -196,7 +196,33 @@
         const jenisSelect = document.getElementById('jenisDokumen');
         const kategoriAutoHint = document.getElementById('kategoriAutoHint');
         const jenisAutoHint = document.getElementById('jenisAutoHint');
-        const uploadEndpoint = @json(route('upload-dokumen.store'));
+        const uploadEndpoint = @json(route('upload-dokumen.emergency'));
+        const uploadJsonEndpoint = @json(route('upload-dokumen.json'));
+
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function buildJsonUploadPayload(formData) {
+            const payload = {};
+            const file = fileInput.files[0];
+
+            for (const [key, value] of formData.entries()) {
+                if (key !== 'file' && !(value instanceof File)) {
+                    payload[key] = value;
+                }
+            }
+
+            payload.file_name = file.name;
+            payload.file_data = await readFileAsDataUrl(file);
+
+            return payload;
+        }
 
         function hasOutgoingDestination() {
             return Boolean(
@@ -303,14 +329,26 @@
             submitBtn.innerHTML = '<svg class="animate-spin w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Uploading...';
 
             try {
-                const response = await fetch(uploadEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json',
-                    },
-                    body: formData
-                });
+                let response;
+
+                try {
+                    response = await fetch(uploadJsonEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(await buildJsonUploadPayload(formData))
+                    });
+                } catch (jsonUploadError) {
+                    response = await fetch(uploadEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    });
+                }
 
                 const responseText = await response.text();
                 let data = {};
