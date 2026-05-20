@@ -319,7 +319,7 @@
                 } catch (parseError) {
                     data = {
                         message: response.status === 403
-                            ? 'Akses ditolak. Pastikan akun Staff memiliki akses modul Surat.'
+                            ? 'Akses ditolak oleh server. Pastikan akun login memiliki role Staff/Unit Usaha dan cache hosting sudah dibersihkan.'
                             : 'Server mengembalikan respons yang tidak valid. Silakan coba lagi atau hubungi admin.'
                     };
                 }

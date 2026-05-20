@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
@@ -21,7 +22,22 @@ class CheckRole
 
         $user = auth()->user();
 
-        if (! in_array($user->role, $roles)) {
+        $hasAllowedRole = collect($roles)->contains(function (string $role) use ($user) {
+            if (method_exists($user, 'hasRole')) {
+                return $user->hasRole($role);
+            }
+
+            return strtolower(trim((string) $user->role)) === strtolower(trim($role));
+        });
+
+        if (! $hasAllowedRole) {
+            Log::warning('Role middleware denied request.', [
+                'user_id' => $user->id,
+                'role' => $user->role,
+                'allowed_roles' => $roles,
+                'path' => $request->path(),
+            ]);
+
             if ($request->expectsJson() || $request->is('api/*')) {
                 abort(403, 'Anda tidak memiliki akses ke endpoint ini.');
             }

@@ -95,6 +95,39 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
+    public function staff_role_alias_can_upload_without_module_gate()
+    {
+        $staff = User::factory()->create([
+            'role' => 'Staff Sekretaris ',
+            'username' => 'staffsekretaris' . uniqid(),
+            'module_access' => [],
+        ]);
+
+        $instansi = Instansi::create([
+            'kode' => 'ALIA',
+            'nama' => 'Unit Alias',
+            'email' => 'alias@example.test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($staff)->postJson('/api/dokumen', [
+            'judul' => 'Upload Dari Staff Alias',
+            'jenis' => 'surat_keluar',
+            'kategori_arsip' => 'SURAT_KELUAR',
+            'file' => UploadedFile::fake()->create('alias.pdf', 100),
+            'tujuan_instansi_id' => $instansi->id,
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertEquals('selesai', $response->json('dokumen.status'));
+        $this->assertDatabaseHas('surat_keluar', [
+            'perihal' => 'Upload Dari Staff Alias',
+            'tujuan' => 'Unit Alias',
+            'status' => 'Terkirim',
+        ]);
+    }
+
+    /** @test */
     public function staff_broadcast_is_recorded_as_surat_keluar_even_if_form_jenis_differs()
     {
         $staff = User::factory()->create([

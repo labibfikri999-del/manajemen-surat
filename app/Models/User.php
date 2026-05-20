@@ -74,6 +74,26 @@ class User extends Authenticatable
         return $this->belongsTo(Instansi::class);
     }
 
+    public static function normalizeRoleValue(?string $role): string
+    {
+        return str_replace([' ', '-'], '_', strtolower(trim((string) $role)));
+    }
+
+    public function normalizedRole(): string
+    {
+        return self::normalizeRoleValue($this->role);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return match (self::normalizeRoleValue($role)) {
+            self::ROLE_DIREKTUR => $this->isDirektur(),
+            self::ROLE_STAFF => $this->isStaff(),
+            self::ROLE_INSTANSI => $this->isInstansi(),
+            default => $this->normalizedRole() === self::normalizeRoleValue($role),
+        };
+    }
+
     // Dokumen yang diupload user
     public function dokumens()
     {
@@ -106,26 +126,40 @@ class User extends Authenticatable
 
     public function isDirektur()
     {
-        return $this->role === self::ROLE_DIREKTUR;
+        return $this->normalizedRole() === self::ROLE_DIREKTUR;
     }
 
     public function isStaff()
     {
-        return $this->role === self::ROLE_STAFF;
+        return in_array($this->normalizedRole(), [
+            self::ROLE_STAFF,
+            'staff_sekjen',
+            'staff_sekretaris',
+            'staff_direktur',
+            'sekretaris',
+        ], true);
     }
 
     public function isInstansi()
     {
-        return $this->role === self::ROLE_INSTANSI;
+        return in_array($this->normalizedRole(), [
+            self::ROLE_INSTANSI,
+            'unit_usaha',
+        ], true);
     }
 
     // Get role label
     public function getRoleLabelAttribute()
     {
-        return match ($this->role) {
+        return match ($this->normalizedRole()) {
             'direktur' => 'Sekjen Yayasan',
             'staff' => 'Staff Sekjen',
+            'staff_sekjen' => 'Staff Sekjen',
+            'staff_sekretaris' => 'Staff Sekretaris',
+            'staff_direktur' => 'Staff Direktur',
+            'sekretaris' => 'Staff Sekretaris',
             'instansi' => 'Unit Usaha',
+            'unit_usaha' => 'Unit Usaha',
             'pegawai' => 'Pegawai',
             'staff_kepegawaian' => 'Staff Kepegawaian',
             'sekjen' => 'Sekjen',
