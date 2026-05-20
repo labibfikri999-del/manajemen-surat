@@ -154,7 +154,7 @@ class DokumenController extends Controller
             || $request->filled('tujuan_instansi_id')
             || $request->filled('email_eksternal')
         );
-        $jenisDokumen = $staffIsSendingOut ? 'surat_keluar' : $request->jenis;
+        $jenisDokumen = $request->jenis;
 
         // === LOGIC BARU: KIRIM KE SEMUA UNIT USAHA ===
         if ($user->isStaff() && $request->boolean('send_to_all')) {
@@ -210,7 +210,7 @@ class DokumenController extends Controller
                         'is_archived' => true,
                         'tanggal_arsip' => now(),
                         'tanggal_selesai' => now(),
-                        'kategori_arsip' => 'SURAT_KELUAR',
+                        'kategori_arsip' => $request->filled('kategori_arsip') ? $request->kategori_arsip : 'SURAT_KELUAR',
                     ];
 
                     $targetUsers = User::where('instansi_id', $targetInstansi->id)->get();
@@ -336,7 +336,7 @@ class DokumenController extends Controller
                 $createData['is_archived'] = true;
                 $createData['tanggal_arsip'] = now();
                 $createData['tanggal_selesai'] = now();
-                $createData['kategori_arsip'] = 'SURAT_KELUAR';
+                $createData['kategori_arsip'] = $request->filled('kategori_arsip') ? $request->kategori_arsip : 'SURAT_KELUAR';
             } elseif ($request->filled('kategori_arsip')) {
                 $createData['status'] = 'selesai';
                 $createData['is_archived'] = true;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
+use App\Models\SuratKeluar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -48,6 +49,20 @@ class ArsipDigitalController extends Controller
         $item->tipe = $item->file_type;
 
         return $item;
+    }
+
+    private function applyCategoryFilter($query, string $kategori)
+    {
+        $kategori = strtoupper($kategori);
+
+        if ($kategori === 'SURAT_KELUAR') {
+            return $query->where(function ($q) {
+                $q->where('kategori_arsip', 'SURAT_KELUAR')
+                    ->orWhereIn('id', SuratKeluar::whereNotNull('dokumen_id')->select('dokumen_id'));
+            });
+        }
+
+        return $query->where('kategori_arsip', $kategori);
     }
 
     // Get all files
@@ -216,13 +231,13 @@ class ArsipDigitalController extends Controller
     {
         $baseQuery = $this->archiveQuery();
         $counts = [
-            'UMUM' => (clone $baseQuery)->where('kategori_arsip', 'UMUM')->count(),
-            'SDM' => (clone $baseQuery)->where('kategori_arsip', 'SDM')->count(),
-            'ASSET' => (clone $baseQuery)->where('kategori_arsip', 'ASSET')->count(),
-            'HUKUM' => (clone $baseQuery)->where('kategori_arsip', 'HUKUM')->count(),
-            'KEUANGAN' => (clone $baseQuery)->where('kategori_arsip', 'KEUANGAN')->count(),
-            'SURAT_KELUAR' => (clone $baseQuery)->where('kategori_arsip', 'SURAT_KELUAR')->count(),
-            'SK' => (clone $baseQuery)->where('kategori_arsip', 'SK')->count(),
+            'UMUM' => $this->applyCategoryFilter(clone $baseQuery, 'UMUM')->count(),
+            'SDM' => $this->applyCategoryFilter(clone $baseQuery, 'SDM')->count(),
+            'ASSET' => $this->applyCategoryFilter(clone $baseQuery, 'ASSET')->count(),
+            'HUKUM' => $this->applyCategoryFilter(clone $baseQuery, 'HUKUM')->count(),
+            'KEUANGAN' => $this->applyCategoryFilter(clone $baseQuery, 'KEUANGAN')->count(),
+            'SURAT_KELUAR' => $this->applyCategoryFilter(clone $baseQuery, 'SURAT_KELUAR')->count(),
+            'SK' => $this->applyCategoryFilter(clone $baseQuery, 'SK')->count(),
         ];
 
         return response()->json($counts);
@@ -231,8 +246,7 @@ class ArsipDigitalController extends Controller
     // Get documents by category
     public function getByKategori($kategori)
     {
-        $dokumens = $this->archiveQuery()
-            ->where('kategori_arsip', strtoupper($kategori))
+        $dokumens = $this->applyCategoryFilter($this->archiveQuery(), $kategori)
             ->with(['instansi', 'processor'])
             ->latest('tanggal_arsip')
             ->get();
@@ -245,9 +259,7 @@ class ArsipDigitalController extends Controller
     // Download all files in a category as ZIP
     public function downloadKategori($kategori)
     {
-        $dokumens = $this->archiveQuery()
-            ->where('kategori_arsip', strtoupper($kategori))
-            ->get();
+        $dokumens = $this->applyCategoryFilter($this->archiveQuery(), $kategori)->get();
 
         if ($dokumens->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada dokumen dalam kategori ini untuk diunduh.');

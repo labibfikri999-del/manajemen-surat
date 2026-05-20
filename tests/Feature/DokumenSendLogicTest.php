@@ -83,9 +83,9 @@ class DokumenSendLogicTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        $this->assertEquals('surat_keluar', $response->json('dokumen.jenis_dokumen'));
+        $this->assertEquals('proposal', $response->json('dokumen.jenis_dokumen'));
         $this->assertEquals('selesai', $response->json('dokumen.status'));
-        $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+        $this->assertEquals('UMUM', $response->json('dokumen.kategori_arsip'));
         $this->assertDatabaseHas('surat_keluar', [
             'instansi_id' => null,
             'perihal' => 'Surat Pusat ke Unit',
@@ -125,11 +125,11 @@ class DokumenSendLogicTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        $this->assertEquals('surat_keluar', $response->json('dokumen.jenis_dokumen'));
-        $this->assertEquals('SURAT_KELUAR', $response->json('dokumen.kategori_arsip'));
+        $this->assertEquals('laporan', $response->json('dokumen.jenis_dokumen'));
+        $this->assertEquals('SDM', $response->json('dokumen.kategori_arsip'));
         $this->assertNotEmpty($response->json('dokumen.broadcast_group_id'));
         $this->assertDatabaseCount('dokumens', 2);
-        $this->assertSame(2, Dokumen::where('kategori_arsip', 'SURAT_KELUAR')->count());
+        $this->assertSame(2, Dokumen::where('kategori_arsip', 'SDM')->count());
         $this->assertDatabaseCount('surat_keluar', 2);
         $this->assertDatabaseHas('surat_keluar', [
             'perihal' => 'Broadcast Pusat',
@@ -141,10 +141,22 @@ class DokumenSendLogicTest extends TestCase
             'tujuan' => 'Unit B',
             'status' => 'Terkirim',
         ]);
-        $this->assertDatabaseMissing('dokumens', [
-            'judul' => 'Broadcast Pusat',
-            'jenis_dokumen' => 'laporan',
-        ]);
+
+        $this->actingAs($staff)
+            ->getJson('/api/arsip-by-kategori/SDM')
+            ->assertOk()
+            ->assertJsonCount(2);
+
+        $this->actingAs($staff)
+            ->getJson('/api/arsip-by-kategori/SURAT_KELUAR')
+            ->assertOk()
+            ->assertJsonCount(2);
+
+        $this->actingAs($staff)
+            ->getJson('/api/arsip-kategori-count')
+            ->assertOk()
+            ->assertJsonPath('SDM', 2)
+            ->assertJsonPath('SURAT_KELUAR', 2);
     }
 
     /** @test */
