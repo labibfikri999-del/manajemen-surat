@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['web', 'auth', 'module.access:surat'])->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/surat-masuk/count', function () {
         return response()->json([
             'count' => app(SuratStatsService::class)->suratMasukCount(auth()->user()),
