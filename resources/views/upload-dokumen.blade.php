@@ -92,46 +92,6 @@
                                         </p>
                                     </div>
 
-                                    <script>
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            const sendToAll = document.getElementById('sendToAll');
-                                            const tujuanSelect = document.getElementById('tujuanInstansi');
-                                            const emailInput = document.getElementById('emailEksternal');
-                                            const kategoriSelect = document.getElementById('kategoriArsip');
-                                            const jenisSelect = document.getElementById('jenisDokumen');
-
-                                            function syncOutgoingFields() {
-                                                if(sendToAll.checked) {
-                                                    tujuanSelect.value = "";
-                                                    tujuanSelect.disabled = true;
-                                                } else {
-                                                    tujuanSelect.disabled = false;
-                                                }
-
-                                                const isOutgoing = sendToAll.checked || tujuanSelect.value || (emailInput && emailInput.value.trim());
-                                                if(isOutgoing) {
-                                                    if(kategoriSelect) {
-                                                        kategoriSelect.value = "SURAT_KELUAR";
-                                                        kategoriSelect.classList.add('bg-emerald-50', 'border-emerald-300');
-                                                    }
-                                                    if(jenisSelect) {
-                                                        jenisSelect.value = "surat_keluar";
-                                                        jenisSelect.classList.add('bg-emerald-50', 'border-emerald-300');
-                                                    }
-                                                } else {
-                                                    if(kategoriSelect) kategoriSelect.classList.remove('bg-emerald-50', 'border-emerald-300');
-                                                    if(jenisSelect) jenisSelect.classList.remove('bg-emerald-50', 'border-emerald-300');
-                                                }
-                                            }
-
-                                            sendToAll.addEventListener('change', syncOutgoingFields);
-                                            tujuanSelect.addEventListener('change', syncOutgoingFields);
-                                            if(emailInput) emailInput.addEventListener('input', syncOutgoingFields);
-                                            if(kategoriSelect) kategoriSelect.addEventListener('change', syncOutgoingFields);
-                                            if(jenisSelect) jenisSelect.addEventListener('change', syncOutgoingFields);
-                                            syncOutgoingFields();
-                                        });
-                                    </script>
                                 </div>
                                 
                                 {{-- Kategori Arsip (Opsional - Auto Archive) --}}
@@ -147,6 +107,7 @@
                                         <option value="SURAT_KELUAR">Surat Keluar</option>
                                         <option value="SK">Surat Keputusan (SK)</option>
                                     </select>
+                                    <p id="kategoriAutoHint" class="hidden text-xs text-emerald-600 mt-1 font-medium">Otomatis: Surat Keluar karena dokumen dikirim keluar.</p>
                                     <p class="text-xs text-gray-500 mt-1">Jika dipilih, dokumen akan otomatis berstatus "Selesai" dan masuk ke Arsip Digital.</p>
                                 </div>
                             @endif
@@ -175,6 +136,9 @@
                                     <option value="kontrak">Kontrak/Perjanjian</option>
                                     <option value="lainnya">Lainnya</option>
                                 </select>
+                                @if($user->isStaff())
+                                    <p id="jenisAutoHint" class="hidden text-xs text-emerald-600 mt-1 font-medium">Otomatis: Surat Keluar karena dokumen dikirim keluar.</p>
+                                @endif
                             </div>
 
                             {{-- Deskripsi --}}
@@ -225,6 +189,65 @@
         const dropZone = document.getElementById('dropZone');
         const uploadForm = document.getElementById('uploadForm');
         const submitBtn = document.getElementById('submitBtn');
+        const sendToAll = document.getElementById('sendToAll');
+        const tujuanSelect = document.getElementById('tujuanInstansi');
+        const emailInput = document.getElementById('emailEksternal');
+        const kategoriSelect = document.getElementById('kategoriArsip');
+        const jenisSelect = document.getElementById('jenisDokumen');
+        const kategoriAutoHint = document.getElementById('kategoriAutoHint');
+        const jenisAutoHint = document.getElementById('jenisAutoHint');
+
+        function hasOutgoingDestination() {
+            return Boolean(
+                (sendToAll && sendToAll.checked)
+                || (tujuanSelect && tujuanSelect.value)
+                || (emailInput && emailInput.value.trim())
+            );
+        }
+
+        function setOutgoingSelectState(select, hint, value, active) {
+            if (!select) return;
+
+            if (active) {
+                select.value = value;
+                select.classList.add('bg-emerald-50', 'border-emerald-300', 'font-semibold', 'text-emerald-800');
+                if (hint) hint.classList.remove('hidden');
+            } else {
+                select.classList.remove('bg-emerald-50', 'border-emerald-300', 'font-semibold', 'text-emerald-800');
+                if (hint) hint.classList.add('hidden');
+            }
+        }
+
+        function syncOutgoingFields() {
+            if (sendToAll && tujuanSelect) {
+                if (sendToAll.checked) {
+                    tujuanSelect.value = '';
+                    tujuanSelect.disabled = true;
+                } else {
+                    tujuanSelect.disabled = false;
+                }
+            }
+
+            const outgoing = hasOutgoingDestination();
+            setOutgoingSelectState(kategoriSelect, kategoriAutoHint, 'SURAT_KELUAR', outgoing);
+            setOutgoingSelectState(jenisSelect, jenisAutoHint, 'surat_keluar', outgoing);
+        }
+
+        if (sendToAll) sendToAll.addEventListener('change', syncOutgoingFields);
+        if (tujuanSelect) tujuanSelect.addEventListener('change', syncOutgoingFields);
+        if (emailInput) emailInput.addEventListener('input', syncOutgoingFields);
+        if (kategoriSelect) kategoriSelect.addEventListener('change', () => {
+            if (hasOutgoingDestination() && kategoriSelect.value !== 'SURAT_KELUAR') {
+                setTimeout(syncOutgoingFields, 0);
+            }
+        });
+        if (jenisSelect) jenisSelect.addEventListener('change', () => {
+            if (hasOutgoingDestination() && jenisSelect.value !== 'surat_keluar') {
+                setTimeout(syncOutgoingFields, 0);
+            }
+        });
+
+        syncOutgoingFields();
 
         fileInput.addEventListener('change', function() {
             if (this.files[0]) {
@@ -277,6 +300,7 @@
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            syncOutgoingFields();
             const formData = new FormData(uploadForm);
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -311,6 +335,7 @@
                     
                     // Reset form
                     uploadForm.reset();
+                    syncOutgoingFields();
                     fileName.classList.add('hidden');
                     fileName.textContent = '';
                     
