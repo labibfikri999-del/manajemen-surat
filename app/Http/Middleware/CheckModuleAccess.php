@@ -28,6 +28,11 @@ class CheckModuleAccess
 
         $access = $this->resolveModuleAccess($user->module_access);
 
+        if (in_array('surat', $modules, true) && $this->isSuratRole($user)) {
+            $access[] = 'surat';
+            $access = array_unique($access);
+        }
+
         if (empty(array_intersect($modules, $access))) {
             // Log them out if they are logged in but shouldn't be here? 
             // Better: just deny access or redirect to their allowed dashboard.
@@ -53,5 +58,12 @@ class CheckModuleAccess
         }
 
         return $moduleAccess;
+    }
+
+    private function isSuratRole($user): bool
+    {
+        return (method_exists($user, 'isDirektur') && $user->isDirektur())
+            || (method_exists($user, 'isStaff') && $user->isStaff())
+            || (method_exists($user, 'isInstansi') && $user->isInstansi());
     }
 }

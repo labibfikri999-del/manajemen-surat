@@ -537,7 +537,7 @@ class SuratModuleRegressionTest extends TestCase
         }
     }
 
-    public function test_staff_without_surat_module_cannot_open_upload_dokumen_page(): void
+    public function test_staff_role_can_open_upload_dokumen_page_with_legacy_module_access(): void
     {
         $staff = User::factory()->create([
             'role' => 'staff',
@@ -546,7 +546,7 @@ class SuratModuleRegressionTest extends TestCase
 
         $this->actingAs($staff)
             ->get('/upload-dokumen')
-            ->assertForbidden();
+            ->assertOk();
     }
 
     private function makeTwoInstansis(): array

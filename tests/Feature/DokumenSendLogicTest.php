@@ -367,7 +367,7 @@ class DokumenSendLogicTest extends TestCase
     }
 
     /** @test */
-    public function staff_without_surat_module_gets_json_for_dokumen_upload_forbidden()
+    public function staff_role_gets_surat_access_even_with_legacy_module_access()
     {
         $staff = User::factory()->create([
             'role' => 'staff',
@@ -376,13 +376,13 @@ class DokumenSendLogicTest extends TestCase
         ]);
 
         $response = $this->actingAs($staff)->postJson('/api/dokumen', [
-            'judul' => 'Upload Tanpa Akses Surat',
+            'judul' => 'Upload Dengan Akses Role Staff',
             'jenis' => 'surat_keluar',
             'file' => UploadedFile::fake()->create('surat.pdf', 100),
         ]);
 
-        $response->assertForbidden()
-            ->assertJsonPath('message', 'Akses Ditolak. Akun Anda tidak terdaftar untuk modul ini.');
+        $response->assertCreated()
+            ->assertJsonPath('dokumen.judul', 'Upload Dengan Akses Role Staff');
     }
 
     /** @test */
