@@ -107,7 +107,8 @@
                                         <option value="SURAT_KELUAR">Surat Keluar</option>
                                         <option value="SK">Surat Keputusan (SK)</option>
                                     </select>
-                                    <p id="kategoriAutoHint" class="hidden text-xs text-emerald-600 mt-1 font-medium">Otomatis: Surat Keluar karena dokumen dikirim keluar.</p>
+                                    <input type="hidden" name="kategori_arsip" id="forcedKategoriArsip" value="SURAT_KELUAR" disabled>
+                                    <p id="kategoriAutoHint" class="hidden text-xs text-emerald-600 mt-1 font-medium">Dikunci otomatis: Surat Keluar karena dokumen dikirim keluar.</p>
                                     <p class="text-xs text-gray-500 mt-1">Jika dipilih, dokumen akan otomatis berstatus "Selesai" dan masuk ke Arsip Digital.</p>
                                 </div>
                             @endif
@@ -137,7 +138,8 @@
                                     <option value="lainnya">Lainnya</option>
                                 </select>
                                 @if($user->isStaff())
-                                    <p id="jenisAutoHint" class="hidden text-xs text-emerald-600 mt-1 font-medium">Otomatis: Surat Keluar karena dokumen dikirim keluar.</p>
+                                    <input type="hidden" name="jenis" id="forcedJenisDokumen" value="surat_keluar" disabled>
+                                    <p id="jenisAutoHint" class="hidden text-xs text-emerald-600 mt-1 font-medium">Dikunci otomatis: Surat Keluar karena dokumen dikirim keluar.</p>
                                 @endif
                             </div>
 
@@ -194,6 +196,8 @@
         const emailInput = document.getElementById('emailEksternal');
         const kategoriSelect = document.getElementById('kategoriArsip');
         const jenisSelect = document.getElementById('jenisDokumen');
+        const forcedKategoriArsip = document.getElementById('forcedKategoriArsip');
+        const forcedJenisDokumen = document.getElementById('forcedJenisDokumen');
         const kategoriAutoHint = document.getElementById('kategoriAutoHint');
         const jenisAutoHint = document.getElementById('jenisAutoHint');
 
@@ -205,14 +209,18 @@
             );
         }
 
-        function setOutgoingSelectState(select, hint, value, active) {
+        function setOutgoingSelectState(select, forcedInput, hint, value, active) {
             if (!select) return;
 
             if (active) {
                 select.value = value;
+                select.disabled = true;
+                if (forcedInput) forcedInput.disabled = false;
                 select.classList.add('bg-emerald-50', 'border-emerald-300', 'font-semibold', 'text-emerald-800');
                 if (hint) hint.classList.remove('hidden');
             } else {
+                select.disabled = false;
+                if (forcedInput) forcedInput.disabled = true;
                 select.classList.remove('bg-emerald-50', 'border-emerald-300', 'font-semibold', 'text-emerald-800');
                 if (hint) hint.classList.add('hidden');
             }
@@ -229,8 +237,8 @@
             }
 
             const outgoing = hasOutgoingDestination();
-            setOutgoingSelectState(kategoriSelect, kategoriAutoHint, 'SURAT_KELUAR', outgoing);
-            setOutgoingSelectState(jenisSelect, jenisAutoHint, 'surat_keluar', outgoing);
+            setOutgoingSelectState(kategoriSelect, forcedKategoriArsip, kategoriAutoHint, 'SURAT_KELUAR', outgoing);
+            setOutgoingSelectState(jenisSelect, forcedJenisDokumen, jenisAutoHint, 'surat_keluar', outgoing);
         }
 
         if (sendToAll) sendToAll.addEventListener('change', syncOutgoingFields);
