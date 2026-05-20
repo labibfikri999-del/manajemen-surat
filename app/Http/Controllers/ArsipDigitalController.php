@@ -51,6 +51,36 @@ class ArsipDigitalController extends Controller
         return $item;
     }
 
+    private function shouldCollapseBroadcastGroups(): bool
+    {
+        $user = Auth::user();
+
+        return $user && ($user->isDirektur() || $user->isStaff());
+    }
+
+    private function collapseBroadcastGroups($items)
+    {
+        if (! $this->shouldCollapseBroadcastGroups()) {
+            return $items->values();
+        }
+
+        $seenBroadcasts = [];
+
+        return $items->filter(function ($item) use (&$seenBroadcasts) {
+            if (! $item->broadcast_group_id) {
+                return true;
+            }
+
+            if (isset($seenBroadcasts[$item->broadcast_group_id])) {
+                return false;
+            }
+
+            $seenBroadcasts[$item->broadcast_group_id] = true;
+
+            return true;
+        })->values();
+    }
+
     private function applyCategoryFilter($query, string $kategori)
     {
         $kategori = strtoupper($kategori);
@@ -70,7 +100,8 @@ class ArsipDigitalController extends Controller
     {
         $query = $this->archiveQuery();
 
-        $data = $query->latest('tanggal_arsip')->get()->map(fn ($item) => $this->decorateArchive($item));
+        $data = $this->collapseBroadcastGroups($query->latest('tanggal_arsip')->get())
+            ->map(fn ($item) => $this->decorateArchive($item));
 
         return response()->json($data);
     }
@@ -200,9 +231,9 @@ class ArsipDigitalController extends Controller
     // Get statistics for Arsip Digital page
     public function getStats()
     {
-        $query = $this->archiveQuery();
-        $totalDokumen = $query->count();
-        $totalBytes = $query->sum('file_size');
+        $archives = $this->collapseBroadcastGroups($this->archiveQuery()->latest('tanggal_arsip')->get());
+        $totalDokumen = $archives->count();
+        $totalBytes = $archives->sum('file_size');
 
         // Format size
         if ($totalBytes >= 1073741824) {
@@ -216,7 +247,7 @@ class ArsipDigitalController extends Controller
         }
 
         // Get last access
-        $lastAccess = $this->archiveQuery()->latest('updated_at')->first();
+        $lastAccess = $this->collapseBroadcastGroups($this->archiveQuery()->latest('updated_at')->get())->first();
         $aksesTerakhir = $lastAccess ? $lastAccess->updated_at->diffForHumans() : 'Belum ada data';
 
         return response()->json([
@@ -231,13 +262,13 @@ class ArsipDigitalController extends Controller
     {
         $baseQuery = $this->archiveQuery();
         $counts = [
-            'UMUM' => $this->applyCategoryFilter(clone $baseQuery, 'UMUM')->count(),
-            'SDM' => $this->applyCategoryFilter(clone $baseQuery, 'SDM')->count(),
-            'ASSET' => $this->applyCategoryFilter(clone $baseQuery, 'ASSET')->count(),
-            'HUKUM' => $this->applyCategoryFilter(clone $baseQuery, 'HUKUM')->count(),
-            'KEUANGAN' => $this->applyCategoryFilter(clone $baseQuery, 'KEUANGAN')->count(),
-            'SURAT_KELUAR' => $this->applyCategoryFilter(clone $baseQuery, 'SURAT_KELUAR')->count(),
-            'SK' => $this->applyCategoryFilter(clone $baseQuery, 'SK')->count(),
+            'UMUM' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'UMUM')->get())->count(),
+            'SDM' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'SDM')->get())->count(),
+            'ASSET' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'ASSET')->get())->count(),
+            'HUKUM' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'HUKUM')->get())->count(),
+            'KEUANGAN' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'KEUANGAN')->get())->count(),
+            'SURAT_KELUAR' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'SURAT_KELUAR')->get())->count(),
+            'SK' => $this->collapseBroadcastGroups($this->applyCategoryFilter(clone $baseQuery, 'SK')->get())->count(),
         ];
 
         return response()->json($counts);
@@ -246,10 +277,10 @@ class ArsipDigitalController extends Controller
     // Get documents by category
     public function getByKategori($kategori)
     {
-        $dokumens = $this->applyCategoryFilter($this->archiveQuery(), $kategori)
+        $dokumens = $this->collapseBroadcastGroups($this->applyCategoryFilter($this->archiveQuery(), $kategori)
             ->with(['instansi', 'processor'])
             ->latest('tanggal_arsip')
-            ->get();
+            ->get());
 
         $dokumens->map(fn ($item) => $this->decorateArchive($item));
 
@@ -259,7 +290,7 @@ class ArsipDigitalController extends Controller
     // Download all files in a category as ZIP
     public function downloadKategori($kategori)
     {
-        $dokumens = $this->applyCategoryFilter($this->archiveQuery(), $kategori)->get();
+        $dokumens = $this->collapseBroadcastGroups($this->applyCategoryFilter($this->archiveQuery(), $kategori)->get());
 
         if ($dokumens->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada dokumen dalam kategori ini untuk diunduh.');

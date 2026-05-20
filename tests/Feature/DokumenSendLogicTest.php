@@ -103,7 +103,7 @@ class DokumenSendLogicTest extends TestCase
             'module_access' => ['surat'],
         ]);
 
-        Instansi::create([
+        $unitA = Instansi::create([
             'kode' => 'UA',
             'nama' => 'Unit A',
             'email' => 'unit-a@example.test',
@@ -114,6 +114,11 @@ class DokumenSendLogicTest extends TestCase
             'nama' => 'Unit B',
             'email' => 'unit-b@example.test',
             'is_active' => true,
+        ]);
+        $unitAUser = User::factory()->create([
+            'role' => 'instansi',
+            'instansi_id' => $unitA->id,
+            'module_access' => ['surat'],
         ]);
 
         $response = $this->actingAs($staff)->postJson('/api/dokumen', [
@@ -145,18 +150,23 @@ class DokumenSendLogicTest extends TestCase
         $this->actingAs($staff)
             ->getJson('/api/arsip-by-kategori/SDM')
             ->assertOk()
-            ->assertJsonCount(2);
+            ->assertJsonCount(1);
 
         $this->actingAs($staff)
             ->getJson('/api/arsip-by-kategori/SURAT_KELUAR')
             ->assertOk()
-            ->assertJsonCount(2);
+            ->assertJsonCount(1);
 
         $this->actingAs($staff)
             ->getJson('/api/arsip-kategori-count')
             ->assertOk()
-            ->assertJsonPath('SDM', 2)
-            ->assertJsonPath('SURAT_KELUAR', 2);
+            ->assertJsonPath('SDM', 1)
+            ->assertJsonPath('SURAT_KELUAR', 1);
+
+        $this->actingAs($unitAUser)
+            ->getJson('/api/arsip-by-kategori/SDM')
+            ->assertOk()
+            ->assertJsonCount(1);
     }
 
     /** @test */
